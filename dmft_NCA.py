@@ -70,7 +70,7 @@ for t_ in range(len(t)):
 
 
 ########################################################################################################################
-''' Impurity solver based on NCA '''
+''' Impurity solver based on NCA this is a test '''
 
 ########## Define functions for the impurity solver ##########
 
@@ -117,7 +117,7 @@ def Solver(Delta, U, init, Green_):
 
 
     # fill in Delta Matrix elements for positive and negative times
-    DeltaMatrix = np.zeros((4, 4, len(t), len(t)), complex)  # inidices are initial and final states, in general two times object for the two branches
+    DeltaMatrix = np.zeros((4, 4, len(t), len(t)), complex)  # indices are initial and final states, in general two times object for the two branches
     for t1 in range(len(t)):
         for t2 in range(len(t)):
             DeltaMatrix[0, 1, t1, t2] = tdiff(Delta[0], t1, t2)
