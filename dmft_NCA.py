@@ -167,8 +167,12 @@ def Solver(DeltaMatrix, U, init, Green_):
         sum_t1 = np.zeros((4, len(t), len(t)), complex)
         for t1 in range(t_n):
             sum_t1[:, t_n, 0] += dt ** 2 * G_0[:, t_n - t1] * sum_t2[:, t1, 0]
-
+        
+        # Dyson equation for (t_n, t_0)
         G[:, t_n, 0] = G_0[:, t_n] - sum_t1[:, t_n, 0]
+        
+        # Self-energy for (t_n, t_0)
+        Sigma[:, t_n, 0] = np.sum(G[None, :, t_n, 0] * DeltaMatrix[:, :, t_n, 0], 1)
 
         # propagate time slice for t_n
         for t_m in range(t_n):
