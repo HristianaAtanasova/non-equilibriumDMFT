@@ -165,6 +165,7 @@ def Solver(DeltaMatrix, U, init, Green_):
 
 
     # main loop over every pair of times t_n and t_m (located on the same contour-branch), where t_m is the smaller contour time
+<<<<<<< HEAD
     # propagate from (t_n, 0) to (t_n+1, 0)
     for t_n in range(len(t)):
         sum_t2 = np.zeros((4, len(t), len(t)), complex)
@@ -181,6 +182,26 @@ def Solver(DeltaMatrix, U, init, Green_):
         Sigma[:, t_n, 0] = np.sum(G[None, :, t_n, 0] * DeltaMatrix[:, :, t_n, 0], 1)
 
         # propagate on time slice for t_n (t_n,t_m -> t_n,t_m+1)
+=======
+    for t_n in range(len(t)):
+        # propagate from t_n to t_n+1
+        sum_t2 = np.zeros((4, len(t), len(t)), complex)
+        for t1 in range(t_n):
+            for t2 in range(t1):
+                sum_t2[:, t1, 0] += Sigma[:, t1, t2] * G[:, t2, 0]
+
+        sum_t1 = np.zeros((4, len(t), len(t)), complex)
+        for t1 in range(t_n):
+            sum_t1[:, t_n, 0] += dt ** 2 * G_0[:, t_n - t1] * sum_t2[:, t1, 0]
+        
+        # Dyson equation for (t_n, t_0)
+        G[:, t_n, 0] = G_0[:, t_n] - sum_t1[:, t_n, 0]
+        
+        # Self-energy for (t_n, t_0)
+        Sigma[:, t_n, 0] = np.sum(G[None, :, t_n, 0] * DeltaMatrix[:, :, t_n, 0], 1)
+
+        # propagate time slice for t_n
+>>>>>>> 94b21d085a1a0dfd6a1a813bf6e5be486896e7f1
         for t_m in range(t_n):
             sum_t2 = np.zeros((4, len(t), len(t)), complex)
             for t1 in range(t_m, t_n):
@@ -195,9 +216,14 @@ def Solver(DeltaMatrix, U, init, Green_):
             # Compute self-energy for time t_m, t_n
             Sigma[:, t_n, t_m] = np.sum(G[None, :, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 1)
 
+<<<<<<< HEAD
     plt.plot(t, np.real(G[0, len(t) - 1, ::-1]), 'r--', t, np.imag(G[0, len(t) - 1, ::-1]), 'b--')
     plt.show()
 
+=======
+    plt.plot(t, np.real(G[0, len(t)-1, ::-1]), 'r--', t, np.imag(G[0, len(t)-1, ::-1]), 'b--')
+    plt.show()
+>>>>>>> 94b21d085a1a0dfd6a1a813bf6e5be486896e7f1
     ########## Computation of Vertex Functions including hybridization lines between the upper and lower branch ##########
 
     K = np.zeros((4, 4, len(t), len(t)), complex)  # indices are initial, contour times on upper and lower branch
@@ -302,7 +328,5 @@ for U in np.arange(Umin, Umax, 1.00):
         # plt.show()
 
     print('Computation of Greens functions for U = ', U, 'finished after', counter, 'iterations and', datetime.now() - start, 'seconds.')
-
-
 
 
