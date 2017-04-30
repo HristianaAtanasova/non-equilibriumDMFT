@@ -5,7 +5,7 @@ from scipy.fftpack import fft, ifft, fftfreq, fftshift, ifftshift
 from datetime import datetime
 
 # set parameters
-T = 0.1
+T = 1
 beta = 1 / T
 mu = 0
 wC = 10
@@ -144,43 +144,59 @@ def Solver(DeltaMatrix, U, init, Green_):
     E = [0, epsilon, epsilon, 2 * epsilon + U]
 
     # Initialize one branch propagators
-    G_0 = np.zeros((4, len(t)), complex)  # As long as Impurity hamiltonian is time-independent G_0 depends only on time differences
+    g_0 = np.zeros((4, len(t)), complex)  # As long as Impurity hamiltonian is time-independent G_0 depends only on time differences
+    G_0 = np.zeros((4, len(t), len(t)), complex)  # g_0 as a two-times Matrix for convolution integrals
     G = np.zeros((4, len(t), len(t)), complex)  # indices are initial state, contour times located on the same branch t_n, t_m (propagation from t_m to t_n)
     Sigma = np.zeros((4, len(t), len(t)), complex)
 
-    # Computation of bare propagators G_0 and initialization of G to 1 for diagonal times
+    # Computation of bare propagators g_0
     for i in range(4):
-        G_0[i] = (np.exp(-1j * E[i] * t))
+        g_0[i] = (np.exp(-1j * E[i] * t))
+        # extend g_0 to a two-times matrix G_0
+        for t1 in range(len(t)):
+            for t2 in range(t1):
+                G_0[i, t1, t2] = g_0[i, t1-t2]
+
+        # Initialization of G to 1 for diagonal times
         np.fill_diagonal(G[i], 1)
 
     # Initialize Sigma for diagonal times
     Sigma = np.sum(G[None] * DeltaMatrix, 1)
 
+
     # main loop over every pair of times t_n and t_m (located on the same contour-branch), where t_m is the smaller contour time
-    for t_m in range(len(t)):
-        for t_n in range(t_m, len(t)):
-            print(t_n, t_m)
+    # propagate from (t_n, 0) to (t_n+1, 0)
+    for t_n in range(len(t)):
+        sum_t2 = np.zeros((4, len(t), len(t)), complex)
+        for t1 in range(t_n):
+            sum_t2[:, t1, 0] = np.trapz(Sigma[:, t1, :]*G[:, :, 0])
+
+        sum_t1 = np.zeros((4, len(t), len(t)), complex)
+        sum_t1[:, t_n, 0] = dt ** 2 * np.trapz(G_0[:, t_n, :]*sum_t2[:, :, 0])
+
+        # Dyson equation for time (t_n, t_0)
+        G[:, t_n, 0] = G_0[:, t_n, 0] - sum_t1[:, t_n, 0]
+
+        # Compute self-energy for time (t_n, t_0)
+        Sigma[:, t_n, 0] = np.sum(G[None, :, t_n, 0] * DeltaMatrix[:, :, t_n, 0], 1)
+
+        # propagate on time slice for t_n (t_n,t_m -> t_n,t_m+1)
+        for t_m in range(t_n):
             sum_t2 = np.zeros((4, len(t), len(t)), complex)
             for t1 in range(t_m, t_n):
-                for t2 in range(t_m, t1):
-                    sum_t2[:, t1, t_m] += Sigma[:, t1, t2] * G[:, t2, t_m]
+                sum_t2[:, t1, t_m] = np.trapz(Sigma[:, t1, :]*G[:, :, t_m])
 
             sum_t1 = np.zeros((4, len(t), len(t)), complex)
-            for t1 in range(t_m, t_n):
-                sum_t1[:, t_n, t_m] += dt ** 2 * G_0[:, t_n - t1] * sum_t2[:, t1, t_m]
+            sum_t1[:, t_n, t_m] = dt**2 * np.trapz(G_0[:, t_n, :]*sum_t2[:, :, t_m])
 
-            G[:, t_n, t_m] = G_0[:, t_n - t_m] - sum_t1[:, t_n, t_m]
-
-            # Sum = np.zeros((4, len(t), len(t)), complex)
-            # for t1 in range(t_m, t_n):
-            #     for t2 in range(t_m, t1):
-            #         Sum[:, t_n, t_m] += dt**2 * G_0[:, t_n - t1, None] * Sigma[:, t1, t2] * G[:, t2, t_m]
-            #
-            # G[:, t_n, t_m] = G_0[:, t_n - t_m, None] - Sum[:, t_n, t_m]
+            # Dyson equation
+            G[:, t_n, t_m] = G_0[:, t_n, t_m] - sum_t1[:, t_n, t_m]
 
             # Compute self-energy for time t_m, t_n
             Sigma[:, t_n, t_m] = np.sum(G[None, :, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 1)
 
+    plt.plot(t, np.real(G[0, len(t) - 1, ::-1]), 'r--', t, np.imag(G[0, len(t) - 1, ::-1]), 'b--')
+    plt.show()
 
     ########## Computation of Vertex Functions including hybridization lines between the upper and lower branch ##########
 
@@ -217,8 +233,8 @@ def Solver(DeltaMatrix, U, init, Green_):
 ########################################################################################################################
 ''' Main part starts here '''
 n_loops = 10
-Umax = 3.0
-Umin = 2.0
+Umax = 5.0
+Umin = 4.0
 init = 0  # chose initial state
 
 ######### perform loop over U #########
