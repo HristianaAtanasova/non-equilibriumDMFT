@@ -5,7 +5,7 @@ from scipy.fftpack import fft, ifft, fftfreq, fftshift, ifftshift
 from datetime import datetime
 
 # set parameters
-T = 0.1
+T = 1
 beta = 1 / T
 mu = 0
 wC = 10
@@ -157,9 +157,21 @@ def Solver(DeltaMatrix, U, init, Green_):
     Sigma = np.sum(G[None] * DeltaMatrix, 1)
 
     # main loop over every pair of times t_n and t_m (located on the same contour-branch), where t_m is the smaller contour time
-    for t_m in range(len(t)):
-        for t_n in range(t_m, len(t)):
-            print(t_n, t_m)
+    for t_n in range(len(t)):
+        # propagate from t_n to t_n+1
+        sum_t2 = np.zeros((4, len(t), len(t)), complex)
+        for t1 in range(t_n):
+            for t2 in range(t1):
+                sum_t2[:, t1, 0] += Sigma[:, t1, t2] * G[:, t2, 0]
+
+        sum_t1 = np.zeros((4, len(t), len(t)), complex)
+        for t1 in range(t_n):
+            sum_t1[:, t_n, 0] += dt ** 2 * G_0[:, t_n - t1] * sum_t2[:, t1, 0]
+
+        G[:, t_n, 0] = G_0[:, t_n] - sum_t1[:, t_n, 0]
+
+        # propagate time slice for t_n
+        for t_m in range(t_n):
             sum_t2 = np.zeros((4, len(t), len(t)), complex)
             for t1 in range(t_m, t_n):
                 for t2 in range(t_m, t1):
@@ -181,7 +193,8 @@ def Solver(DeltaMatrix, U, init, Green_):
             # Compute self-energy for time t_m, t_n
             Sigma[:, t_n, t_m] = np.sum(G[None, :, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 1)
 
-
+    plt.plot(t, np.real(G[0, len(t)-1, ::-1]), 'r--', t, np.imag(G[0, len(t)-1, ::-1]), 'b--')
+    plt.show()
     ########## Computation of Vertex Functions including hybridization lines between the upper and lower branch ##########
 
     K = np.zeros((4, 4, len(t), len(t)), complex)  # indices are initial, contour times on upper and lower branch
@@ -217,8 +230,8 @@ def Solver(DeltaMatrix, U, init, Green_):
 ########################################################################################################################
 ''' Main part starts here '''
 n_loops = 10
-Umax = 3.0
-Umin = 2.0
+Umax = 5.0
+Umin = 4.0
 init = 0  # chose initial state
 
 ######### perform loop over U #########
@@ -286,7 +299,5 @@ for U in np.arange(Umin, Umax, 1.00):
         # plt.show()
 
     print('Computation of Greens functions for U = ', U, 'finished after', counter, 'iterations and', datetime.now() - start, 'seconds.')
-
-
 
 
