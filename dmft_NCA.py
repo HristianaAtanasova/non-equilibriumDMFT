@@ -12,7 +12,7 @@ wC = 10
 t_param = 1
 v = 10
 treshold = 1e-6
-tmax = 2
+tmax = 1
 dt = 0.01
 t = np.arange(0, tmax, dt)
 
@@ -97,22 +97,12 @@ def delta(f, i):
 
 
 # Self energy for vertex functions
-def Vertex(K, DeltaMatrix, i, V):
+def SelfEnergy(K, DeltaMatrix, i, Sigma):
     for f in range(4):
         for j in range(4):
-            V[f] += K[i, j] * DeltaMatrix[f, j]
-    return V
+            Sigma[f] += K[i, j] * DeltaMatrix[f, j]
+    return Sigma
 
-
-# Integral equation for vertex functions
-def Dyson(V, G, i, K):
-    for f in range(4):
-        Conv = np.zeros((len(t), len(t)), complex)
-        for t2 in range(len(t)):
-            Conv[:, t2] = trapezConv(V[f, :, t2], G[f, :])
-        for t1 in range(len(t)):
-            K[i, f, t1, :] += trapezConv(np.conj(G[f, :]), Conv[t1])
-    return K[i]
 
 def fillDeltaMatrix(Delta):
     # fill in DeltaMatrix for all times
@@ -144,6 +134,7 @@ def Solver(DeltaMatrix, U, init, Green_):
     E = [0, epsilon, epsilon, 2 * epsilon + U]
 
     # Initialize one branch propagators
+    start = datetime.now()
     g_0 = np.zeros((4, len(t)), complex)  # As long as Impurity hamiltonian is time-independent G_0 depends only on time differences
     G_0 = np.zeros((4, len(t), len(t)), complex)  # g_0 as a two-times Matrix for convolution integrals
     G = np.zeros((4, len(t), len(t)), complex)  # indices are initial state, contour times located on the same branch t_n, t_m (propagation from t_m to t_n)
@@ -154,7 +145,7 @@ def Solver(DeltaMatrix, U, init, Green_):
         g_0[i] = (np.exp(-1j * E[i] * t))
         # extend g_0 to a two-times matrix G_0
         for t1 in range(len(t)):
-            for t2 in range(t1):
+            for t2 in range(t1+1):
                 G_0[i, t1, t2] = g_0[i, t1-t2]
 
         # Initialization of G to 1 for diagonal times
@@ -165,15 +156,14 @@ def Solver(DeltaMatrix, U, init, Green_):
 
 
     # main loop over every pair of times t_n and t_m (located on the same contour-branch), where t_m is the smaller contour time
-<<<<<<< HEAD
     # propagate from (t_n, 0) to (t_n+1, 0)
     for t_n in range(len(t)):
         sum_t2 = np.zeros((4, len(t), len(t)), complex)
-        for t1 in range(t_n):
-            sum_t2[:, t1, 0] = np.trapz(Sigma[:, t1, :]*G[:, :, 0])
+        for t1 in range(t_n+1):
+            sum_t2[:, t1, 0] = np.trapz(Sigma[:, t1, :] * G[:, :, 0])
 
         sum_t1 = np.zeros((4, len(t), len(t)), complex)
-        sum_t1[:, t_n, 0] = dt ** 2 * np.trapz(G_0[:, t_n, :]*sum_t2[:, :, 0])
+        sum_t1[:, t_n, 0] = dt ** 2 * np.trapz(G_0[:, t_n, :] * sum_t2[:, :, 0])
 
         # Dyson equation for time (t_n, t_0)
         G[:, t_n, 0] = G_0[:, t_n, 0] - sum_t1[:, t_n, 0]
@@ -181,71 +171,100 @@ def Solver(DeltaMatrix, U, init, Green_):
         # Compute self-energy for time (t_n, t_0)
         Sigma[:, t_n, 0] = np.sum(G[None, :, t_n, 0] * DeltaMatrix[:, :, t_n, 0], 1)
 
-        # propagate on time slice for t_n (t_n,t_m -> t_n,t_m+1)
-=======
-    for t_n in range(len(t)):
-        # propagate from t_n to t_n+1
-        sum_t2 = np.zeros((4, len(t), len(t)), complex)
-        for t1 in range(t_n):
-            for t2 in range(t1):
-                sum_t2[:, t1, 0] += Sigma[:, t1, t2] * G[:, t2, 0]
-
-        sum_t1 = np.zeros((4, len(t), len(t)), complex)
-        for t1 in range(t_n):
-            sum_t1[:, t_n, 0] += dt ** 2 * G_0[:, t_n - t1] * sum_t2[:, t1, 0]
-        
-        # Dyson equation for (t_n, t_0)
-        G[:, t_n, 0] = G_0[:, t_n] - sum_t1[:, t_n, 0]
-        
-        # Self-energy for (t_n, t_0)
-        Sigma[:, t_n, 0] = np.sum(G[None, :, t_n, 0] * DeltaMatrix[:, :, t_n, 0], 1)
-
-        # propagate time slice for t_n
->>>>>>> 94b21d085a1a0dfd6a1a813bf6e5be486896e7f1
-        for t_m in range(t_n):
+        # propagate along time slice t_n (t_n,t_m -> t_n,t_m+1)
+        for t_m in range(t_n+1):
             sum_t2 = np.zeros((4, len(t), len(t)), complex)
-            for t1 in range(t_m, t_n):
+            for t1 in range(t_m, t_n+1):
                 sum_t2[:, t1, t_m] = np.trapz(Sigma[:, t1, :]*G[:, :, t_m])
 
             sum_t1 = np.zeros((4, len(t), len(t)), complex)
             sum_t1[:, t_n, t_m] = dt**2 * np.trapz(G_0[:, t_n, :]*sum_t2[:, :, t_m])
 
-            # Dyson equation
+            # Dyson equation for time (t_m, t_n)
             G[:, t_n, t_m] = G_0[:, t_n, t_m] - sum_t1[:, t_n, t_m]
 
-            # Compute self-energy for time t_m, t_n
+            # Compute self-energy for time (t_m, t_n)
             Sigma[:, t_n, t_m] = np.sum(G[None, :, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 1)
 
-<<<<<<< HEAD
-    plt.plot(t, np.real(G[0, len(t) - 1, ::-1]), 'r--', t, np.imag(G[0, len(t) - 1, ::-1]), 'b--')
-    plt.show()
 
-=======
-    plt.plot(t, np.real(G[0, len(t)-1, ::-1]), 'r--', t, np.imag(G[0, len(t)-1, ::-1]), 'b--')
-    plt.show()
->>>>>>> 94b21d085a1a0dfd6a1a813bf6e5be486896e7f1
+    print('Finished calculation of bold propagators after', datetime.now() - start)
+
+    # plt.plot(t, np.real(G[0, len(t)-1, ::-1]), 'r--', t, np.imag(G[0, len(t)-1, ::-1]), 'b--')
+    # plt.show()
+
     ########## Computation of Vertex Functions including hybridization lines between the upper and lower branch ##########
 
-    K = np.zeros((4, 4, len(t), len(t)), complex)  # indices are initial, contour times on upper and lower branch
+    start = datetime.now()
+    K = np.zeros((4, 4, len(t), len(t)), complex)  # indices are initial state, contour times lower/upper branch
     K_0 = np.zeros((4, 4, len(t), len(t)), complex)
 
     # Computation of K_0
     for i in range(4):
+        # for every initial state i there is a set of 4 couples equations for K
         for f in range(4):
-            K_0[i, f] = delta(i, f) * np.conj(G[i]) * G[i]
+            for t1 in range(len(t)):
+                for t_1 in range(t1+1):
+                    K_0[i, f, t1, t_1] = delta(i, f) * np.conj(G[i, t1, 0]) * G[i, t_1, 0]
+            # fill in K for diagonal times
+            np.fill_diagonal(K[i, f], 1)
 
+        # plt.plot(t, np.real(K_0[0, 0, len(t)-1, :]), 'r--', t, np.imag(K_0[0, 0, len(t)-1, :]), 'b--')
+        # plt.show()
+
+        Sigma = np.zeros((4, len(t), len(t)), complex)  # indices are final state, lower and upper branch time
+        SelfEnergy(K, DeltaMatrix, i, Sigma)  # fill in self-energy for diagonal times
+        print(Sigma[0])
+        # propagate from (t_n, 0) to (t_n+1, 0)
+        for t_n in range(len(t)):
+            sum_t2 = np.zeros((4, len(t), len(t)), complex)
+            for t1 in range(t_n+1):
+                sum_t2[:, t1, 0] = np.trapz(Sigma[:, t1, :]*K_0[i, :, :, 0])
+
+            sum_t1 = np.zeros((4, len(t), len(t)), complex)
+            sum_t1[:, t_n, 0] = dt ** 2 * np.trapz(np.conj(K_0[i, :, t_n, :])*sum_t2[:, :, 0])
+
+            # Dyson equation for time (t_n, t_0)
+            K[i, :, t_n, 0] = K_0[i, :, t_n, 0] - sum_t1[:, t_n, 0]
+
+            # Compute self-energy for time (t_n, t_0)
+            SelfEnergy(K, DeltaMatrix, i, Sigma)
+
+            # propagate along time slice t_n (t_n,t_m -> t_n,t_m+1)
+            for t_m in range(t_n+1):
+                sum_t2 = np.zeros((4, len(t), len(t)), complex)
+                for t1 in range(t_n+1):
+                    sum_t2[:, t1, t_m] = np.trapz(Sigma[:, t1, :]*K_0[i, :, t_m])
+
+                sum_t1 = np.zeros((4, len(t), len(t)), complex)
+                sum_t1[:, t_n, t_m] = dt**2 * np.trapz(np.conj(K_0[i, :, t_n, :])*sum_t2[:, :, t_m])
+
+                # Dyson equation for time (t_m, t_n)
+                K[i, :, t_n, t_m] = K_0[i, :, t_n, t_m] + sum_t1[:, t_n, t_m]
+
+                # Compute self-energy for time (t_m, t_n)
+                SelfEnergy(K, DeltaMatrix, i, Sigma)
+
+        plt.plot(t, np.real(K[0, 1, len(t)-1, :]), 'r--', t, np.imag(K[0, 1, len(t)-1, :]), 'b--')
+        plt.show()
+
+    print('Finished calculation of Vertex functions after', datetime.now() - start)
 
 
     ########## Computation of two-times Green's functions ##########
 
-    Green = np.zeros((2, 2, 4, len(t), len(t)), complex)  # Greens function with indices greater/lesser, spin up/spin down, initial state, upper and lower branch time
+    Green = np.zeros((2, 2, 4, len(t), len(t)), complex)  # Greens function with indices greater/lesser, spin up/spin down, initial state, lower and upper branch time
     for i in range(4):
         for t1 in range(len(t)):
             for t_1 in range(t1 + 1):
-                Green[0, 0, i, t_1, t1] = K[i, 0, (t1 - t_1), t1] * G[1, t_1] + K[i, 2, (t1 - t_1), t1] * G[3, t_1]
-                Green[1, 0, i, t_1, t1] = K[i, 1, (t1 - t_1), t1] * G[0, t_1] + K[i, 3, (t1 - t_1), t1] * G[2, t_1]
-                Green[0, 1, i, t_1, t1] = K[i, 0, (t1 - t_1), t1] * G[2, t_1] + K[i, 1, (t1 - t_1), t1] * G[3, t_1]
-                Green[1, 1, i, t_1, t1] = K[i, 2, (t1 - t_1), t1] * G[0, t_1] + K[i, 3, (t1 - t_1), t1] * G[1, t_1]
+                # Green[0, 0, i, t_1, t1] = K[i, 0, (t1 - t_1), t1] * G[1, t_1, 0] + K[i, 2, (t1 - t_1), t1] * G[3, t_1, 0]
+                # Green[1, 0, i, t_1, t1] = K[i, 1, (t1 - t_1), t1] * G[0, t_1, 0] + K[i, 3, (t1 - t_1), t1] * G[2, t_1, 0]
+                # Green[0, 1, i, t_1, t1] = K[i, 0, (t1 - t_1), t1] * G[2, t_1, 0] + K[i, 1, (t1 - t_1), t1] * G[3, t_1, 0]
+                # Green[1, 1, i, t_1, t1] = K[i, 2, (t1 - t_1), t1] * G[0, t_1, 0] + K[i, 3, (t1 - t_1), t1] * G[1, t_1, 0]
+
+                Green[0, 0, i, t1, t_1] = K[i, 0, t1, t_1] * G[1, t1, t_1] + K[i, 2, t1, t_1] * G[3, t1, t_1] # second time on the upper branch, always smaller
+                Green[1, 0, i, t1, t_1] = K[i, 1, t1, t_1] * G[0, t1, t_1] + K[i, 3, t1, t_1] * G[2, t1, t_1]
+                Green[0, 1, i, t1, t_1] = K[i, 0, t1, t_1] * G[2, t1, t_1] + K[i, 1, t1, t_1] * G[3, t1, t_1]
+                Green[1, 1, i, t1, t_1] = K[i, 2, t1, t_1] * G[0, t1, t_1] + K[i, 3, t1, t_1] * G[1, t1, t_1]
 
     Green_[0] = (Green[0, 0, 0] + Green[0, 0, 1] + Green[0, 0, 2] + Green[0, 0, 3]) / 4  # the summation is performed over the spin up index, we have spin-symmetry
     Green_[1] = (Green[1, 0, 0] + Green[1, 0, 1] + Green[1, 0, 2] + Green[1, 0, 3]) / 4
