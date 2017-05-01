@@ -734,7 +734,7 @@ So far we have calculated propagators between many body states, which contain
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{K_{\alpha\beta}(t,t^{\prime})=K_{\alpha\beta}^{(0)}(t,t^{\prime})+\sum_{\gamma\delta}\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}K_{\alpha\gamma}(t_{1},t_{2})\mathbf{\Delta}_{\gamma\delta}(t_{1},t_{2})K_{\delta\beta}^{(0)}(t-t_{1},t^{\prime}-t_{2}).}
+\mathrm{K_{\alpha\beta}(t,t^{\prime})=K_{\alpha\beta}^{(0)}(t,t^{\prime})+\sum_{\gamma\delta}\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}K_{\alpha\gamma}(t_{1},t_{2})\mathbf{\Delta}_{\gamma\delta}(t_{1},t_{2})K_{\delta\beta}^{(0)}(t-t_{1},t^{\prime}-t_{2}).}
 \]
 
 \end_inset
@@ -757,8 +757,8 @@ The self consistent equations for the initially unoccupied dot are
 \begin_layout Standard
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{\mathrm{K_{00}(t,t^{\prime})=K_{00}^{(0)}(t,t^{\prime})+\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{0}^{\dagger}(t^{\prime}-t_{2})G_{0}(t-t_{1})\Delta_{\uparrow}^{\prec}(t_{1},t_{2})K_{0\uparrow}(t_{1},t_{2})}+}\\
-\mathrm{\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{0}^{\dagger}(t^{\prime}-t_{2})G_{0}(t-t_{1})\Delta_{\downarrow}^{\prec}(t_{1},t_{2})K_{0\downarrow}(t_{1},t_{2})}
+\mathrm{\mathrm{K_{00}(t,t^{\prime})=K_{00}^{(0)}(t,t^{\prime})+\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{0}^{\dagger}(t^{\prime}-t_{2})G_{0}(t-t_{1})\Delta_{\uparrow}^{\prec}(t_{1},t_{2})K_{0\uparrow}(t_{1},t_{2})}+}\\
+\mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{0}^{\dagger}(t^{\prime}-t_{2})G_{0}(t-t_{1})\Delta_{\downarrow}^{\prec}(t_{1},t_{2})K_{0\downarrow}(t_{1},t_{2})}
 \end{multline*}
 
 \end_inset
@@ -769,8 +769,8 @@ The self consistent equations for the initially unoccupied dot are
 \begin_layout Standard
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{K_{0\uparrow}(t,t^{\prime})=\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{\uparrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow}(t-t_{1})\Delta_{\uparrow}^{\succ}(t_{1},t_{2})K_{00}(t_{1},t_{2})}+\\
-\mathrm{\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{\uparrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow}(t-t_{1})\Delta_{\downarrow}^{\prec}(t_{1},t_{2})K_{\uparrow\downarrow}(t_{1},t_{2})}
+\mathrm{K_{0\uparrow}(t,t^{\prime})=\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\uparrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow}(t-t_{1})\Delta_{\uparrow}^{\succ}(t_{1},t_{2})K_{00}(t_{1},t_{2})}+\\
+\mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\uparrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow}(t-t_{1})\Delta_{\downarrow}^{\prec}(t_{1},t_{2})K_{\uparrow\downarrow}(t_{1},t_{2})}
 \end{multline*}
 
 \end_inset
@@ -781,8 +781,8 @@ The self consistent equations for the initially unoccupied dot are
 \begin_layout Standard
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{K_{0\downarrow}(t,t^{\prime})=\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\downarrow}(t-t_{1})\Delta_{\downarrow}^{\succ}(t_{1},t_{2})K_{00}(t_{1},t_{2})}+\\
-\mathrm{\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\downarrow}(t-t_{1})\Delta_{\uparrow}^{\prec}(t_{1},t_{2})K_{\uparrow\downarrow}(t_{1},t_{2})}
+\mathrm{K_{0\downarrow}(t,t^{\prime})=\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\downarrow}(t-t_{1})\Delta_{\downarrow}^{\succ}(t_{1},t_{2})K_{00}(t_{1},t_{2})}+\\
+\mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\downarrow}(t-t_{1})\Delta_{\uparrow}^{\prec}(t_{1},t_{2})K_{\uparrow\downarrow}(t_{1},t_{2})}
 \end{multline*}
 
 \end_inset
@@ -793,8 +793,8 @@ The self consistent equations for the initially unoccupied dot are
 \begin_layout Standard
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{K_{0\uparrow\downarrow}(t,t^{\prime})=\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{\uparrow\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow\downarrow}(t-t_{1})\Delta_{\downarrow}^{\succ}(t_{1},t_{2})K_{0\uparrow}(t_{1},t_{2})}+\\
-\mathrm{\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{\uparrow\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow\downarrow}(t-t_{1})\Delta_{\uparrow}^{\succ}(t_{1},t_{2})K_{0\downarrow}(t_{1},t_{2})}.
+\mathrm{K_{0\uparrow\downarrow}(t,t^{\prime})=\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\uparrow\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow\downarrow}(t-t_{1})\Delta_{\downarrow}^{\succ}(t_{1},t_{2})K_{0\uparrow}(t_{1},t_{2})}+\\
+\mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\uparrow\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow\downarrow}(t-t_{1})\Delta_{\uparrow}^{\succ}(t_{1},t_{2})K_{0\downarrow}(t_{1},t_{2})}.
 \end{multline*}
 
 \end_inset
