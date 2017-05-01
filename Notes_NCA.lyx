@@ -1,0 +1,968 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Real-time Green's Functions based on the Non-Crossing Approximation 
+\end_layout
+
+\begin_layout Author
+Hristiana Atanasova
+\end_layout
+
+\begin_layout Section
+Impurity Hamiltonian
+\end_layout
+
+\begin_layout Standard
+A general impurity Hamiltonian has the form
+\begin_inset Formula 
+\[
+\mathrm{H_{imp}=H_{D}+H_{B}+H_{hyb}.}
+\]
+
+\end_inset
+
+We consider the single-orbital Anderson impurity model (AIM) with the following
+ dot-Hamiltonian 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{H_{D}=\sum_{\sigma\epsilon\uparrow,\downarrow}\varepsilon_{\sigma}d_{\sigma}^{\dagger}d_{\sigma}+Ud_{\uparrow}^{\dagger}d_{\uparrow}d_{\downarrow}^{\dagger}d_{\downarrow},}
+\]
+
+\end_inset
+
+
+\begin_inset Formula $\mathrm{\varepsilon_{\sigma}}$
+\end_inset
+
+ are the on-site energy levels and 
+\begin_inset Formula $\mathrm{U}$
+\end_inset
+
+ is the interaction between electrons having opposite spins.
+ 
+\begin_inset Formula $\mathrm{H_{imp}}$
+\end_inset
+
+ can in general incorporate a time-dependence, but for now we will consider
+ only time-independent impurity models.
+ There are four possible dot eigenstates 
+\begin_inset Formula $\left|0\right\rangle ,\left|\uparrow\right\rangle ,\left|\downarrow\right\rangle ,\text{\left|\uparrow\downarrow\right\rangle }$
+\end_inset
+
+ corresponding to the dot being empty or occupied by either one or two electrons.
+ The non-interacting bath Hamiltonian has the form
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{H_{B}=\sum_{\sigma,\lambda}\varepsilon_{\lambda}b_{\lambda}^{\dagger}b_{\lambda}}
+\]
+
+\end_inset
+
+and the coupling between dot and bath is given through the Hybridization
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{H_{hyb}=\sum_{\sigma,\lambda}(t_{\sigma\lambda}b_{\lambda}^{\dagger}d_{\sigma}+t_{\sigma\lambda}^{\ast}d_{\sigma}^{\dagger}b_{\lambda}),}
+\]
+
+\end_inset
+
+which describes processes in which electrons are hopping from the bath to
+ the dot and vice versa.
+ 
+\end_layout
+
+\begin_layout Standard
+A general procedure to evaluate expectation values 
+\begin_inset Formula $\langle\cdots\rangle$
+\end_inset
+
+ is to split 
+\begin_inset Formula $\mathrm{H_{imp}}$
+\end_inset
+
+ into a sum 
+\begin_inset Formula $\mathrm{H_{imp}=H_{0}+H_{int}}$
+\end_inset
+
+.
+ The time propagation can be calculated exactly in 
+\begin_inset Formula $\mathrm{H_{0}}$
+\end_inset
+
+ while
+\begin_inset Formula $\mathrm{H_{int}}$
+\end_inset
+
+ is treated by pertubation expansion.
+ For a weak electron-coupling (small U) one expands in terms of the paramter
+ U and the rest of the Hamiltonian is treated axactly.
+ When one is dealing with strong electron correlations (large U) 
+\begin_inset Formula $\mathrm{H_{D}}$
+\end_inset
+
+and 
+\begin_inset Formula $\mathrm{H_{B}}$
+\end_inset
+
+ sum up to 
+\begin_inset Formula $\mathrm{H_{0}}$
+\end_inset
+
+ and the expansion is performed in terms of 
+\begin_inset Formula $\mathrm{\mathrm{H}_{hyb}}$
+\end_inset
+
+.
+ The latter is called the 
+\begin_inset Quotes eld
+\end_inset
+
+strong coupling approach
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Greens functions
+\end_layout
+
+\begin_layout Subsection
+Bold Propagators 
+\end_layout
+
+\begin_layout Standard
+We are interested in the calculation of correlation functions/Green's functions
+ like 
+\begin_inset Formula $\mathrm{G^{\succ}(t,t^{\prime})=-i\mathrm{\mathrm{\langle d(t)d^{\dagger}(t^{\prime})}\rangle}}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathrm{G^{\prec}(t,t^{\prime})=i\mathrm{\langle d^{\dagger}(t^{\prime})d(t)\rangle}}$
+\end_inset
+
+ from which we can obtain information about the system, like the spectral
+ function 
+\begin_inset Formula $\mathrm{A(\omega)},$
+\end_inset
+
+ in certain regimes.
+ The spectral functions represents the density of single particle excitations
+ at energy 
+\begin_inset Formula $\omega$
+\end_inset
+
+.
+ The times 
+\begin_inset Formula $\mathrm{t_{1},t_{2}}$
+\end_inset
+
+ exist on the real part of the Keldysh contour.
+ In the strong coupling approach we assume that the interaction between
+ electrons is strong and the coupling to the bath infinitesimally weak,
+ so we expand in terms of the hybridization 
+\begin_inset Formula $\mathrm{H_{hyb}}$
+\end_inset
+
+.
+ The expectation value 
+\begin_inset Formula $\langle\cdots\rangle$
+\end_inset
+
+ of an operator 
+\begin_inset Formula $\mathrm{O}$
+\end_inset
+
+ at time t is given by
+\begin_inset Formula 
+\[
+\mathrm{\langle O(t)\rangle=Tr\left(\rho U^{\dagger}(t)\hat{O}U(t)\right),}
+\]
+
+\end_inset
+
+with the initial density matrix 
+\begin_inset Formula $\mathrm{\mathrm{\mathrm{\rho}}}$
+\end_inset
+
+, that can be factorized into the dot
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+ 
+\begin_inset Formula $\rho_{D}$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+ and the bath 
+\begin_inset Formula $\rho_{B}$
+\end_inset
+
+ density matirx, since the dot is initially decoupled from the bath.
+ In the interaction picture the operators, here denoted by a hat 
+\begin_inset Formula $\widehat{}$
+\end_inset
+
+, have the time dependency 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\hat{O}(t)=\exp^{iH_{0}t}\mathrm{O}\exp^{-iH_{0}t},}
+\]
+
+\end_inset
+
+with the reduced Hamiltonian
+\begin_inset Formula $\mathrm{H_{0}=H_{imp}-H_{hyb}}$
+\end_inset
+
+ containing information about the coupling U.
+ The interaction picture time evolution propagator is given by
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{U(t)=\exp^{iH_{0}t}\exp^{-iHt}.}
+\]
+
+\end_inset
+
+
+\begin_inset Formula $\mathrm{U(t)}$
+\end_inset
+
+ 
+\begin_inset Formula $\left[\mathrm{U^{\dagger}(t)}\right]$
+\end_inset
+
+can be though of the propagation on the upper 
+\begin_inset Formula $\left[\mathrm{lower}\right]$
+\end_inset
+
+ branch of the Keldysh contour obeying the differential equation 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\mathrm{\mathrm{\frac{\partial}{\partial t}U(t)=i\exp^{iH_{0}t}(H_{0}-H)\exp^{-iH_{0}t}}}}
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\mathrm{=-i\exp^{iH_{0}t}H_{hyb}(\exp^{-iH_{0}t}\exp^{iH_{0}t})\exp^{iHt}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{=-i\widehat{H}_{hyb}(t)U(t)}.
+\]
+
+\end_inset
+
+ After integrating both sides with respect to time
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{U(t)=1-i\int_{0}^{t}dt_{1}\widehat{H}_{hyb}(t_{1})U(t_{1})}
+\]
+
+\end_inset
+
+and after repeatedly iterating we arrive at
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{U(t)=\sum_{n=0}^{\infty}(-i)^{n}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}\cdots\int_{0}^{t_{n-1}}dt_{n}\widehat{H}_{hyb}(t_{1})\widehat{H}_{hyb}(t_{2})\cdots\widehat{H}_{hyb}(t_{n})}
+\]
+
+\end_inset
+
+with time ordering 
+\begin_inset Formula $\mathrm{t_{1}\succ t_{2}\succ\ldots\succ t_{n}}$
+\end_inset
+
+ .
+ The Hybridization term in the interaction picture can be written in the
+ following form
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\widehat{H}_{hyb}(t)=exp^{iH_{0}t}Vexp^{-iH_{0}t}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\mathrm{=\sum_{n=0}^{\infty}\frac{i}{n!}^{n}(H_{0}t)^{n}}\sum_{\sigma,\lambda}(t_{\sigma\lambda}b_{\sigma}^{\dagger}d_{\sigma}+t_{\sigma\lambda}^{\star}d_{\sigma}^{\dagger}b_{\lambda})\mathrm{\sum_{n=0}^{\infty}\frac{(-i)}{n!}^{n}(H_{0}t)^{n}}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\mathrm{=\sum_{\sigma,\lambda}\sum_{n=0}^{\infty}\frac{i}{n!}^{n}(\varepsilon_{\sigma}d_{\sigma}^{\dagger}d_{\sigma}+Un_{\uparrow}n_{\downarrow}+\varepsilon_{\lambda}b_{\lambda}^{\dagger}b_{\lambda})^{n}(t)^{n}}\sum_{\sigma,\lambda}(t_{\sigma\lambda}b_{\sigma}^{\dagger}d_{\sigma}+t_{\sigma\lambda}^{\star}d_{\sigma}^{\dagger}b_{\lambda})\mathrm{\sum_{n=0}^{\infty}\frac{(-i)}{n!}^{n}(\varepsilon_{\sigma}d_{\sigma}^{\dagger}d_{\sigma}+Un_{\uparrow}n_{\downarrow}+\varepsilon_{\lambda}b_{\lambda}^{\dagger}b_{\lambda})^{n}(t)^{n}}}
+\]
+
+\end_inset
+
+Using 
+\begin_inset Formula $\mathrm{\left[d_{\sigma},n_{\uparrow}n_{\downarrow}\right]=d_{\bar{\sigma}}}$
+\end_inset
+
+ and Baker-Hausdorff theorem 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{d_{\sigma}(t)=exp^{iH_{0}t}d_{\sigma}exp^{-iH_{0}t}=exp^{-itL_{H_{0}}}d_{\sigma}},
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $L_{H_{0}}d_{\sigma}\equiv\left[d_{\sigma},H_{0}\right]=\sum_{\sigma\epsilon\uparrow,\downarrow}\varepsilon_{\sigma}\left[d_{\sigma},d_{\sigma}^{\dagger}d_{\sigma}\right]=\sum_{\sigma\epsilon\uparrow,\downarrow}\varepsilon_{\sigma}d_{\sigma}$
+\end_inset
+
+, we arrive at
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\widehat{H}_{hyb}(t)=\sum_{\sigma,\lambda}\left\{ t_{\sigma\lambda}exp^{i(\varepsilon_{\sigma}+Ud_{\sigma}^{\dagger}d_{\sigma}-\varepsilon_{\sigma\lambda})t}b_{\sigma\lambda}^{\dagger}d_{\sigma}+t_{\sigma\lambda}^{\star}exp^{-i(\varepsilon_{\sigma}+Ud_{\sigma}^{\dagger}d_{\sigma}-\varepsilon_{\sigma\lambda})t}d_{\sigma}^{\dagger}b_{\sigma\lambda}\right\} }
+\]
+
+\end_inset
+
+The first step is to compute so called bold propagators 
+\begin_inset Formula $\mathrm{G_{\alpha\beta}(t)}$
+\end_inset
+
+ between many body states 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta$
+\end_inset
+
+ containing all hybridization lines (that do not cross each other) in a
+ given time intervall.
+ The hybridization lines exist only on one branch and do not connects times
+ between the two branches.
+ Propagators on the upper and lower branch obey the relation
+\begin_inset Formula $\mathrm{\mathrm{G_{\alpha\beta}^{\dagger}}(t)=G_{\alpha\beta}(\overline{t}).}$
+\end_inset
+
+ We start with the formal expression
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{G_{\alpha\beta}(t)=\langle\langle\alpha\mid\rho_{D}exp^{-iHt}\mid\beta\rangle\rangle_{B}=\langle\langle\alpha\mid\rho_{D}\exp^{-iH_{0}t}U(t)\mid\beta\rangle\rangle_{B}},
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\mathrm{\langle\cdots\rangle_{B}=Tr\left\{ \rho_{B}\cdots\right\} }$
+\end_inset
+
+denotes that the bath degrees are traced out.
+ We insert the expansion for U
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\mathrm{\mathrm{G_{\alpha\alpha}(t)=\langle\langle\alpha\mid\rho_{D}\exp^{-iH_{0}t}\mid\alpha\rangle\rangle_{B}+(-i)^{2}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}\langle\langle\alpha\mid\rho_{D}\exp^{-iH_{0}t}\widehat{H}_{hyb}(t_{1})\widehat{H}_{hyb}(t_{2})\mid\alpha\rangle\rangle_{B}}}}+\cdots
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{multline*}
+=\sum_{\beta}\langle\langle\alpha\mid\beta\rangle\langle\beta\mid\exp^{-iH_{0}t}\mid\alpha\rangle\rangle_{B}-\sum_{\beta}\sum_{\sigma,\lambda}\int dt_{1}\int_{0}^{t_{1}}dt_{2}\left|t_{\sigma\lambda}\right|^{2}\times\\
+\mathrm{\mathrm{\left(\langle\langle\alpha\mid\exp^{-iH_{0}t}d_{\sigma}\mid\beta\rangle\langle\beta\mid d_{\sigma}^{\dagger}\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\hat{b}_{\sigma\lambda}(t_{2})\mid\alpha\rangle\rangle_{B}+\langle\langle\alpha\mid\exp^{-iH_{0}t}d_{\sigma}^{\dagger}\mid\beta\rangle\langle\beta\mid d_{\sigma}\hat{b}_{\sigma\lambda}(t_{2})\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\mid\alpha\rangle\rangle_{B}\right)+\cdots}}
+\end{multline*}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{multline*}
+\mathrm{=\delta_{\alpha\beta}exp^{-i\varepsilon_{\alpha}t}-\sum_{\beta}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\alpha\alpha}^{(0)}(t-t_{1})}G_{\beta\beta}^{(0)}(t_{1}-t_{2})\times\\
+\mathrm{\left(\langle\alpha\mid d_{\sigma}\mid\beta\rangle\langle\beta\mid d_{\sigma}^{\dagger}\mid\alpha\rangle\sum_{\sigma,\lambda}\left|t_{\sigma\lambda}\right|^{2}\langle\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\hat{b}_{\sigma\lambda}(t_{2})\rangle_{B}+\langle\alpha\mid d_{\sigma}^{\dagger}\mid\beta\rangle\langle\beta\mid d_{\sigma}\mid\alpha\rangle\sum_{\sigma,\lambda}\left|t_{\sigma\lambda}\right|^{2}\langle\hat{b}_{\sigma\lambda}(t_{2})\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\rangle_{B}\right)G_{\alpha\alpha}(t_{2})}+\cdots
+\end{multline*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{multline*}
+\mathrm{=G_{\alpha\alpha}^{(0)}(t)-\sum_{\beta}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\alpha\alpha}^{(0)}(t-t_{1})}G_{\beta\beta}^{(0)}(t_{1}-t_{2})\times\\
+\mathrm{\left(\langle\alpha\mid d_{\sigma}\mid\beta\rangle\langle\beta\mid d_{\sigma}^{\dagger}\mid\alpha\rangle\bigtriangleup_{\sigma}^{\prec}(t_{1}-t_{2})+\langle\alpha\mid d_{\sigma}^{\dagger}\mid\beta\rangle\langle\beta\mid d_{\sigma}\mid\alpha\rangle\bigtriangleup_{\sigma}^{\succ}(t_{1}-t_{2})\right)G_{\alpha\alpha}^{(0)}(t_{2})+\cdots}
+\end{multline*}
+
+\end_inset
+
+with the bare atomic state propagators 
+\begin_inset Formula $\mathrm{G_{\alpha\alpha}^{(0)}(t)=\exp^{-i\varepsilon_{\alpha}t}}$
+\end_inset
+
+ leaving the dot state invariant.
+ Note that both the bare 
+\begin_inset Formula $\mathrm{G_{\alpha\alpha}^{(0)}(t)}$
+\end_inset
+
+ and bold propagator 
+\begin_inset Formula $\mathrm{G_{\alpha\alpha}(t)}$
+\end_inset
+
+ are diagonal for the Anderson impurity model because the trace over the
+ bath degrees gives results only for an even number of creation and annhilation
+ operators.
+ Therefore only square terms of 
+\begin_inset Formula $\mathrm{\widehat{H}_{hyb}}$
+\end_inset
+
+ appear in the expansion for 
+\begin_inset Formula $\mathrm{G}$
+\end_inset
+
+.
+ In DMFT the hybridization function 
+\begin_inset Formula $\bigtriangleup_{\sigma}^{\succ/\prec}$
+\end_inset
+
+ is obtained from the self-consistency condition.
+ Here we will write it in terms of the coupling density 
+\begin_inset Formula $\Gamma(\omega)$
+\end_inset
+
+ of the bath and the initial occupation probability (fermi-function)
+\begin_inset Formula 
+\[
+\mathrm{\mathrm{\triangle^{\prec}(t_{1},t_{2})=\int_{-\infty}^{\infty}\frac{d\omega}{\pi}exp^{-i\omega(t_{1}-t_{2})}\varGamma(\omega)f(\omega-\mu)}}
+\]
+
+\end_inset
+
+and
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\mathrm{\mathrm{\triangle^{\succ}(t_{1},t_{2})=\int_{-\infty}^{\infty}\frac{d\omega}{\pi}exp^{-i\omega(t_{1}-t_{2})}\varGamma(\omega)(1-f(\omega-\mu)})}.}
+\]
+
+\end_inset
+
+With the approximation for the self-energy, that it includes only hybridizaton
+ lines that do not cross, the Dyson equation can be written as
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\mathrm{\mathrm{\mathrm{G_{\alpha\alpha}(t)=G_{\alpha\alpha}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\alpha\alpha}^{(0)}(t-t_{1})\varSigma_{\alpha\alpha}(t_{1}-t_{2})G_{\alpha\alpha}(t_{2})}}}}
+\]
+
+\end_inset
+
+with
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{multline*}
+\varSigma_{\alpha\alpha}(t_{1}-t_{2})=\sum_{\sigma}\sum_{\beta}G_{\beta\beta}(t_{1}-t_{2})\times\\
+\mathrm{\mathrm{\mathrm{\left(\langle\alpha\mid d_{\sigma}\mid\beta\rangle\langle\beta\mid d_{\sigma}^{\dagger}\mid\alpha\rangle\bigtriangleup_{\sigma}^{\prec}(t_{1}-t_{2})+\langle\alpha\mid d_{\sigma}^{\dagger}\mid\beta\rangle\langle\beta\mid d_{\sigma}\mid\alpha\rangle\bigtriangleup_{\sigma}^{\succ}(t_{1}-t_{2})\right)}}}.
+\end{multline*}
+
+\end_inset
+
+For the four different initial states (denoted by the outer index 
+\begin_inset Formula $\alpha$
+\end_inset
+
+) on the dot we can derive a set of coupled Dyson equations
+\begin_inset Formula 
+\begin{multline*}
+\mathrm{\mathrm{\mathrm{\mathrm{G_{0}(t)=G_{0}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{0}^{(0)}(t-t_{1})G_{\uparrow}(t_{1}-t_{2})\Delta_{\uparrow}^{\prec}(t_{1}-t_{2})G_{0}(t_{2})}}}-}\\
+\mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{0}^{(0)}(t-t_{1})G_{\downarrow}(t_{1}-t_{2})\Delta_{\downarrow}^{\prec}(t_{1}-t_{2})G_{0}(t_{2}})
+\end{multline*}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{multline*}
+\mathrm{\mathrm{\mathrm{\mathrm{G_{\uparrow}(t)=G_{\uparrow}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\uparrow}^{(0)}(t-t_{1})G_{0}(t_{1}-t_{2})\Delta_{\uparrow}^{\succ}(t_{1}-t_{2})G_{\uparrow}(t_{2})}}}-}\\
+\mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\uparrow}^{(0)}(t-t_{1})G_{\uparrow\downarrow}(t_{1}-t_{2})\Delta_{\downarrow}^{\prec}(t_{1}-t_{2})G_{\uparrow}(t_{2})}
+\end{multline*}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{multline*}
+\mathrm{\mathrm{\mathrm{G_{\downarrow}(t)=G_{\downarrow}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\downarrow}^{(0)}(t-t_{1})G_{0}(t_{1}-t_{2})\Delta_{\uparrow}^{\succ}(t_{1}-t_{2})G_{\downarrow}(t_{2})}}}-\\
+\mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\downarrow}^{(0)}(t-t_{1})G_{\uparrow\downarrow}(t_{1}-t_{2})\Delta_{\downarrow}^{\prec}(t_{1}-t_{2})G_{\downarrow}(t_{2})}
+\end{multline*}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{multline*}
+\mathrm{\mathrm{\mathrm{G_{\uparrow\downarrow}(t)=G_{\uparrow\downarrow}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\uparrow\downarrow}^{(0)}(t-t_{1})G_{\downarrow}(t_{1}-t_{2})\Delta_{\uparrow}^{\succ}(t_{1}-t_{2})G_{\uparrow\downarrow}(t_{2})}}}-\\
+\mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\uparrow\downarrow}^{(0)}(t-t_{1})G_{\uparrow}(t_{1}-t_{2})\Delta_{\downarrow}^{\succ}(t_{1}-t_{2})G_{\uparrow\downarrow}(t_{2}),}
+\end{multline*}
+
+\end_inset
+
+which can be solved by a self consistent iteration.
+ All entities depend only on time differences and one can evaluate the integrals
+ in the Fourier space, where convolutions become simple multiplications.
+ Before starting with the first iteration, the bold propagators 
+\begin_inset Formula $\mathrm{G_{\alpha\alpha}(t)}$
+\end_inset
+
+ are initialized by the bare propagators 
+\begin_inset Formula $\mathrm{G_{\alpha\alpha}^{(0)}(t)}$
+\end_inset
+
+ from which the first self-energy is obtained.
+ Both are inserted into the Dyson equation with the interaction times integrated
+ over.
+ With the updated 
+\begin_inset Formula $\mathrm{G_{\alpha\alpha}(t)}$
+\end_inset
+
+ one can go back to the second step and compute a new self energy for the
+ next iteration cycle until convergence is reached.
+ 
+\end_layout
+
+\begin_layout Subsection
+Correlation functions 
+\end_layout
+
+\begin_layout Standard
+So far we have calculated propagators between many body states, which contain
+ all non-crossing hybridization lines in a time segment on a single branch.
+ These objects have no physical meaning, to calculate physical observables
+ it is necessary to include hybridization lines connecting times on both
+ branches.
+ We introduce so called vertex functions 
+\begin_inset Formula $\mathrm{K_{\alpha\beta}(t,t^{\prime})}$
+\end_inset
+
+ with the first
+\begin_inset Formula $\mathrm{[second]}$
+\end_inset
+
+ time index on the upper
+\begin_inset Formula $\mathrm{[lower]}$
+\end_inset
+
+ branch.
+ A vertex funcion incorporates all non-crossing intra- and inter-branch
+ hybrdization lines.
+ The procedure to estimate 
+\begin_inset Formula $\mathrm{K_{\alpha\beta}(t,t^{\prime})}$
+\end_inset
+
+ is similar to the calculation of 
+\begin_inset Formula $\mathrm{G_{\alpha\alpha}(t)}$
+\end_inset
+
+ with the difference that 
+\begin_inset Formula $\mathrm{K_{\alpha\beta}(t,t^{\prime})}$
+\end_inset
+
+ is a two-times function and instead of four we have 16 equations representing
+ the evolution of the dot from any inital state 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ to any final state 
+\begin_inset Formula $\beta$
+\end_inset
+
+.
+ For every inital state there are four coupled equations of the form 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{K_{\alpha\beta}(t,t^{\prime})=K_{\alpha\beta}^{(0)}(t,t^{\prime})+\sum_{\gamma\delta}\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}K_{\alpha\gamma}(t_{1},t_{2})\mathbf{\Delta}_{\gamma\delta}(t_{1},t_{2})K_{\delta\beta}^{(0)}(t-t_{1},t^{\prime}-t_{2}).}
+\]
+
+\end_inset
+
+The vertex functions without inter-branch hybridization lines are composed
+ by the bold propagators on the upper and lower branch
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\mathrm{K_{\alpha\beta}^{(0)}(t,t^{\prime})=\delta_{\alpha\beta}G_{\alpha\beta}^{\dagger}(t)G_{\alpha\beta}(t^{\prime})}.}
+\]
+
+\end_inset
+
+The self consistent equations for the initially unoccupied dot are
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{multline*}
+\mathrm{\mathrm{K_{00}(t,t^{\prime})=K_{00}^{(0)}(t,t^{\prime})+\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{0}^{\dagger}(t^{\prime}-t_{2})G_{0}(t-t_{1})\Delta_{\uparrow}^{\prec}(t_{1},t_{2})K_{0\uparrow}(t_{1},t_{2})}+}\\
+\mathrm{\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{0}^{\dagger}(t^{\prime}-t_{2})G_{0}(t-t_{1})\Delta_{\downarrow}^{\prec}(t_{1},t_{2})K_{0\downarrow}(t_{1},t_{2})}
+\end{multline*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{multline*}
+\mathrm{K_{0\uparrow}(t,t^{\prime})=\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{\uparrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow}(t-t_{1})\Delta_{\uparrow}^{\succ}(t_{1},t_{2})K_{00}(t_{1},t_{2})}+\\
+\mathrm{\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{\uparrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow}(t-t_{1})\Delta_{\downarrow}^{\prec}(t_{1},t_{2})K_{\uparrow\downarrow}(t_{1},t_{2})}
+\end{multline*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{multline*}
+\mathrm{K_{0\downarrow}(t,t^{\prime})=\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\downarrow}(t-t_{1})\Delta_{\downarrow}^{\succ}(t_{1},t_{2})K_{00}(t_{1},t_{2})}+\\
+\mathrm{\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\downarrow}(t-t_{1})\Delta_{\uparrow}^{\prec}(t_{1},t_{2})K_{\uparrow\downarrow}(t_{1},t_{2})}
+\end{multline*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{multline*}
+\mathrm{K_{0\uparrow\downarrow}(t,t^{\prime})=\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{\uparrow\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow\downarrow}(t-t_{1})\Delta_{\downarrow}^{\succ}(t_{1},t_{2})K_{0\uparrow}(t_{1},t_{2})}+\\
+\mathrm{\int_{t^{\prime}}^{t}dt_{1}\int_{t^{\prime}}^{t}dt_{2}G_{\uparrow\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow\downarrow}(t-t_{1})\Delta_{\uparrow}^{\succ}(t_{1},t_{2})K_{0\downarrow}(t_{1},t_{2})}.
+\end{multline*}
+
+\end_inset
+
+For equal times, 
+\begin_inset Formula $\mathrm{K_{\alpha\beta}(t,t)}$
+\end_inset
+
+ is the population probability on the dot.
+ After initializing the vertex functions 
+\begin_inset Formula $\mathrm{K_{\alpha\beta}(t,t^{\prime})}$
+\end_inset
+
+ with 
+\begin_inset Formula $\mathrm{K_{\alpha\beta}^{(0)}(t,t^{\prime})}$
+\end_inset
+
+ and performing the self-consistent iteration sheme one is able to construct
+ Greens functions in the following way 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{G_{\alpha\uparrow}^{\succ}(t,t^{\prime})=-i\mathrm{\mathrm{\langle d_{\uparrow}(t)d_{\uparrow}^{\dagger}(t^{\prime})}\rangle}=K_{\alpha0}(t,t^{\prime})*G_{\uparrow}(t-t^{\prime})+K_{\alpha\downarrow}(t,t^{\prime})*G_{\uparrow\downarrow}(t-t^{\prime})}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{G_{\alpha\uparrow}^{\prec}(t,t^{\prime})=i\mathrm{\mathrm{\langle d_{\uparrow}^{\dagger}(t^{\prime})d_{\uparrow}(t)}\rangle}=K_{\alpha\uparrow}(t,t^{\prime})*G_{0}(t-t^{\prime})+K_{\alpha\uparrow\downarrow}(t,t^{\prime})*G_{\downarrow}(t-t^{\prime})}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{G_{\alpha\downarrow}^{\succ}(t,t^{\prime})=-i\mathrm{\mathrm{\langle d_{\downarrow}(t)d_{\downarrow}^{\dagger}(t^{\prime})}\rangle}=K_{\alpha0}(t,t^{\prime})*G_{\downarrow}(t-t^{\prime})+K_{\alpha\uparrow}(t,t^{\prime})*G_{\uparrow\downarrow}(t-t^{\prime})}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{G_{\alpha\downarrow}^{\prec}(t,t^{\prime})=i\mathrm{\mathrm{\langle d_{\downarrow}^{\dagger}(t^{\prime})d_{\downarrow}(t)}\rangle=}K_{\alpha\downarrow}(t,t^{\prime})*G_{0}(t-t^{\prime})+K_{\alpha\uparrow\downarrow}(t,t^{\prime})*G_{\uparrow}(t-t^{\prime})}
+\]
+
+\end_inset
+
+with 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ denoting the initial dot state.
+ The conjugation yields to 
+\begin_inset Formula $\mathrm{\left(G^{\succ/\prec}(t,t^{\prime})\right)^{*}=-G^{\succ/\prec}(t^{\prime},t)}$
+\end_inset
+
+ and for particle-hole symmetric system 
+\begin_inset Formula $\mathrm{G^{\succ/\prec}(t,t^{\prime})=-G^{\succ/\prec}(t^{\prime},t)}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The advanced and retarded Green's function are defined via the lesser and
+ greater component as 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{G^{R}(t,t^{\prime})=-i\Theta(t-t^{\prime})\langle\left[d(t),d^{\dagger}(t^{\prime})\right]_{+}\rangle}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{G^{R}(t,t^{\prime})=-i\Theta(t-t^{\prime})\left(\langle d(t)d^{\dagger}(t^{\prime})\rangle+\langle d^{\dagger}(t^{\prime})d(t)\rangle\right)}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{G^{R}(t,t^{\prime})=\Theta(t-t^{\prime})\left(G^{\succ}(t,t^{\prime})-G^{\prec}(t,t^{\prime})\right)}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+and
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{G^{A}(t,t^{\prime})=i\Theta(t^{\prime}-t)\langle\left[d(t),d^{\dagger}(t^{\prime})\right]_{+}\rangle}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{G^{A}(t,t^{\prime})=i\Theta(t^{\prime}-t)\left(\langle d(t)d^{\dagger}(t^{\prime})\rangle+\langle d^{\dagger}(t^{\prime})d(t)\rangle\right)}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{G^{A}(t,t^{\prime})=-\Theta(t^{\prime}-t)\left(G^{\succ}(t,t^{\prime})-G^{\prec}(t,t^{\prime})\right)}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+They have an intuitive interpretation since the imaginary part of their
+ Fourier transforms gives the single particle spectral function
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{A(\omega)=-\frac{1}{\pi}ImG^{R}=\frac{1}{\pi}ImG^{A}.}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
