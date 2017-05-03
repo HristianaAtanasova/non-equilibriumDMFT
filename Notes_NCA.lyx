@@ -80,7 +80,7 @@ Hristiana Atanasova
 \end_layout
 
 \begin_layout Section
-Impurity Hamiltonian
+Impurity Model
 \end_layout
 
 \begin_layout Standard
@@ -206,7 +206,7 @@ strong coupling approach
 \end_layout
 
 \begin_layout Section
-Greens functions
+Impurity Greens functions
 \end_layout
 
 \begin_layout Subsection
@@ -514,7 +514,7 @@ denotes that the bath degrees are traced out.
 
 \begin_inset Formula 
 \begin{multline*}
-=\sum_{\beta}\langle\langle\alpha\mid\beta\rangle\langle\beta\mid\exp^{-iH_{0}t}\mid\alpha\rangle\rangle_{B}-\sum_{\beta}\sum_{\sigma,\lambda}\int dt_{1}\int_{0}^{t_{1}}dt_{2}\left|t_{\sigma\lambda}\right|^{2}\times\\
+=\mathrm{\sum_{\beta}\langle\langle\alpha\mid\beta\rangle\langle\beta\mid\exp^{-iH_{0}t}\mid\alpha\rangle\rangle_{B}-\sum_{\beta}\sum_{\sigma,\lambda}\int dt_{1}\int_{0}^{t_{1}}dt_{2}\left|t_{\sigma\lambda}\right|^{2}\times}\\
 \mathrm{\mathrm{\left(\langle\langle\alpha\mid\exp^{-iH_{0}t}d_{\sigma}\mid\beta\rangle\langle\beta\mid d_{\sigma}^{\dagger}\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\hat{b}_{\sigma\lambda}(t_{2})\mid\alpha\rangle\rangle_{B}+\langle\langle\alpha\mid\exp^{-iH_{0}t}d_{\sigma}^{\dagger}\mid\beta\rangle\langle\beta\mid d_{\sigma}\hat{b}_{\sigma\lambda}(t_{2})\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\mid\alpha\rangle\rangle_{B}\right)+\cdots}}
 \end{multline*}
 
@@ -523,7 +523,7 @@ denotes that the bath degrees are traced out.
 
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{=\delta_{\alpha\beta}exp^{-i\varepsilon_{\alpha}t}-\sum_{\beta}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\alpha\alpha}^{(0)}(t-t_{1})}G_{\beta\beta}^{(0)}(t_{1}-t_{2})\times\\
+\mathrm{\mathrm{=\delta_{\alpha\beta}exp^{-i\varepsilon_{\alpha}t}-\sum_{\beta}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\alpha\alpha}^{(0)}(t-t_{1})}G_{\beta\beta}^{(0)}(t_{1}-t_{2})\times}\\
 \mathrm{\left(\langle\alpha\mid d_{\sigma}\mid\beta\rangle\langle\beta\mid d_{\sigma}^{\dagger}\mid\alpha\rangle\sum_{\sigma,\lambda}\left|t_{\sigma\lambda}\right|^{2}\langle\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\hat{b}_{\sigma\lambda}(t_{2})\rangle_{B}+\langle\alpha\mid d_{\sigma}^{\dagger}\mid\beta\rangle\langle\beta\mid d_{\sigma}\mid\alpha\rangle\sum_{\sigma,\lambda}\left|t_{\sigma\lambda}\right|^{2}\langle\hat{b}_{\sigma\lambda}(t_{2})\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\rangle_{B}\right)G_{\alpha\alpha}(t_{2})}+\cdots
 \end{multline*}
 
@@ -577,9 +577,9 @@ with the bare atomic state propagators
 
  of the bath and the initial occupation probability (fermi-function)
 \begin_inset Formula 
-\[
-\mathrm{\mathrm{\triangle^{\prec}(t_{1},t_{2})=\int_{-\infty}^{\infty}\frac{d\omega}{\pi}exp^{-i\omega(t_{1}-t_{2})}\varGamma(\omega)f(\omega-\mu)}}
-\]
+\begin{equation}
+\mathrm{\mathrm{\triangle^{\prec}(t_{1},t_{2})=\int_{-\infty}^{\infty}\frac{d\omega}{\pi}exp^{-i\omega(t_{1}-t_{2})}\varGamma(\omega)f(\omega-\mu)}}\label{eq:Delta}
+\end{equation}
 
 \end_inset
 
@@ -770,7 +770,7 @@ The self consistent equations for the initially unoccupied dot are
 \begin_inset Formula 
 \begin{multline*}
 \mathrm{K_{0\uparrow}(t,t^{\prime})=\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\uparrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow}(t-t_{1})\Delta_{\uparrow}^{\succ}(t_{1},t_{2})K_{00}(t_{1},t_{2})}+\\
-\mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\uparrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow}(t-t_{1})\Delta_{\downarrow}^{\prec}(t_{1},t_{2})K_{\uparrow\downarrow}(t_{1},t_{2})}
+\mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\uparrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow}(t-t_{1})\Delta_{\downarrow}^{\prec}(t_{1},t_{2})K_{0\uparrow\downarrow}(t_{1},t_{2})}
 \end{multline*}
 
 \end_inset
@@ -782,7 +782,7 @@ The self consistent equations for the initially unoccupied dot are
 \begin_inset Formula 
 \begin{multline*}
 \mathrm{K_{0\downarrow}(t,t^{\prime})=\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\downarrow}(t-t_{1})\Delta_{\downarrow}^{\succ}(t_{1},t_{2})K_{00}(t_{1},t_{2})}+\\
-\mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\downarrow}(t-t_{1})\Delta_{\uparrow}^{\prec}(t_{1},t_{2})K_{\uparrow\downarrow}(t_{1},t_{2})}
+\mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\downarrow}(t-t_{1})\Delta_{\uparrow}^{\prec}(t_{1},t_{2})K_{0\uparrow\downarrow}(t_{1},t_{2})}
 \end{multline*}
 
 \end_inset
@@ -958,6 +958,592 @@ They have an intuitive interpretation since the imaginary part of their
 \[
 \mathrm{A(\omega)=-\frac{1}{\pi}ImG^{R}=\frac{1}{\pi}ImG^{A}.}
 \]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Dynamical Mean Field Theory
+\end_layout
+
+\begin_layout Subsection
+Systems in Equilibrium 
+\end_layout
+
+\begin_layout Standard
+Dynamical Mean Field Theory is a method to solve a lattice problem with
+ many degrees of freedom by mapping it to an impurity problem consisting
+ of a single correlated site embedded in an uncorrelated bath.
+ The bath is formed by the residual sites of the lattice and the hybridization
+ between the impurity and the bath (the dynamical mean field) is the two
+ times function 
+\begin_inset Formula $\mathrm{\Delta(t,t^{\prime})}$
+\end_inset
+
+.
+ It resembles the exchange of particles with the rest of the lattice and
+ must be determined self consistently as a functional of the lattice Greens
+ function 
+\begin_inset Formula $\mathrm{G(t,t^{\prime})}$
+\end_inset
+
+.
+ The key approximation in DMFT is the local nature of the lattice self energy
+ 
+\begin_inset Formula 
+\[
+\mathrm{\Sigma_{ij}^{lat}(t,t^{\prime})\backsimeq\delta_{ij}\Sigma^{imp}(t,t^{\prime})}
+\]
+
+\end_inset
+
+that justifies the mapping.
+\end_layout
+
+\begin_layout Standard
+In equilibrium all functions depend only on time-differences and can be
+ expressed by their Fourier transforms.
+ For time-dependent systems (e.g.
+ an electric-field-driven lattice system) they become two-times objects
+ and incorporate the overall temporal evolution of the system as well as
+ quantum fluctuations.
+ In the following the DMFT equations for systems in equilibrium (an extension
+ to time-dependend systems follows later) will be presented.
+ The simplest model for the description of strongly correlated systems is
+ the single band Hubbard model representing a collection of single orbital
+ atoms placed at the nodes of a crystal lattice
+\begin_inset Formula 
+\[
+\mathrm{H_{Hubbard}=-\sum_{\langle i,j\rangle,\sigma}v_{ij}d_{i\sigma}^{\dagger}d_{j\sigma}+\sum_{i}U(d_{i\uparrow}^{\dagger}d_{i\uparrow}-\frac{1}{2})(d_{i\downarrow}^{\dagger}d_{i\downarrow}-\frac{1}{2})}.
+\]
+
+\end_inset
+
+The operators 
+\begin_inset Formula $\mathrm{d_{i\uparrow}^{\dagger}[d_{i\uparrow}]}$
+\end_inset
+
+ create[destroy] an electron with spin 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ in an Wannier orbital at a crystal site i, 
+\begin_inset Formula $\mathrm{v_{ij}}$
+\end_inset
+
+ is the hopping between neighbouring sites (it depends on the overlap of
+ neighbouring orbitals) and U is the local Coulomb interaction between electrons.
+ With the approximation that the lattice self energy is local in space one
+ is able to compute the local Greens function 
+\begin_inset Formula $\mathrm{G_{ii}^{\sigma}(t-t^{\prime})=-i\langle\mathcal{T}d_{i\sigma}(t)d_{i\sigma}^{\dagger}(t^{\prime})\rangle}$
+\end_inset
+
+ from an effective impurity model described by the following action 
+\begin_inset Formula 
+\[
+\mathrm{\mathcal{\mathrm{S=i\int_{c}dtUn_{\uparrow}(t)n_{\downarrow}(t)-i\sum_{\sigma}\int_{c}dtdt^{\prime}d_{\sigma}^{\dagger}(t)\mathrm{\bigtriangleup}(t-t^{\prime})d_{\sigma}(t^{\prime})}}}.
+\]
+
+\end_inset
+
+From here on the spin index will be supressed for simplicity.
+ The impurity self energy is defined via the Dyson equation 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\mathrm{\mathrm{G_{ii}^{-1}(\omega)=}\omega+\mu-\mathrm{\bigtriangleup}(\omega)-\varSigma^{imp}(\omega)}}
+\]
+
+\end_inset
+
+and will be used to obtain the lattice Greens function 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\mathrm{G_{ij}^{-1}(\omega)=\delta_{ij}[}\omega+\mu-\varSigma_{ii}(\omega)]-v_{ij}}.
+\]
+
+\end_inset
+
+In real space this means that all non-local components of the lattice self
+ energy
+\begin_inset Formula $\mathrm{\varSigma_{ij}(\omega)}$
+\end_inset
+
+ are neglected and the local component is approximated by 
+\begin_inset Formula $\mathrm{\varSigma^{imp}(\omega)}$
+\end_inset
+
+.
+ For a translationally invariant system (
+\begin_inset Formula $\mathrm{\mathrm{\varSigma_{ii}(\omega)\equiv\varSigma(\omega)}}$
+\end_inset
+
+) one averages over the whole Brillouin zone to get the on-site component
+ of the lattice Green function (which is referred to as the self-consistency
+ condition)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\mathrm{G_{ii}(\omega)=\frac{1}{L}\sum_{k}G_{k}(\omega)}=\frac{1}{L}\sum_{k}\frac{1}{\omega+\mu+\varSigma(\omega)-\epsilon_{k}}},
+\]
+
+\end_inset
+
+with 
+\begin_inset Formula $G_{k}(\omega)$
+\end_inset
+
+ the momentum resolved Greens function, L the number of lattice sites and
+ 
+\begin_inset Formula $\epsilon_{k}$
+\end_inset
+
+ the dispersion relation of the non-interacting tight binding band 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\epsilon_{k}=\sum_{j}v_{ij}exp^{ik(R_{i}-R_{j})}.}
+\]
+
+\end_inset
+
+Instead of performing the k-summation one can integrate over the local,
+ non-interacting Density of states 
+\begin_inset Formula $\mathrm{D(\epsilon)=\frac{1}{L}\sum_{k}\delta(\epsilon-\epsilon_{k})}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\mathrm{\mathrm{G_{ii}(\omega)=}\int\frac{D(\epsilon)}{\omega+\mu+\varSigma(\omega)-\epsilon_{k}}}.
+\]
+
+\end_inset
+
+The self-consistency condition relates for each frequency 
+\begin_inset Formula $\mathrm{\omega}$
+\end_inset
+
+ the dynamical mean field to the local Greens function.
+ This functional relation 
+\begin_inset Formula $\mathrm{G[\Delta]}$
+\end_inset
+
+ provides a closed set of equations to determine
+\begin_inset Formula $\Delta$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathrm{G}$
+\end_inset
+
+.
+ This can be done by an iterative procedure that does not depend on the
+ initial guess for 
+\begin_inset Formula $\Delta$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsection
+Results 
+\end_layout
+
+\begin_layout Standard
+We consider the Bethe lattice with nearest-neighbour hopping and an infinite
+ coordination number, which corresponds to the limit of infinite dimensions,
+ where DMFT becomes exact.
+ In this case the Density of states takes a semicircular shape
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\mathrm{D(\epsilon)=\frac{1}{2\pi v^{2}}\sqrt{4v-\epsilon^{2}}}\label{semicircularDOS}
+\end{equation}
+
+\end_inset
+
+and the self consistency condition collapses to the simple form 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\mathrm{\Delta(t,t^{\prime})=v^{2}G(t,t^{\prime}).}\label{eq:selfconsistency}
+\end{equation}
+
+\end_inset
+
+We perform the DMFT iteration scheme with the initial hybridization function
+ calculated from 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:Delta"
+
+\end_inset
+
+ with 
+\begin_inset Formula $\mathrm{D(\epsilon)}$
+\end_inset
+
+ being the coupling density.
+ In every iteration the hybridization is updated via 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:selfconsistency"
+
+\end_inset
+
+.
+ After the results for G are converged we are able to obtain the spectral
+ function of the system as described in the last chapter.
+ In the non-interacting case (U=0) we expect the spectral function to be
+ the non-interacting Density of states 
+\begin_inset Formula $\mathrm{D(\epsilon)}$
+\end_inset
+
+ of the Bethe lattice with a bandwidth of 
+\begin_inset Formula $4/\Gamma$
+\end_inset
+
+.
+ This is furthermore a test for the performance of the impurity solver.
+ We observe that the spectral function 
+\begin_inset Formula $\mathrm{A(\omega)}$
+\end_inset
+
+ [Fig.
+ 1] deviates from the expected semicircular shape, which is down to the
+ fact that the NCA provides reliable results only for high interactions.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/A_U=0_T=1_t=4.png
+	scale 45
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/semicircularDOS.png
+	scale 45
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+left side: Spectral function for U=0, 
+\begin_inset Formula $\mathrm{\Gamma t=4}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathrm{\Gamma\beta=1}$
+\end_inset
+
+; right side: Semicircular DOS for the Bethe lattice
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+With increasing interaction strenght one can observe the splitting of the
+ spectral function into a lower and upper band indicating that the system
+ is in an insulating phase [Fig 2].
+ Comparing results on different time scales [Fig.
+ 2, Fig.
+ 3] shows that the spectral function converges already on short timescales.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/A_U=2_T=1_t=4.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/A_U=4_T=1_t=4.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Splitting of the Spectral function for U=2
+\begin_inset Formula $\Gamma$
+\end_inset
+
+ [left], 
+\begin_inset Formula $\mathrm{U=4\Gamma}$
+\end_inset
+
+[left],
+\begin_inset Formula $\mathrm{\Gamma t=4}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathrm{\Gamma\beta=1}$
+\end_inset
+
+on a short timescale 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/A_U=2_T=1_t=8.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/A_U=4_T=1_t=8.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Splitting of the Spectral function for U=2
+\begin_inset Formula $\Gamma$
+\end_inset
+
+ [left], 
+\begin_inset Formula $\mathrm{U=4\Gamma}$
+\end_inset
+
+[left],
+\begin_inset Formula $\mathrm{\Gamma t=8}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathrm{\Gamma\beta=1}$
+\end_inset
+
+on a long timescale 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+As the temperature is lowered and the interaction reduced we observe the
+ a Kondo-peak appearing [Fig.
+ 4] at the chemical potential and the formation of the two side bands.
+ The Kondo temprature is estimated from the formula 
+\begin_inset Formula $\mathrm{k_{B}T_{K}=U\sqrt{\frac{\varGamma}{2U}}exp^{-\frac{\pi U}{8\Gamma}+\frac{\pi\Gamma}{2U}}}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=0.06/A_U=2_T=0.06_t=10.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=0.06/A_U=3_T=0.06_t=10.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Kondo physics for parameters 
+\begin_inset Formula $\mathrm{U=2\varGamma}$
+\end_inset
+
+ (left) and 
+\begin_inset Formula $\mathrm{U=3\varGamma}$
+\end_inset
+
+ (right), 
+\begin_inset Formula $\mathrm{\Gamma\beta=16}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathrm{\Gamma t=10}$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Fig.
+ 5 shows, that the characteristics of the Kondo physics appear on longer
+ timescales 
+\begin_inset Formula $\mathrm{\sim\Gamma t=6}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=0.06/A_U=2_T=0.06_t=4.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=0.06/A_U=2_T=0.06_t=5.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Graphics
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=0.06/A_U=2_T=0.06_t=6.png
+	scale 50
+	BoundingBox 0bp 0bp 640bp 480bp
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Emergence of the Kondo peak for different timescales 
+\begin_inset Formula $\mathrm{\Gamma t=4}$
+\end_inset
+
+ [left], 
+\begin_inset Formula $\mathrm{\Gamma t=5}$
+\end_inset
+
+ [middle], 
+\begin_inset Formula $\mathrm{\Gamma t=6}$
+\end_inset
+
+ [right], 
+\begin_inset Formula $\mathrm{U=2\varGamma}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathrm{\mathrm{\Gamma\beta=16}}$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
 
 \end_inset
 
