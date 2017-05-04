@@ -1268,7 +1268,12 @@ The results shown so far avarage the spectral functions over the four initial
 \end_inset
 
 .
- 
+ For longer timescales 
+\begin_inset Formula $\mathrm{[\sim\Gamma t=4]}$
+\end_inset
+
+ the spectral function equilibrates and the results become independent of
+ the initial state.
 \end_layout
 
 \begin_layout Standard
@@ -1556,7 +1561,7 @@ Kondo physics for parameters
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
