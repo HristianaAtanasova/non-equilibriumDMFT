@@ -734,7 +734,7 @@ So far we have calculated propagators between many body states, which contain
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{K_{\alpha\beta}(t,t^{\prime})=K_{\alpha\beta}^{(0)}(t,t^{\prime})+\sum_{\gamma\delta}\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}K_{\alpha\gamma}(t_{1},t_{2})\mathbf{\Delta}_{\gamma\delta}(t_{1},t_{2})K_{\delta\beta}^{(0)}(t-t_{1},t^{\prime}-t_{2}).}
+\mathrm{K_{\alpha\beta}(t,t^{\prime})=K_{\alpha\beta}^{(0)}(t,t^{\prime})+\sum_{\gamma\delta}\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}K_{\alpha\gamma}(t_{1},t_{2})\mathbf{\Delta}_{\gamma\delta}(t_{1},t_{2})G_{\delta\beta}^{\dagger}(t-t_{1})G_{\delta\beta}(t^{\prime}-t_{2}).}
 \]
 
 \end_inset
@@ -1243,10 +1243,58 @@ reference "eq:selfconsistency"
 \end_layout
 
 \begin_layout Standard
+With increasing interaction strenght one can observe the splitting of the
+ spectral function into a lower and upper band indicating that the system
+ is in an insulating phase [Fig 2].
+ Comparing results on different time scales [Fig.
+ 2, Fig.
+ 3] shows that the spectral function converges already on short timescales.
+ 
+\end_layout
+
+\begin_layout Standard
+The results shown so far avarage the spectral functions over the four initial
+ states.
+ We can compare results on short timescales 
+\begin_inset Formula $\mathrm{[\sim\Gamma t=2]}$
+\end_inset
+
+ starting from different dot states and observe that for an initially unoccupied
+ dot the lower Hubbard band forms before the upper one [Fig.
+ 4].
+ The spectral function shows the reversed profile if the dot is initially
+ in the state 
+\begin_inset Formula $\text{\left|\uparrow\downarrow\right\rangle }$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+As the temperature is lowered and the interaction reduced we observe the
+ a Kondo-peak appearing [Fig.
+ 5] at the chemical potential and the formation of the two side bands.
+ The Kondo temprature is estimated from the formula 
+\begin_inset Formula $\mathrm{k_{B}T_{K}=U\sqrt{\frac{\varGamma}{2U}}exp^{-\frac{\pi U}{8\Gamma}+\frac{\pi\Gamma}{2U}}}$
+\end_inset
+
+.
+ Fig.
+ 6 shows, that the characteristics of the Kondo physics appear on longer
+ timescales 
+\begin_inset Formula $\mathrm{\sim\Gamma t=6}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -1288,20 +1336,10 @@ left side: Spectral function for U=0,
 \end_layout
 
 \begin_layout Standard
-With increasing interaction strenght one can observe the splitting of the
- spectral function into a lower and upper band indicating that the system
- is in an insulating phase [Fig 2].
- Comparing results on different time scales [Fig.
- 2, Fig.
- 3] shows that the spectral function converges already on short timescales.
- 
-\end_layout
-
-\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -1354,7 +1392,7 @@ on a short timescale
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
@@ -1408,14 +1446,57 @@ on a long timescale
 \end_layout
 
 \begin_layout Standard
-As the temperature is lowered and the interaction reduced we observe the
- a Kondo-peak appearing [Fig.
- 4] at the chemical potential and the formation of the two side bands.
- The Kondo temprature is estimated from the formula 
-\begin_inset Formula $\mathrm{k_{B}T_{K}=U\sqrt{\frac{\varGamma}{2U}}exp^{-\frac{\pi U}{8\Gamma}+\frac{\pi\Gamma}{2U}}}$
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/init=0/A_U=3_T=1_t=2.png
+	scale 50
+
 \end_inset
 
-.
+
+\begin_inset Graphics
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/init=3/A_U=3_T=1_t=2.png
+	scale 50
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Spectral function for the inital dot state
+\begin_inset Formula $\left|0\right\rangle $
+\end_inset
+
+[left] and 
+\begin_inset Formula $\text{\left|\uparrow\downarrow\right\rangle }$
+\end_inset
+
+[right].
+ The parameters are
+\begin_inset Formula $\mathrm{U=3\varGamma}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathrm{\Gamma\beta=1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -1466,16 +1547,6 @@ Kondo physics for parameters
 
 \end_layout
 
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Fig.
- 5 shows, that the characteristics of the Kondo physics appear on longer
- timescales 
-\begin_inset Formula $\mathrm{\sim\Gamma t=6}$
 \end_inset
 
 
