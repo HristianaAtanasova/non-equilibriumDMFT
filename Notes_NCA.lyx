@@ -30,7 +30,7 @@
 \spacing single
 \use_hyperref false
 \papersize default
-\use_geometry false
+\use_geometry true
 \use_package amsmath 1
 \use_package amssymb 1
 \use_package cancel 1
@@ -54,6 +54,8 @@
 \shortcut idx
 \color #008000
 \end_index
+\leftmargin 2.5cm
+\rightmargin 2.5cm
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
@@ -1299,19 +1301,12 @@ As the temperature is lowered and the interaction reduced we observe the
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/A_U=0_T=1_t=4.png
-	scale 45
-
-\end_inset
-
-
-\begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/semicircularDOS.png
-	scale 45
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/DOS_A(w)_U=0_T=1_t=10.svg
+	scale 70
 
 \end_inset
 
@@ -1319,15 +1314,15 @@ status collapsed
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-left side: Spectral function for U=0, 
-\begin_inset Formula $\mathrm{\Gamma t=4}$
+Spectral function for U=0, 
+\begin_inset Formula $\mathrm{\Gamma t=10}$
 \end_inset
 
  and 
 \begin_inset Formula $\mathrm{\Gamma\beta=1}$
 \end_inset
 
-; right side: Semicircular DOS for the Bethe lattice
+ and semicircular DOS for the Bethe lattice
 \end_layout
 
 \end_inset
@@ -1344,19 +1339,12 @@ left side: Spectral function for U=0,
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/A_U=2_T=1_t=4.png
-	scale 50
-
-\end_inset
-
-
-\begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/A_U=4_T=1_t=4.png
-	scale 50
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/A(w)_t=4.svg
+	scale 70
 
 \end_inset
 
@@ -1364,15 +1352,7 @@ status collapsed
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Splitting of the Spectral function for U=2
-\begin_inset Formula $\Gamma$
-\end_inset
-
- [left], 
-\begin_inset Formula $\mathrm{U=4\Gamma}$
-\end_inset
-
-[left],
+Splitting of the Spectral function for short timescales
 \begin_inset Formula $\mathrm{\Gamma t=4}$
 \end_inset
 
@@ -1380,7 +1360,7 @@ Splitting of the Spectral function for U=2
 \begin_inset Formula $\mathrm{\Gamma\beta=1}$
 \end_inset
 
-on a short timescale 
+ 
 \end_layout
 
 \end_inset
@@ -1397,19 +1377,12 @@ on a short timescale
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/A_U=2_T=1_t=8.png
-	scale 50
-
-\end_inset
-
-
-\begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/A_U=4_T=1_t=8.png
-	scale 50
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/A(w)_t=8_multiple.svg
+	scale 70
 
 \end_inset
 
@@ -1417,15 +1390,7 @@ status collapsed
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Splitting of the Spectral function for U=2
-\begin_inset Formula $\Gamma$
-\end_inset
-
- [left], 
-\begin_inset Formula $\mathrm{U=4\Gamma}$
-\end_inset
-
-[left],
+Splitting of the Spectral function for long timescales
 \begin_inset Formula $\mathrm{\Gamma t=8}$
 \end_inset
 
@@ -1433,7 +1398,7 @@ Splitting of the Spectral function for U=2
 \begin_inset Formula $\mathrm{\Gamma\beta=1}$
 \end_inset
 
-on a long timescale 
+ 
 \end_layout
 
 \end_inset
@@ -1454,19 +1419,65 @@ on a long timescale
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/init=0/A_U=3_T=1_t=2.png
-	scale 50
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/DOS_A_U=8_t=10.svg
+	scale 70
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Mott physics for 
+\begin_inset Formula $\mathrm{U=8\varGamma}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathrm{\Gamma\beta=1}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathrm{\Gamma t=10}$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/init0_U=3.svg
+	scale 60
 
 \end_inset
 
 
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/init=3/A_U=3_T=1_t=2.png
-	scale 50
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/init3_U=3.svg
+	scale 60
 
 \end_inset
 
@@ -1512,15 +1523,8 @@ status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=0.06/A_U=2_T=0.06_t=10.png
-	scale 50
-
-\end_inset
-
-
-\begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=0.06/A_U=3_T=0.06_t=10.png
-	scale 50
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=0.06/Kondo_t=8.svg
+	scale 60
 
 \end_inset
 
@@ -1529,19 +1533,11 @@ status collapsed
 
 \begin_layout Plain Layout
 Kondo physics for parameters 
-\begin_inset Formula $\mathrm{U=2\varGamma}$
-\end_inset
-
- (left) and 
-\begin_inset Formula $\mathrm{U=3\varGamma}$
-\end_inset
-
- (right), 
 \begin_inset Formula $\mathrm{\Gamma\beta=16}$
 \end_inset
 
 , 
-\begin_inset Formula $\mathrm{\Gamma t=10}$
+\begin_inset Formula $\mathrm{\Gamma t=8}$
 \end_inset
 
  
@@ -1561,51 +1557,23 @@ Kondo physics for parameters
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=0.06/A_U=2_T=0.06_t=4.png
-	scale 50
+	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=0.06/Kondo_U=2.png
+	scale 70
 
 \end_inset
 
 
-\begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=0.06/A_U=2_T=0.06_t=5.png
-	scale 50
+\end_layout
 
-\end_inset
-
-
-\begin_inset Newline newline
-\end_inset
-
-
-\begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=0.06/A_U=2_T=0.06_t=6.png
-	scale 50
-	BoundingBox 0bp 0bp 640bp 480bp
-
-\end_inset
-
-
+\begin_layout Plain Layout
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Emergence of the Kondo peak for different timescales 
-\begin_inset Formula $\mathrm{\Gamma t=4}$
-\end_inset
-
- [left], 
-\begin_inset Formula $\mathrm{\Gamma t=5}$
-\end_inset
-
- [middle], 
-\begin_inset Formula $\mathrm{\Gamma t=6}$
-\end_inset
-
- [right], 
+Emergence of the Kondo peak for different timescales with parameters 
 \begin_inset Formula $\mathrm{U=2\varGamma}$
 \end_inset
 
