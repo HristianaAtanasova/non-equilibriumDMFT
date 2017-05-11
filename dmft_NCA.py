@@ -12,7 +12,7 @@ wC = 10
 t_param = 1
 v = 10
 treshold = 1e-6
-tmax = 1
+tmax = 2
 dt = 0.01
 t = np.arange(0, tmax, dt)
 
@@ -97,11 +97,14 @@ def delta(f, i):
 
 
 # Self energy for vertex functions
-def SelfEnergy(K, DeltaMatrix, i, Sigma):
+def SelfEnergy(K, DeltaMatrix, Sigma):
+    print(K.shape)
+    print(DeltaMatrix.shape)
+    print(Sigma.shape)
+
     for f in range(4):
         for j in range(4):
-            Sigma[f] += K[i, j] * DeltaMatrix[f, j]
-    return Sigma
+            Sigma[f] += K[j] * DeltaMatrix[f, j]
 
 
 def fillDeltaMatrix(Delta):
@@ -148,40 +151,22 @@ def Solver(DeltaMatrix, U, init, Green_):
             for t2 in range(t1+1):
                 G_0[i, t1, t2] = g_0[i, t1-t2]
 
-        # Initialization of G to 1 for diagonal times
-        np.fill_diagonal(G[i], 1)
-
-    # Initialize Sigma for diagonal times
-    Sigma = np.sum(G[None] * DeltaMatrix, 1)
-
+    # plt.plot(t, np.real(G_0[1, :, 0]), 'r--', t, np.imag(G_0[1, :, 0]), 'b--')
+    # plt.show()
 
     # main loop over every pair of times t_n and t_m (located on the same contour-branch), where t_m is the smaller contour time
-    # propagate from (t_n, 0) to (t_n+1, 0)
+
     for t_n in range(len(t)):
-        sum_t2 = np.zeros((4, len(t), len(t)), complex)
-        for t1 in range(t_n+1):
-            sum_t2[:, t1, 0] = np.trapz(Sigma[:, t1, :] * G[:, :, 0])
+        for t_m in range(t_n, -1, -1):
 
-        sum_t1 = np.zeros((4, len(t), len(t)), complex)
-        sum_t1[:, t_n, 0] = dt ** 2 * np.trapz(G_0[:, t_n, :] * sum_t2[:, :, 0])
-
-        # Dyson equation for time (t_n, t_0)
-        G[:, t_n, 0] = G_0[:, t_n, 0] - sum_t1[:, t_n, 0]
-
-        # Compute self-energy for time (t_n, t_0)
-        Sigma[:, t_n, 0] = np.sum(G[None, :, t_n, 0] * DeltaMatrix[:, :, t_n, 0], 1)
-
-        # propagate along time slice t_n (t_n,t_m -> t_n,t_m+1)
-        for t_m in range(t_n+1):
-            sum_t2 = np.zeros((4, len(t), len(t)), complex)
+            sum_t2 = np.zeros((4, t_n+1-t_m), complex)
             for t1 in range(t_m, t_n+1):
-                sum_t2[:, t1, t_m] = np.trapz(Sigma[:, t1, :]*G[:, :, t_m])
+                sum_t2[:, t1-t_m] = np.trapz(Sigma[:, t1, t_m:t1+1]*G[:, t_m:t1+1, t_m])
 
-            sum_t1 = np.zeros((4, len(t), len(t)), complex)
-            sum_t1[:, t_n, t_m] = dt**2 * np.trapz(G_0[:, t_n, :]*sum_t2[:, :, t_m])
+            sum_t1 = dt**2 * np.trapz(G_0[:, t_n, t_m:t_n+1]*sum_t2)
 
             # Dyson equation for time (t_m, t_n)
-            G[:, t_n, t_m] = G_0[:, t_n, t_m] - sum_t1[:, t_n, t_m]
+            G[:, t_n, t_m] = G_0[:, t_n, t_m] - sum_t1
 
             # Compute self-energy for time (t_m, t_n)
             Sigma[:, t_n, t_m] = np.sum(G[None, :, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 1)
@@ -189,8 +174,8 @@ def Solver(DeltaMatrix, U, init, Green_):
 
     print('Finished calculation of bold propagators after', datetime.now() - start)
 
-    # plt.plot(t, np.real(G[0, len(t)-1, ::-1]), 'r--', t, np.imag(G[0, len(t)-1, ::-1]), 'b--')
-    # plt.show()
+    plt.plot(t, np.real(G[0, :, 0]), 'r--', t, np.imag(G[0, :, 0]), 'b--')
+    plt.show()
 
     ########## Computation of Vertex Functions including hybridization lines between the upper and lower branch ##########
 
@@ -198,51 +183,29 @@ def Solver(DeltaMatrix, U, init, Green_):
     K = np.zeros((4, 4, len(t), len(t)), complex)  # indices are initial state, contour times lower/upper branch
     K_0 = np.zeros((4, 4, len(t), len(t)), complex)
 
-    # Computation of K_0
+    # for every initial state i there is a set of 4 coupled equations for K
     for i in range(4):
-        # for every initial state i there is a set of 4 couples equations for K
         for f in range(4):
-            for t1 in range(len(t)):
-                for t_1 in range(t1+1):
-                    K_0[i, f, t1, t_1] = delta(i, f) * np.conj(G[i, t1, 0]) * G[i, t_1, 0]
-            # fill in K for diagonal times
-            np.fill_diagonal(K[i, f], 1)
+            K_0[i, f] = delta(i, f) * np.conj(G[i, :, None, 0]) * G[i, None, :, 0]
 
         # plt.plot(t, np.real(K_0[0, 0, len(t)-1, :]), 'r--', t, np.imag(K_0[0, 0, len(t)-1, :]), 'b--')
         # plt.show()
 
         Sigma = np.zeros((4, len(t), len(t)), complex)  # indices are final state, lower and upper branch time
-        SelfEnergy(K, DeltaMatrix, i, Sigma)  # fill in self-energy for diagonal times
-        print(Sigma[0])
-        # propagate from (t_n, 0) to (t_n+1, 0)
         for t_n in range(len(t)):
-            sum_t2 = np.zeros((4, len(t), len(t)), complex)
-            for t1 in range(t_n+1):
-                sum_t2[:, t1, 0] = np.trapz(Sigma[:, t1, :]*K_0[i, :, :, 0])
-
-            sum_t1 = np.zeros((4, len(t), len(t)), complex)
-            sum_t1[:, t_n, 0] = dt ** 2 * np.trapz(np.conj(K_0[i, :, t_n, :])*sum_t2[:, :, 0])
-
-            # Dyson equation for time (t_n, t_0)
-            K[i, :, t_n, 0] = K_0[i, :, t_n, 0] - sum_t1[:, t_n, 0]
-
-            # Compute self-energy for time (t_n, t_0)
-            SelfEnergy(K, DeltaMatrix, i, Sigma)
-
-            # propagate along time slice t_n (t_n,t_m -> t_n,t_m+1)
-            for t_m in range(t_n+1):
+            for t_m in range(len(t)):
                 sum_t2 = np.zeros((4, len(t), len(t)), complex)
                 for t1 in range(t_n+1):
-                    sum_t2[:, t1, t_m] = np.trapz(Sigma[:, t1, :]*K_0[i, :, t_m])
+                    sum_t2[:, t1, t_m] = np.trapz(Sigma[:, t1, :]*G[:, t_m, :])
 
                 sum_t1 = np.zeros((4, len(t), len(t)), complex)
-                sum_t1[:, t_n, t_m] = dt**2 * np.trapz(np.conj(K_0[i, :, t_n, :])*sum_t2[:, :, t_m])
+                sum_t1[:, t_n, t_m] = dt**2 * np.trapz(np.conj(G[:, t_n, :])*sum_t2[:, :, t_m])
 
                 # Dyson equation for time (t_m, t_n)
                 K[i, :, t_n, t_m] = K_0[i, :, t_n, t_m] + sum_t1[:, t_n, t_m]
 
                 # Compute self-energy for time (t_m, t_n)
-                SelfEnergy(K, DeltaMatrix, i, Sigma)
+                SelfEnergy(K[i, :, t_n, t_m], DeltaMatrix[:, :, t_n, t_m], Sigma[:, t_n, t_m])
 
         plt.plot(t, np.real(K[0, 1, len(t)-1, :]), 'r--', t, np.imag(K[0, 1, len(t)-1, :]), 'b--')
         plt.show()
@@ -310,18 +273,6 @@ for U in np.arange(Umin, Umax, 1.00):
     Solver(DeltaMatrix, U, init, Green_)
     Delta = np.zeros((2, len(t), len(t)), complex)  # after the initial guess Delta becomes a two times function
 
-    # # output
-    # np.savetxt("Green_les_U="+str(U)+"_T="+str(T)+"_t="+str(tmax)+".out", Green_[1].view(float), delimiter=' ')
-    # np.savetxt("Green_gtr_U="+str(U)+"_T="+str(T)+"_t="+str(tmax)+".out", Green_[0].view(float), delimiter=' ')
-
-    # plt.plot(t, np.real(Green_[0]), 'r--', label='Green_gtr_r')
-    # plt.plot(t, np.imag(Green_[0]), 'b--', label='Green_gtr_i')
-    # plt.plot(t, np.real(Green_[1]), 'y--', label='Green_les_r')
-    # plt.plot(t, np.imag(Green_[1]), 'k--', label='Green_les_i')
-    # plt.legend()
-    # plt.grid()
-    # plt.show()
-
     counter = 0
     while np.amax(np.abs(Green_old - Green_)) > 0.001:
         start = datetime.now()
@@ -334,17 +285,10 @@ for U in np.arange(Umin, Umax, 1.00):
         Diff = np.amax(np.abs(Green_old - Green_))
         print('for U = ', U, ' and iteration Nr. ', counter, ' the Difference is ', Diff, ' after a calculation time ', datetime.now() - start)
 
-        # output
-        np.savetxt("Green_les_U=" + str(U) + "_T=" + str(T) + "_t=" + str(tmax) + ".out", Green_[1].view(float), delimiter=' ')
-        np.savetxt("Green_gtr_U=" + str(U) + "_T=" + str(T) + "_t=" + str(tmax) + ".out", Green_[0].view(float), delimiter=' ')
+    # output
+    np.savetxt("Green_les_U=" + str(U) + "_T=" + str(T) + "_t=" + str(tmax) + ".out", Green_[1].view(float), delimiter=' ')
+    np.savetxt("Green_gtr_U=" + str(U) + "_T=" + str(T) + "_t=" + str(tmax) + ".out", Green_[0].view(float), delimiter=' ')
 
-        # plt.plot(t, np.real(Green_[0]), 'r--', label='Green_gtr_r')
-        # plt.plot(t, np.imag(Green_[0]), 'b--', label='Green_gtr_i')
-        # plt.plot(t, np.real(Green_[1]), 'y--', label='Green_les_r')
-        # plt.plot(t, np.imag(Green_[1]), 'k--', label='Green_les_i')
-        # plt.legend()
-        # plt.grid()
-        # plt.show()
 
     print('Computation of Greens functions for U = ', U, 'finished after', counter, 'iterations and', datetime.now() - start, 'seconds.')
 
