@@ -12,7 +12,7 @@ wC = 10
 t_param = 1
 v = 10
 treshold = 1e-6
-tmax = 6
+tmax = 4
 dt = 0.01
 t = np.arange(0, tmax, dt)
 
@@ -64,12 +64,12 @@ fDelta_les = np.conj((ifftshift(fft(fftshift(Hyb_les)))) * dw / np.pi)
 fDelta_gtr = (ifftshift(fft(fftshift(Hyb_gtr)))) * dw / np.pi
 
 # get real times from fft_times
-Delta = np.zeros((2, len(t)), complex)
+Delta_init = np.zeros((2, len(t)), complex)
 for t_ in range(len(t)):
-    # Delta[0, t_] = fDelta_les[int((N-len(t))/2) + t_]
-    # Delta[1, t_] = fDelta_gtr[int((N-len(t))/2) + t_]
-    Delta[0, t_] = fDelta_les[int(N / 2) + t_]
-    Delta[1, t_] = fDelta_gtr[int(N / 2) + t_]
+    # Delta_init[0, t_] = fDelta_les[int((N-len(t))/2) + t_]
+    # Delta_init[1, t_] = fDelta_gtr[int((N-len(t))/2) + t_]
+    Delta_init[0, t_] = fDelta_les[int(N / 2) + t_]
+    Delta_init[1, t_] = fDelta_gtr[int(N / 2) + t_]
 
 ########################################################################################################################
 ''' Impurity solver based on NCA '''
@@ -102,8 +102,9 @@ def SelfEnergy(K, DeltaMatrix, Sigma):
         for j in range(4):
             Sigma[f] += K[j] * DeltaMatrix[f, j]
 
+
 # fill in initial DeltaMatrix for two contour times with initial Delta for time-differences
-def initDelta(Delta):
+def initDeltaMatrix(Delta):
     for t1 in range(len(t)):
         for t2 in range(len(t)):
             DeltaMatrix[0, 1, t1, t2] = tdiff(Delta[0], t1, t2)
@@ -117,6 +118,7 @@ def initDelta(Delta):
 
             DeltaMatrix[3, 1, t1, t2] = tdiff(Delta[1], t1, t2)
             DeltaMatrix[3, 2, t1, t2] = tdiff(Delta[1], t1, t2)
+
 
 def fillDeltaMatrix(Delta):
     # fill in DeltaMatrix for all times
@@ -166,28 +168,37 @@ def Solver(DeltaMatrix, U, init, Green_):
     # main loop over every pair of times t_n and t_m (located on the same contour-branch), where t_m is the smaller contour time
 
     # for t_n in range(len(t)):
-    #     for t_m in range(t_n, -1, -1):
+    #     for t_m in range(t_n+1):
+    #
+    #         sum_t2 = np.zeros((4, t_n+1-t_m), complex)
+    #         for t1 in range(t_m, t_n+1):
+    #             sum_t2[:, t1-t_m] = np.trapz(Sigma[:, t1, t_m:t1+1]*G[:, t_m:t1+1, t_m])
+    #
+    #         sum_t1 = dt**2 * np.trapz(G_0[:, t_n, t_m:t_n+1]*sum_t2)
+    #
+    #         # Dyson equation for time (t_m, t_n)
+    #         G[:, t_n, t_m] = G_0[:, t_n, t_m] - sum_t1
+    #
+    #         # Compute self-energy for time (t_m, t_n)
+    #         Sigma[:, t_n, t_m] = np.sum(G[None, :, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 1)
 
+
+    # take integral over t1 outside the t_m loop
     for t_n in range(len(t)):
-        for t_m in range(t_n+1):
+        sum_t1 = np.zeros((4, t_n+1), complex)
+        for t_m in range(t_n, -1, -1):
 
-            sum_t2 = np.zeros((4, t_n+1-t_m), complex)
-            for t1 in range(t_m, t_n+1):
-                sum_t2[:, t1-t_m] = np.trapz(Sigma[:, t1, t_m:t1+1]*G[:, t_m:t1+1, t_m])
-
-            sum_t1 = dt**2 * np.trapz(G_0[:, t_n, t_m:t_n+1]*sum_t2)
+            sum_t2 = dt**2 * np.trapz(G[:, t_m:t_n+1, t_m] * sum_t1[:, t_m:])
 
             # Dyson equation for time (t_m, t_n)
-            G[:, t_n, t_m] = G_0[:, t_n, t_m] - sum_t1
+            G[:, t_n, t_m] = G_0[:, t_n, t_m] - sum_t2
 
             # Compute self-energy for time (t_m, t_n)
             Sigma[:, t_n, t_m] = np.sum(G[None, :, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 1)
 
+            sum_t1[:, t_m] = np.trapz(Sigma[:, t_m:t_n+1, t_m] * G_0[:, t_n, t_m:t_n+1])  # sum[:, t2=t_m]
 
     print('Finished calculation of bold propagators after', datetime.now() - start)
-
-    # plt.plot(t, np.real(G[0, :, 0]), 'r--', t, np.imag(G[0, :, 0]), 'b--')
-    # plt.show()
 
     ########## Computation of Vertex Functions including hybridization lines between the upper and lower branch ##########
 
@@ -202,18 +213,34 @@ def Solver(DeltaMatrix, U, init, Green_):
             K_0[i, f] = delta(i, f) * np.conj(G[i, :, None, 0]) * G[i, None, :, 0]
 
         Sigma = np.zeros((4, len(t), len(t)), complex)  # indices are final state, lower and upper branch time
+
+        # for t_n in range(len(t)):
+        #     for t_m in range(len(t)):
+        #
+        #         sum_t2 = np.zeros((4, t_n+1), complex)
+        #         for t1 in range(t_n+1):
+        #             sum_t2[:, t1] = np.trapz(Sigma[:, t1, :t_m+1] * G[:, t_m, :t_m+1])
+        #
+        #         sum_t1 = dt ** 2 * np.trapz(np.conj(G[:, t_n, :t_n+1]) * sum_t2)
+        #
+        #         K[i, :, t_n, t_m] = K_0[i, :, t_n, t_m] + sum_t1
+        #
+        #         SelfEnergy(K[i, :, t_n, t_m], DeltaMatrix[:, :, t_n, t_m], Sigma[:, t_n, t_m])
+
         for t_n in range(len(t)):
+            sum_t1 = np.zeros((4, len(t)), complex)
             for t_m in range(len(t)):
 
-                sum_t2 = np.zeros((4, t_n+1), complex)
-                for t1 in range(t_n+1):
-                    sum_t2[:, t1] = np.trapz(Sigma[:, t1, :t_m+1] * G[:, t_m, :t_m+1])
+                # print(t_n, t_m)
+                sum_t2 = dt**2 * np.trapz(G[:, t_m, :t_m+1] * sum_t1[:, :t_m+1])
 
-                sum_t1 = dt ** 2 * np.trapz(np.conj(G[:, t_n, :t_n+1]) * sum_t2)
+                # Dyson equation for time (t_m, t_n)
+                K[i, :, t_n, t_m] = K_0[i, :, t_n, t_m] + sum_t2
 
-                K[i, :, t_n, t_m] = K_0[i, :, t_n, t_m] + sum_t1
-
+                # Compute self-energy for time (t_m, t_n)
                 SelfEnergy(K[i, :, t_n, t_m], DeltaMatrix[:, :, t_n, t_m], Sigma[:, t_n, t_m])
+
+                sum_t1[:, t_m] = np.trapz(Sigma[:, :t_n+1, t_m] * np.conj(G[:, t_n, :t_n+1]))  # t_m = t_2
 
         print('Finished calculation of K for initial state', i, 'after', datetime.now() - start_i)
         err = np.abs(1 - np.abs(np.sum(K[0, :, len(t)-1, len(t)-1])))
@@ -222,7 +249,7 @@ def Solver(DeltaMatrix, U, init, Green_):
         # output
         file = 'K_t={}_dt={}_i={}_f={}.out'
         for f in range(4):
-            np.savetxt(file.format(tmax,dt, i, f), K[i, f].view(float), delimiter=' ')
+            np.savetxt(file.format(tmax, dt, i, f), K[i, f].view(float), delimiter=' ')
 
     print('Finished calculation of all K after', datetime.now() - start)
 
@@ -232,7 +259,7 @@ def Solver(DeltaMatrix, U, init, Green_):
     Green = np.zeros((2, 2, 4, len(t), len(t)), complex)  # Greens function with indices greater/lesser, spin up/spin down, initial state, lower and upper branch time
     for i in range(4):
         for t1 in range(len(t)):
-            for t_1 in range(t1 + 1):
+            for t_1 in range(t1+1):
                 Green[0, 0, i, t1, t_1] = K[i, 0, t1, t_1] * G[1, t1, t_1] + K[i, 2, t1, t_1] * G[3, t1, t_1] # gtr, spin up
                 Green[1, 0, i, t1, t_1] = K[i, 1, t1, t_1] * G[0, t1, t_1] + K[i, 3, t1, t_1] * G[2, t1, t_1] # les, spin up
                 Green[0, 1, i, t1, t_1] = K[i, 0, t1, t_1] * G[2, t1, t_1] + K[i, 1, t1, t_1] * G[3, t1, t_1] # gtr, spin down
@@ -244,12 +271,12 @@ def Solver(DeltaMatrix, U, init, Green_):
         np.savetxt(gtr.format(tmax, dt, i), Green[0, 0, i].view(float), delimiter=' ')
         np.savetxt(les.format(tmax, dt, i), Green[1, 0, i].view(float), delimiter=' ')
 
-    # summation over the initial state
-    Green_[0] = (Green[0, 0, 0] + Green[0, 0, 1] + Green[0, 0, 2] + Green[0, 0, 3]) / 4
-    Green_[1] = (Green[1, 0, 0] + Green[1, 0, 1] + Green[1, 0, 2] + Green[1, 0, 3]) / 4
+    # # summation over the initial state
+    # Green_[0] = (Green[0, 0, 0] + Green[0, 0, 1] + Green[0, 0, 2] + Green[0, 0, 3]) / 4
+    # Green_[1] = (Green[1, 0, 0] + Green[1, 0, 1] + Green[1, 0, 2] + Green[1, 0, 3]) / 4
 
-    # Green_[0] = Green[0, 0, init]
-    # Green_[1] = Green[1, 0, init]
+    Green_[0] = Green[0, 0, init]
+    Green_[1] = Green[1, 0, init]
 
     return Green_
 
@@ -257,21 +284,22 @@ def Solver(DeltaMatrix, U, init, Green_):
 ########################################################################################################################
 ''' Main part starts here '''
 n_loops = 10
-Umax = 7.0
-Umin = 2.0
+Umax = 3
+Umin = 2
 init = 0  # chose initial state
 
 ######### perform loop over U #########
 
-for U in np.arange(Umin, Umax, 2.00):
-    print('Starting DMFT loop for U =', U, 'Temperature =', T, 'time =', tmax, 'dt=', dt)
+for U in np.arange(Umin, Umax, 2):
+    print('Starting DMFT loop for U =', U, '| Temperature =', T, '| time =', tmax, '| dt=', dt)
     start = datetime.now()
+
     Green_ = np.zeros((2, len(t), len(t)), complex)  # indices are greater/lesser, two contour times
     Green_old = np.zeros((2, len(t), len(t)), complex)
     DeltaMatrix = np.zeros((4, 4, len(t), len(t)), complex)  # indices are initial and final states, in general two times objects
 
     # first DMFT loop with initial guess for Delta
-    initDelta(Delta)
+    initDeltaMatrix(Delta_init)
     Solver(DeltaMatrix, U, init, Green_)
     Delta = np.zeros((2, len(t), len(t)), complex)  # after the initial guess Delta becomes a two times function --> feed into Deltamatrix
 
@@ -286,10 +314,6 @@ for U in np.arange(Umin, Umax, 2.00):
         Solver(DeltaMatrix, U, init, Green_)
         Diff = np.amax(np.abs(Green_old - Green_))
         print('for U = ', U, ' and iteration Nr. ', counter, ' the Difference is ', Diff, ' after a calculation time ', datetime.now() - start)
-
-    # output
-    np.savetxt("Green_les_U=" + str(U) + "_T=" + str(T) + "_t=" + str(tmax) + ".out", Green_[1].view(float), delimiter=' ')
-    np.savetxt("Green_gtr_U=" + str(U) + "_T=" + str(T) + "_t=" + str(tmax) + ".out", Green_[0].view(float), delimiter=' ')
 
 
     print('Computation of Greens functions for U = ', U, 'finished after', counter, 'iterations and', datetime.now() - start, 'seconds.')

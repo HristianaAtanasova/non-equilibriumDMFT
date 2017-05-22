@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.fftpack import fft, ifft, fftshift, ifftshift
 
-tmax = 2
+tmax = 4
 dt = 0.01
 t = np.arange(0, tmax, dt)
 Cut = np.pi/dt
@@ -15,11 +15,11 @@ w = np.arange(-7, 7, dw)
 Gles = np.zeros((4, len(t), len(t)), complex)
 Ggtr = np.zeros((4, len(t), len(t)), complex)
 
-les = 'Green_les_t={}_dt={}_i={}.out'
-gtr = 'Green_gtr_t={}_dt={}_i={}.out'
+# les = 'Green_les_t={}_dt={}_i={}.out'
+# gtr = 'Green_gtr_t={}_dt={}_i={}.out'
 
-# les = 'Green_fft_les_t={}_dt={}_i={}.out'
-# gtr = 'Green_fft_gtr_t={}_dt={}_i={}.out'
+les = 'Green_fft_les_t={}_dt={}_i={}.out'
+gtr = 'Green_fft_gtr_t={}_dt={}_i={}.out'
 
 for i in range(4):
     Gles[i] = np.loadtxt(les.format(tmax,dt,i)).view(complex)

@@ -1,41 +1,38 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.fftpack import fft, ifft, fftshift, ifftshift
 
-tmax = 1
+tmax = 2
 dt = 0.01
 t = np.arange(0, tmax, dt)
 
-Green_les = np.zeros((4, len(t), len(t)), complex)
-Green_fft_les = np.zeros((4, len(t), len(t)), complex)
 
-Green_gtr = np.zeros((4, len(t), len(t)), complex)
-Green_fft_gtr = np.zeros((4, len(t), len(t)), complex)
+Gles_fft = np.zeros((4, len(t), len(t)), complex)
+Ggtr_fft = np.zeros((4, len(t), len(t)), complex)
 
-SpinUpPop = np.zeros((len(t)), complex)
+Gles = np.zeros((4, len(t), len(t)), complex)
+Ggtr = np.zeros((4, len(t), len(t)), complex)
 
 les = 'Green_les_t={}_dt={}_i={}.out'
-fft_les = 'Green_fft_les_t={}_dt={}_i={}.out'
-
 gtr = 'Green_gtr_t={}_dt={}_i={}.out'
-fft_gtr = 'Green_fft_gtr_t={}_dt={}_i={}.out'
+
+les_fft = 'Green_fft_les_t={}_dt={}_i={}.out'
+gtr_fft = 'Green_fft_gtr_t={}_dt={}_i={}.out'
 
 for i in range(4):
-    Green_les[i] = np.loadtxt(les.format(tmax,dt,i)).view(complex)
-    Green_fft_les[i] = np.loadtxt(fft_les.format(tmax,dt,i)).view(complex)
+    Gles_fft[i] = np.loadtxt(les_fft.format(tmax,dt,i)).view(complex)
+    Ggtr_fft[i] = np.loadtxt(gtr_fft.format(tmax,dt,i)).view(complex)
 
-    Green_gtr[i] = np.loadtxt(gtr.format(tmax,dt,i)).view(complex)
-    Green_fft_gtr[i] = np.loadtxt(fft_gtr.format(tmax,dt,i)).view(complex)
+    Gles[i] = np.loadtxt(les.format(tmax,dt,i)).view(complex)
+    Ggtr[i] = np.loadtxt(gtr.format(tmax,dt,i)).view(complex)
 
-i = 0
-SpinUpPop = Green_les[i].diagonal()
-# plt.plot(t, np.real(SpinUpPop), 'b--', t, np.imag(SpinUpPop), 'r--', label='$dt = {dt}$'.format(dt=dt))
+i= 0
 
-# plt.plot(t, np.real(Green_les[0, len(t)-1, ::-1]), 'b--', t, np.imag(Green_les[0, len(t)-1, ::-1]), 'b--', label='timedep')
-# plt.plot(t, np.real(Green_fft_les[0, :, len(t)-1]), 'r--', t,  np.imag(Green_fft_les[0, :, len(t)-1]), 'r--', label='fft')
-
-plt.plot(t, np.real(Green_gtr[0, len(t)-1, ::-1]), 'b--', t, np.imag(Green_gtr[0, len(t)-1, ::-1]), 'b--', label='timedep')
-plt.plot(t, np.real(Green_fft_gtr[0, :, len(t)-1]), 'r--', t,  np.imag(Green_fft_gtr[0, :, len(t)-1]), 'r--', label='fft')
-
+# plt.plot(t, np.real(Gles[i, len(t)-1, ::-1]), 'r--', t, np.imag(Gles[i, len(t)-1, ::-1]), 'r--', label='Gles')
+plt.plot(t, np.real(Gles_fft[i, :, 0]), 'b--', t, np.imag(Gles_fft[i, :, 0]), 'b--', label='Gles_fft')
+# plt.plot(t, np.real(Gles_fft[i, len(t)-1, :]), 'b--', t, np.imag(Gles_fft[i, len(t)-1, :]), 'b--', label='Gles_fft')
+plt.legend(loc='best')
+plt.ylabel('G(t)')
+plt.xlabel('($t$)')
 plt.grid()
-plt.legend()
 plt.show()
