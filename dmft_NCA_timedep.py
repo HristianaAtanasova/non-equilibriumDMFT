@@ -12,8 +12,8 @@ wC = 10
 t_param = 1
 v = 10
 treshold = 1e-6
-tmax = 4
-dt = 0.01
+tmax = 5
+dt = 0.005
 t = np.arange(0, tmax, dt)
 
 ########################################################################################################################
@@ -198,6 +198,15 @@ def Solver(DeltaMatrix, U, init, Green_):
 
             sum_t1[:, t_m] = np.trapz(Sigma[:, t_m:t_n+1, t_m] * G_0[:, t_n, t_m:t_n+1])  # sum[:, t2=t_m]
 
+    for t_n in range(len(t)):
+        for t_m in range(t_n+1, len(t), +1):
+                G[:, t_n, t_m] = np.conj(G[:, t_m, t_n])
+
+    # for i in range(4):
+    #     plt.plot(t, np.real(G[i, :, 0]), 'r--', t, np.imag(G[i, :, 0]), 'b--')
+    #     plt.plot(t, np.real(G[i, 0, :]), 'r--', t, np.imag(G[i, 0, :]), 'b--')
+    #     plt.show()
+
     print('Finished calculation of bold propagators after', datetime.now() - start)
 
     ########## Computation of Vertex Functions including hybridization lines between the upper and lower branch ##########
@@ -211,6 +220,10 @@ def Solver(DeltaMatrix, U, init, Green_):
         start_i = datetime.now()
         for f in range(4):
             K_0[i, f] = delta(i, f) * np.conj(G[i, :, None, 0]) * G[i, None, :, 0]
+
+        # plt.plot(t, np.real(K_0[i, i, :, len(t) - 1]), 'r--', t, np.imag(K_0[i, i, :, len(t) - 1]), 'r--')
+        # plt.plot(t, np.real(K_0[i, i, len(t) - 1]), 'b--', t, np.imag(K_0[i, i, len(t) - 1]), 'b--')
+        # plt.show()
 
         Sigma = np.zeros((4, len(t), len(t)), complex)  # indices are final state, lower and upper branch time
 
@@ -242,6 +255,10 @@ def Solver(DeltaMatrix, U, init, Green_):
 
                 sum_t1[:, t_m] = np.trapz(Sigma[:, :t_n+1, t_m] * np.conj(G[:, t_n, :t_n+1]))  # t_m = t_2
 
+        # plt.plot(t, np.real(K[i, 1, :, len(t)-1]), 'r--', t, np.imag(K[i, 1, :, len(t)-1]), 'b--')
+        # plt.plot(t, np.real(K[i, 1, len(t)-1]), 'y--', t, np.imag(K[i, 1, len(t)-1]), 'k--')
+        # plt.show()
+
         print('Finished calculation of K for initial state', i, 'after', datetime.now() - start_i)
         err = np.abs(1 - np.abs(np.sum(K[0, :, len(t)-1, len(t)-1])))
         print('Error =', err)
@@ -259,11 +276,18 @@ def Solver(DeltaMatrix, U, init, Green_):
     Green = np.zeros((2, 2, 4, len(t), len(t)), complex)  # Greens function with indices greater/lesser, spin up/spin down, initial state, lower and upper branch time
     for i in range(4):
         for t1 in range(len(t)):
-            for t_1 in range(t1+1):
-                Green[0, 0, i, t1, t_1] = K[i, 0, t1, t_1] * G[1, t1, t_1] + K[i, 2, t1, t_1] * G[3, t1, t_1] # gtr, spin up
-                Green[1, 0, i, t1, t_1] = K[i, 1, t1, t_1] * G[0, t1, t_1] + K[i, 3, t1, t_1] * G[2, t1, t_1] # les, spin up
-                Green[0, 1, i, t1, t_1] = K[i, 0, t1, t_1] * G[2, t1, t_1] + K[i, 1, t1, t_1] * G[3, t1, t_1] # gtr, spin down
-                Green[1, 1, i, t1, t_1] = K[i, 2, t1, t_1] * G[0, t1, t_1] + K[i, 3, t1, t_1] * G[1, t1, t_1] # les, spin down
+            for t_1 in range(t1, -1, -1):
+
+                Green[0, 0, i, t1, t_1] = K[i, 0, t1, t_1] * G[1, t1, t_1] + K[i, 2, t1, t_1] * G[3, t1, t_1]
+                Green[1, 0, i, t1, t_1] = K[i, 1, t1, t_1] * G[0, t1, t_1] + K[i, 3, t1, t_1] * G[2, t1, t_1]
+                Green[0, 1, i, t1, t_1] = K[i, 0, t1, t_1] * G[2, t1, t_1] + K[i, 1, t1, t_1] * G[3, t1, t_1]
+                Green[1, 1, i, t1, t_1] = K[i, 2, t1, t_1] * G[0, t1, t_1] + K[i, 3, t1, t_1] * G[1, t1, t_1]
+
+                Green[0, 0, i, t_1, t1] = K[i, 0, t_1, t1] * G[1, t_1, t1] + K[i, 2, t_1, t1] * G[3, t_1, t1]
+                Green[1, 0, i, t_1, t1] = K[i, 1, t_1, t1] * G[0, t_1, t1] + K[i, 3, t_1, t1] * G[2, t_1, t1]
+                Green[0, 1, i, t_1, t1] = K[i, 0, t_1, t1] * G[2, t_1, t1] + K[i, 1, t_1, t1] * G[3, t_1, t1]
+                Green[1, 1, i, t_1, t1] = K[i, 2, t_1, t1] * G[0, t_1, t1] + K[i, 3, t_1, t1] * G[1, t_1, t1]
+
 
         # output
         gtr = 'Green_gtr_t={}_dt={}_i={}.out'
@@ -271,12 +295,17 @@ def Solver(DeltaMatrix, U, init, Green_):
         np.savetxt(gtr.format(tmax, dt, i), Green[0, 0, i].view(float), delimiter=' ')
         np.savetxt(les.format(tmax, dt, i), Green[1, 0, i].view(float), delimiter=' ')
 
-    # # summation over the initial state
+    # summation over the initial state
     # Green_[0] = (Green[0, 0, 0] + Green[0, 0, 1] + Green[0, 0, 2] + Green[0, 0, 3]) / 4
     # Green_[1] = (Green[1, 0, 0] + Green[1, 0, 1] + Green[1, 0, 2] + Green[1, 0, 3]) / 4
 
-    Green_[0] = Green[0, 0, init]
-    Green_[1] = Green[1, 0, init]
+    Green_[0] = Green[0, 0, init]  # spin up
+    Green_[1] = Green[1, 0, init]  # spin up
+
+    # for i in range(2):
+    #     plt.plot(t, np.real(Green_[i, len(t)-1, ::-1]), 'r--', t, np.imag(Green_[i, len(t)-1, ::-1]), 'b--')
+    #     plt.plot(t, np.real(Green_[i, ::-1, len(t)-1]), 'r--', t, np.imag(Green_[i, ::-1, len(t)-1]), 'b--')
+    #     plt.show()
 
     return Green_
 
@@ -284,8 +313,8 @@ def Solver(DeltaMatrix, U, init, Green_):
 ########################################################################################################################
 ''' Main part starts here '''
 n_loops = 10
-Umax = 3
-Umin = 2
+Umax = 6
+Umin = 5
 init = 0  # chose initial state
 
 ######### perform loop over U #########

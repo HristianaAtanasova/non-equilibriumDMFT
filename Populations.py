@@ -24,9 +24,6 @@ i = 0
 Up_timedep = K[i,1].diagonal() + K[i,3].diagonal()
 Up_fft = Kfft[i,1].diagonal() + Kfft[i,3].diagonal()
 
-# Up_fft3 = K3[0,1].diagonal() + K3[0,3].diagonal()
-# Up_timedep3 = Kfft3[0,1].diagonal() + Kfft3[0,3].diagonal()
-
 plt.plot(t, np.real(Up_fft), 'b--', label='$dt = {dt}$'.format(dt=dt))
 plt.plot(t, np.real(Up_timedep), 'r--', label='$dt = {dt}$'.format(dt=dt))
 

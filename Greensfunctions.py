@@ -3,7 +3,7 @@ import numpy as np
 from scipy.fftpack import fft, ifft, fftshift, ifftshift
 
 tmax = 2
-dt = 0.01
+dt = 0.005
 t = np.arange(0, tmax, dt)
 
 
@@ -28,9 +28,9 @@ for i in range(4):
 
 i= 0
 
-# plt.plot(t, np.real(Gles[i, len(t)-1, ::-1]), 'r--', t, np.imag(Gles[i, len(t)-1, ::-1]), 'r--', label='Gles')
-plt.plot(t, np.real(Gles_fft[i, :, 0]), 'b--', t, np.imag(Gles_fft[i, :, 0]), 'b--', label='Gles_fft')
-# plt.plot(t, np.real(Gles_fft[i, len(t)-1, :]), 'b--', t, np.imag(Gles_fft[i, len(t)-1, :]), 'b--', label='Gles_fft')
+plt.plot(t, np.real(Gles[i, len(t)-1, :]), 'r--', t, np.imag(Gles[i, len(t)-1, :]), 'r--', label='Gles')
+# plt.plot(t, np.real(Gles_fft[i, :, 0]), 'b--', t, np.imag(Gles_fft[i, :, 0]), 'b--', label='Gles_fft')
+plt.plot(t, np.real(Gles_fft[i, len(t)-1, :]), 'b--', t, np.imag(Gles_fft[i, len(t)-1, :]), 'b--', label='Gles_fft')
 plt.legend(loc='best')
 plt.ylabel('G(t)')
 plt.xlabel('($t$)')
