@@ -46,14 +46,14 @@ def integrate_F(t):
 ########################################################################################################################
 ''' Main part starts here '''
 
-Umax = 6
-Umin = 5
+Umax = 9
+Umin = 8
 
 ######### perform loop over U #########
 for U in np.arange(Umin, Umax, 2):
 
     U_ = np.zeros(len(t), float)
-    Uc = 5
+    Uc = 8
 
     for t_ in range(len(t)):
         U_[t_] = tune_U(t[t_])

@@ -26,7 +26,7 @@ delta_width = 0.1
 treshold = 1e-6
 
 # time domain
-tmax = 0.5
+tmax = 4
 dt = 0.01
 t = np.arange(0, tmax, dt)
 
@@ -125,6 +125,7 @@ for t_ in range(len(t)):
                                   + 1j * quad(lambda w: np.imag(phononBath_(t[t_],w)), -100, -0.01, limit=600)[0] + 1j * quad(lambda w: np.imag(phononBath_(t[t_],w)), 0.01, 100, limit=600)[0])
 
     # phononBath[t_] = (2 / np.pi) * (quad(lambda w: np.real(phononBath_(t[t_], w)), 0, 10, limit=300)[0] + 1j * quad(lambda w: np.imag(phononBath_(t[t_], w)), 0, 10, limit=300)[0])
+
 
 ########################################################################################################################
 ''' Time-dependent coupling to the phonon Bath lambda | hopping v | interaction U '''
@@ -269,8 +270,12 @@ def Solver(U, init):
             for t2 in range(t1+1):
                 G_0[i, t1, t2] = np.exp(-1j * E[i, t1-t2] * t[t1-t2])
 
-        plt.plot(t, np.real(G_0[i, len(t) - 1, ::-1]), 'r--', t, np.imag(G_0[i, len(t) - 1, ::-1]), 'b--')
-        plt.show()
+        # plt.plot(t, np.real(G_0[i, len(t) - 1, ::-1]), 'r--', t, np.imag(G_0[i, len(t) - 1, ::-1]), 'b--')
+        # plt.show()
+
+        # for f in range(4):
+        #     plt.plot(t, np.real(DeltaMatrix[i, f, len(t) - 1, ::-1]), 'r--', t, np.imag(DeltaMatrix[i, f, len(t) - 1, ::-1]), 'b--')
+        #     plt.show()
 
     # main loop over every pair of times t_n and t_m (located on the same contour-branch), where t_m is the smaller contour time
     # take integral over t1 outside the t_m loop
@@ -303,11 +308,8 @@ def Solver(U, init):
                 G[:, t_n, t_m] = np.conj(G[:, t_m, t_n])
 
     # for i in range(4):
-    #     plt.plot(t, np.real(G[i, len(t)-1, ::-1]), 'r--', t, np.imag(G[i, len(t)-1, ::-1]), 'b--')
+    #     plt.plot(t, np.real(G[i, :, len(t)-1]), 'r--', t, np.imag(G[i, :, len(t)-1]), 'b--')
     #     plt.show()
-
-    plt.plot(t, np.real(DeltaMatrix[0, 1, len(t)-1, ::-1]), 'r--', t, np.imag(DeltaMatrix[0, 1, len(t)-1, ::-1]), 'b--')
-    plt.show()
 
     print('-------------------------------------------------------------------------------------------------------------------------------------------------------')
     print('Finished calculation of bold propagators after', datetime.now() - start)
@@ -318,15 +320,19 @@ def Solver(U, init):
     start = datetime.now()
     K = np.zeros((4, 4, len(t), len(t)), complex)  # indices are initial state | contour times on lower and upper branch
     K_0 = np.zeros((4, 4, len(t), len(t)), complex)
+    Sigma = np.zeros((4, len(t), len(t)), complex)  # indices are final state | lower and upper branch time
 
     # for every initial state i there is a set of 4 coupled equations for K
     # for i in range(4):
     i = init
-    start_i = datetime.now()
     for f in range(4):
         K_0[i, f] = delta(i, f) * np.conj(G[i, :, None, 0]) * G[i, None, :, 0]
 
-    Sigma = np.zeros((4, len(t), len(t)), complex)  # indices are final state | lower and upper branch time
+        # plt.plot(t, np.real(K_0[i, f, :, len(t) - 1]), 'r--', t, np.imag(K_0[i, f, :, len(t) - 1]), 'b--')
+        # plt.plot(t, np.real(K_0[i, f, len(t) - 1]), 'y--', t, np.imag(K_0[i, f, len(t) - 1]), 'k--')
+        # plt.grid()
+        # plt.show()
+
 
     for t_n in range(len(t)):
         sum_t1 = np.zeros((4, len(t)), complex)
@@ -336,11 +342,11 @@ def Solver(U, init):
             M = np.eye(4, dtype=complex)
 
             for f in range(4):
-                # sum_t2[f] = dt**2 * np.trapz(G[f, t_m, :t_m+1] * sum_t1[f, :t_m+1])
-                sum_t2[f] = dt ** 2 * weights(G[f, t_m, :t_m + 1] * sum_t1[f, :t_m + 1])
+                sum_t2[f] = dt**2 * np.trapz(G[f, t_m, :t_m+1] * sum_t1[f, :t_m+1])
+                # sum_t2[f] = dt ** 2 * weights(G[f, t_m, :t_m + 1] * sum_t1[f, :t_m + 1])
 
-                # M[f] -= dt**2*np.sum(DeltaMatrix[f, :, t_n, t_m]*np.conj(G[:, t_n, t_n])*G[:, t_m, t_m], 0) * 1/4
-                M[f] -= dt**2 * np.sum(DeltaMatrix[f, :, t_n, t_m] * np.conj(G[:, t_n, t_n]) * G[:, t_m, t_m], 0) * w(G[f, t_m, :t_m + 1] * sum_t1[f, :t_m + 1])
+                M[f] -= dt**2*np.sum(DeltaMatrix[f, :, t_n, t_m]*np.conj(G[:, t_n, t_n])*G[:, t_m, t_m], 0) * 1/4
+                # M[f] -= dt**2 * np.sum(DeltaMatrix[f, :, t_n, t_m] * np.conj(G[:, t_n, t_n]) * G[:, t_m, t_m], 0) * w(G[f, t_m, :t_m + 1] * sum_t1[f, :t_m + 1])
 
             # Dyson equation for time (t_m, t_n)
             K[i, :, t_n, t_m] = np.linalg.solve(M, K_0[i, :, t_n, t_m] + sum_t2)
@@ -348,16 +354,16 @@ def Solver(U, init):
             # Compute self-energy for time (t_m, t_n)
             SelfEnergy(K[i, :, t_n, t_m], DeltaMatrix[:, :, t_n, t_m], Sigma[:, t_n, t_m])
 
-            # Add contribution from the phonon Bath
-            if delta_ == 1:
-                Sigma[0, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * K[i, 0, t_n, t_m] * PhononBath[t_n, t_m]
-                Sigma[3, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * K[i, 3, t_n, t_m] * PhononBath[t_n, t_m]
+            # # Add contribution from the phonon Bath
+            # if delta_ == 1:
+            #     Sigma[0, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * K[i, 0, t_n, t_m] * PhononBath[t_n, t_m]
+            #     Sigma[3, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * K[i, 3, t_n, t_m] * PhononBath[t_n, t_m]
 
             for f in range(4):
-                # sum_t1[f, t_m] = np.trapz(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1]))  # t_m = t_2
-                sum_t1[f, t_m] = weights(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1]))  # t_m = t_2
+                sum_t1[f, t_m] = np.trapz(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1]))  # t_m = t_2
+                # sum_t1[f, t_m] = weights(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1]))  # t_m = t_2
 
-    print('Finished calculation of K for initial state', i, 'after', datetime.now() - start_i)
+    print('Finished calculation of K for initial state', i, 'after', datetime.now() - start)
     err = np.abs(1 - np.abs(np.sum(K[i, :, len(t)-1, len(t)-1], 0)))
     print('Error for inital state =', i, 'is', err)
     print('                                                                                                                               ')
@@ -367,11 +373,11 @@ def Solver(U, init):
     for f in range(4):
         np.savetxt(file.format(U, T, tmax, dt, t_turn, lambda_const, i, f), K[i, f].view(float), delimiter=' ')
 
-    # plt.plot(t, np.real(K[i, 1, :, len(t) - 1]), 'r--', t, np.imag(K[i, 1, :, len(t) - 1]), 'b--')
-    # plt.plot(t, np.real(K[i, 1, len(t) - 1]), 'y--', t, np.imag(K[i, 1, len(t) - 1]), 'k--')
-    plt.plot(t, np.real(K[1, 0].diagonal()), 'b--', t, np.real(K[1, 1].diagonal()), 'r', t, np.real(K[1, 2].diagonal()), 'g--', t, np.real(K[1, 3].diagonal()), 'k--')
-    plt.grid()
-    plt.show()
+        # plt.plot(t, np.real(K[i, f, :, len(t) - 1]), 'r--', t, np.imag(K[i, f, :, len(t) - 1]), 'b--')
+        # plt.plot(t, np.real(K[i, f, len(t) - 1]), 'y--', t, np.imag(K[i, f, len(t) - 1]), 'k--')
+        # # plt.plot(t, np.real(K[i, 1].diagonal()), 'b--', t, np.real(K[i, 2].diagonal()), 'r', t, np.real(K[i, 2].diagonal()), 'g--', t, np.real(K[i, 3].diagonal()), 'k--')
+        # plt.grid()
+        # plt.show()
 
     ########## Computation of two-times Green's functions ##########
     for t1 in range(len(t)):
@@ -387,17 +393,6 @@ def Solver(U, init):
     # plt.grid()
     # plt.show()
 
-    # output
-    gtr_up = 'gtr_up_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
-    les_up = 'les_up_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
-    np.savetxt(gtr_up.format(U, T, tmax, dt, t_turn, lambda_const, i), Green[0, 0, i].view(float), delimiter=' ')
-    np.savetxt(les_up.format(U, T, tmax, dt, t_turn, lambda_const, i), Green[1, 0, i].view(float), delimiter=' ')
-
-    gtr_down = 'gtr_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
-    les_down = 'les_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
-    np.savetxt(gtr_down.format(U, T, tmax, dt, t_turn, lambda_const, i), Green[0, 1, i].view(float), delimiter=' ')
-    np.savetxt(les_down.format(U, T, tmax, dt, t_turn, lambda_const, i), Green[1, 1, i].view(float), delimiter=' ')
-
     print('1 - (Green_gtr + Green_les) for Spin Up site', i, 'is', 1 - np.real(Green[0, 0, i, len(t)-1, len(t)-1] + Green[1, 0, i, len(t)-1, len(t)-1]))
     print('1 - (Green_gtr + Green_les) for Spin Down site', i, 'is', 1 - np.real(Green[0, 1, i, len(t)-1, len(t)-1] + Green[1, 1, i, len(t)-1, len(t)-1]))
 
@@ -410,18 +405,29 @@ def Solver(U, init):
 
     print('                                                                                                                               ')
 
+    # output
+    gtr_up = 'gtr_up_U={}_T={}_t={}_dt={}_turn={}_lambda={}_test.out'
+    les_up = 'les_up_U={}_T={}_t={}_dt={}_turn={}_lambda={}_test.out'
+    gtr_down = 'gtr_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}_test.out'
+    les_down = 'les_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}_test.out'
+
+    np.savetxt(gtr_up.format(U, T, tmax, dt, t_turn, lambda_const), Green[0, 0, i].view(float), delimiter=' ')
+    np.savetxt(les_up.format(U, T, tmax, dt, t_turn, lambda_const), Green[1, 0, i].view(float), delimiter=' ')
+    np.savetxt(gtr_down.format(U, T, tmax, dt, t_turn, lambda_const), Green[0, 1, i].view(float), delimiter=' ')
+    np.savetxt(les_down.format(U, T, tmax, dt, t_turn, lambda_const), Green[1, 1, i].view(float), delimiter=' ')
+
 
 ########################################################################################################################
 ''' Main part starts here '''
 
-Umax = 6
-Umin = 5
+Umax = 9
+Umin = 8
 
 ######### perform loop over U #########
 for U in np.arange(Umin, Umax, 2):
 
     U_ = np.zeros(len(t), float)
-    Uc = 5
+    Uc = 8
 
     for t_ in range(len(t)):
         U_[t_] = tune_U(t[t_])
@@ -448,7 +454,14 @@ for U in np.arange(Umin, Umax, 2):
 
     # first DMFT loop with initial guess for Delta
     initMatrix(Delta_init, phononBath, phononCoupling)
+
     fillDeltaMatrix(Delta)
+
+    plt.plot(t, np.real(Delta[0, 1, 1, :, len(t)-1]), 'r--', t, np.imag(Delta[0, 1, 1, :, len(t)-1]), 'b--')
+    plt.plot(t, np.real(Delta[1, 0, 1, :, len(t)-1]), 'y--', t, np.imag(Delta[1, 0, 1, :, len(t)-1]), 'k--')
+    plt.grid()
+    plt.show()
+
     Solver(U, 1)
 
     counter = 0

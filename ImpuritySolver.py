@@ -61,18 +61,6 @@ def SelfEnergy(K, DeltaMatrix, Sigma):
             Sigma[f] += K[j] * DeltaMatrix[f, j]
 
 
-# fill in initial DeltaMatrix for two contour times with initial Delta for time-differences
-def initMatrix(Delta_init, phononBath, phononCoupling):
-    for t1 in range(len(t)):
-        for t2 in range(len(t)):
-
-            Delta[:, :, :, t1, t2] = tdiff(Delta_init[0, 0], t1, t2)
-
-            PhononBath[t1, t2] = tdiff(phononBath, t1, t2)
-
-            PhononCoupling[t1, t2] = phononCoupling[t1]*phononCoupling[t2]
-
-
 def fillDeltaMatrix(DeltaMatrix, Delta):
     # fill in DeltaMatrix for all times | first index is gtr/les | second is spin up/spin down
     # initial dot state |0> can only go to |up> or |down> with a Delta_gtr
@@ -101,23 +89,16 @@ def Solver(t, dt, U_, Delta):
     # initialize bare propagators
     start = datetime.now()
 
-    delta_ = 0
     E = np.zeros((4, len(t)), float)
     DeltaMatrix = np.zeros((4, 4, len(t), len(t)), complex)  # indices are initial and final states
+    fillDeltaMatrix(DeltaMatrix, Delta)
 
     G_0 = np.zeros((4, len(t), len(t)), complex)  # g_0 as a two-times Matrix for convolution integrals
     G = np.zeros((4, len(t), len(t)), complex)  # indices are initial state, contour times located on the same branch t_n, t_m (propagation from t_m to t_n)
     Sigma = np.zeros((4, len(t), len(t)), complex)
 
-    K_0 = np.zeros((4, 4, len(t), len(t)), complex) # indices are initial state | contour times on lower and upper branch
-    K = np.zeros((4, 4, len(t), len(t)), complex)
-
-    Green = np.zeros((2, 2, 4, len(t), len(t)), complex)  # Greens function with indices gtr/les | spin up/spin down | initial state | lower and upper branch time
-
     E[1] = -U_/2.0
     E[2] = -U_/2.0
-
-    fillDeltaMatrix(DeltaMatrix, Delta)
 
     # Computation of bare propagators G_0
     for i in range(4):
@@ -125,8 +106,6 @@ def Solver(t, dt, U_, Delta):
             for t2 in range(t1+1):
                 G_0[i, t1, t2] = np.exp(-1j * E[i, t1-t2] * t[t1-t2])
 
-        plt.plot(t, np.real(G_0[i, len(t) - 1, ::-1]), 'r--', t, np.imag(G_0[i, len(t) - 1, ::-1]), 'b--')
-        plt.show()
 
     # main loop over every pair of times t_n and t_m (located on the same contour-branch), where t_m is the smaller contour time
     # take integral over t1 outside the t_m loop
@@ -158,9 +137,6 @@ def Solver(t, dt, U_, Delta):
         for t_m in range(t_n+1, len(t), +1):
                 G[:, t_n, t_m] = np.conj(G[:, t_m, t_n])
 
-    # for i in range(4):
-    #     plt.plot(t, np.real(G[i, len(t)-1, ::-1]), 'r--', t, np.imag(G[i, len(t)-1, ::-1]), 'b--')
-    #     plt.show()
 
     print('-------------------------------------------------------------------------------------------------------------------------------------------------------')
     print('Finished calculation of bold propagators after', datetime.now() - start)
@@ -172,10 +148,12 @@ def Solver(t, dt, U_, Delta):
     # for i in range(4):
     i = 1
 
+    K = np.zeros((4, 4, len(t), len(t)), complex)  # indices are initial state | contour times on lower and upper branch
+    K_0 = np.zeros((4, 4, len(t), len(t)), complex)
+    Sigma = np.zeros((4, len(t), len(t)), complex)  # indices are final state | lower and upper branch time
+
     for f in range(4):
         K_0[i, f] = delta(i, f) * np.conj(G[i, :, None, 0]) * G[i, None, :, 0]
-
-    Sigma = np.zeros((4, len(t), len(t)), complex)  # indices are final state | lower and upper branch time
 
     for t_n in range(len(t)):
         sum_t1 = np.zeros((4, len(t)), complex)
@@ -206,11 +184,10 @@ def Solver(t, dt, U_, Delta):
                 # sum_t1[f, t_m] = np.trapz(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1]))  # t_m = t_2
                 sum_t1[f, t_m] = weights(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1]))  # t_m = t_2
 
-    # plt.plot(t, np.real(K[1, 0].diagonal()), 'b--', t, np.real(K[1, 1].diagonal()), 'r', t, np.real(K[1, 2].diagonal()), 'g--', t, np.real(K[1, 3].diagonal()), 'k--')
-    # plt.grid()
-    # plt.show()
-
     ########## Computation of two-times Green's functions ##########
+
+    Green = np.zeros((2, 2, 4, len(t), len(t)), complex)  # Greens function with indices gtr/les | spin up/spin down | initial state | lower and upper branch time
+
     for t1 in range(len(t)):
         for t_1 in range(len(t)):
             Green[0, 0, i, t1, t_1] = (K[i, 0, t1, t_1] * G[1, t1, t_1] + K[i, 2, t1, t_1] * G[3, t1, t_1])
@@ -235,11 +212,5 @@ def Solver(t, dt, U_, Delta):
     print('Population for Spin Down gtr on site', i, 'is', Green[0, 1, i, len(t) - 1, len(t) - 1])
 
     print('                                                                                                                               ')
-
-
-    # # OUTPUT
-    # file = 'K_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_f={}_test.out'
-    # for f in range(4):
-    #     np.savetxt(file.format(U_[0], T, tmax, dt, t_turn, lambda_const, i, f), K[i, f].view(float), delimiter=' ')
 
     return Green

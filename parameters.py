@@ -18,7 +18,7 @@ delta_width = 0.1
 treshold = 1e-6
 
 # time domain
-tmax = 0.5
+tmax = 4
 dt = 0.01
 t = np.arange(0, tmax, dt)
 
