@@ -18,7 +18,7 @@ w_0 = 1
 
 # numerical paramters
 lambda_const = 0
-delta_ = 1
+delta_ = 0
 rho = 6
 wC = 10
 v = 10
@@ -26,7 +26,7 @@ delta_width = 0.1
 treshold = 1e-6
 
 # time domain
-tmax = 2
+tmax = 0.5
 dt = 0.01
 t = np.arange(0, tmax, dt)
 
@@ -93,11 +93,11 @@ DOS[b:a] = semicircularDos(wDOS)
 #DOS = hilbert(DOS)
 
 # frequency-domain Hybridization function
-# Hyb_les = DOS * fermi_function(w)
-# Hyb_gtr = DOS * (1 - fermi_function(w))
+Hyb_les = DOS * fermi_function(w)
+Hyb_gtr = DOS * (1 - fermi_function(w))
 
-Hyb_les = A(w) * fermi_function(w)
-Hyb_gtr = A(w) * (1 - fermi_function(w))
+# Hyb_les = A(w) * fermi_function(w)
+# Hyb_gtr = A(w) * (1 - fermi_function(w))
 
 # fDelta_les = -1j * ifftshift(fft(fftshift(Hyb_les))) * dw/np.pi
 # fDelta_gtr = 1j * ifftshift(fft(fftshift(Hyb_gtr))) * dw/np.pi
@@ -256,7 +256,6 @@ def Solver(U, init):
     start = datetime.now()
 
     E = np.zeros((4, len(t)), float)
-    g_0 = np.zeros((4, len(t)), complex)  # As long as Impurity hamiltonian is time-independent G_0 depends only on time differences
     G_0 = np.zeros((4, len(t), len(t)), complex)  # g_0 as a two-times Matrix for convolution integrals
     G = np.zeros((4, len(t), len(t)), complex)  # indices are initial state, contour times located on the same branch t_n, t_m (propagation from t_m to t_n)
     Sigma = np.zeros((4, len(t), len(t)), complex)
@@ -264,16 +263,14 @@ def Solver(U, init):
     E[1] = -U_/2.0
     E[2] = -U_/2.0
 
-    # Computation of bare propagators g_0
+    # Computation of bare propagators G_0
     for i in range(4):
-        g_0[i] = (np.exp(-1j * E[i] * t))
         for t1 in range(len(t)):
             for t2 in range(t1+1):
-                G_0[i, t1, t2] = g_0[i, t1-t2]
+                G_0[i, t1, t2] = np.exp(-1j * E[i, t1-t2] * t[t1-t2])
 
-        # plt.plot(t, np.real(G_0[i, len(t) - 1, ::-1]), 'r--', t, np.imag(G_0[i, len(t) - 1, ::-1]), 'b--')
-        # plt.plot(t, np.real(g_0[i]), 'r--', t, np.imag(g_0[i]), 'b--')
-        # plt.show()
+        plt.plot(t, np.real(G_0[i, len(t) - 1, ::-1]), 'r--', t, np.imag(G_0[i, len(t) - 1, ::-1]), 'b--')
+        plt.show()
 
     # main loop over every pair of times t_n and t_m (located on the same contour-branch), where t_m is the smaller contour time
     # take integral over t1 outside the t_m loop
@@ -293,9 +290,9 @@ def Solver(U, init):
             # Compute self-energy for time (t_m, t_n)
             Sigma[:, t_n, t_m] = np.sum(G[:, None, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 0)
 
-            if delta_ == 1:
-                Sigma[0, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * G[0, t_n, t_m] * PhononBath[t_n, t_m]
-                Sigma[3, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * G[3, t_n, t_m] * PhononBath[t_n, t_m]
+            # if delta_ == 1:
+            #     Sigma[0, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * G[0, t_n, t_m] * PhononBath[t_n, t_m]
+            #     Sigma[3, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * G[3, t_n, t_m] * PhononBath[t_n, t_m]
 
             for i in range(4):
                 sum_t1[i, t_m] = weights(Sigma[i, t_m:t_n+1, t_m] * G_0[i, t_n, t_m:t_n+1])  # sum[:, t2=t_m]
@@ -308,6 +305,9 @@ def Solver(U, init):
     # for i in range(4):
     #     plt.plot(t, np.real(G[i, len(t)-1, ::-1]), 'r--', t, np.imag(G[i, len(t)-1, ::-1]), 'b--')
     #     plt.show()
+
+    plt.plot(t, np.real(DeltaMatrix[0, 1, len(t)-1, ::-1]), 'r--', t, np.imag(DeltaMatrix[0, 1, len(t)-1, ::-1]), 'b--')
+    plt.show()
 
     print('-------------------------------------------------------------------------------------------------------------------------------------------------------')
     print('Finished calculation of bold propagators after', datetime.now() - start)
@@ -451,31 +451,31 @@ for U in np.arange(Umin, Umax, 2):
     fillDeltaMatrix(Delta)
     Solver(U, 1)
 
-    # counter = 0
-    # while np.amax(np.abs(Green_old - Green)) > 0.001:
-    #     counter += 1
-    #
-    #     # self-consistency condition for Bethe-lattice in initial Neel-state
-    #     Delta[:, 0, 1] = v_0 * Green[:, 1, 1] * v_0
-    #     Delta[:, 1, 1] = v_0 * Green[:, 0, 1] * v_0
-    #
-    #     Delta[:, 0, 0] = v_0 * Green[:, 1, 1] * v_0 + PhononCoupling[:, :] * PhononBath
-    #     Delta[:, 1, 0] = v_0 * Green[:, 0, 1] * v_0 + PhononCoupling[:, :] * PhononBath
-    #
-    #
-    #     Green_old[:] = Green
-    #
-    #     fillDeltaMatrix(Delta)
-    #     Solver(U, 1)
-    #
-    #     Diff = np.amax(np.abs(Green_old - Green))
-    #     print('for U = ', U, ' and iteration Nr. ', counter, ' the Difference is ', Diff, ' after a calculation time ', datetime.now() - start)
-    #     print('                                                                                                                               ')
-    #
-    #
-    # print('-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
-    # print('Computation of Greens functions for U =', U, '| Temperature =', T, '| time =', tmax, '| dt =', dt,
-    #       '| lambda =', lambda_const, '| turn on =', t_turn, 'finished after', counter,
-    #       'iterations and', datetime.now() - start, 'seconds.')
-    # print('-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    counter = 0
+    while np.amax(np.abs(Green_old - Green)) > 0.001:
+        counter += 1
+
+        # self-consistency condition for Bethe-lattice in initial Neel-state
+        Delta[:, 0, 1] = v_0 * Green[:, 1, 1] * v_0
+        Delta[:, 1, 1] = v_0 * Green[:, 0, 1] * v_0
+
+        Delta[:, 0, 0] = v_0 * Green[:, 1, 1] * v_0 + PhononCoupling[:, :] * PhononBath
+        Delta[:, 1, 0] = v_0 * Green[:, 0, 1] * v_0 + PhononCoupling[:, :] * PhononBath
+
+
+        Green_old[:] = Green
+
+        fillDeltaMatrix(Delta)
+        Solver(U, 1)
+
+        Diff = np.amax(np.abs(Green_old - Green))
+        print('for U = ', U, ' and iteration Nr. ', counter, ' the Difference is ', Diff, ' after a calculation time ', datetime.now() - start)
+        print('                                                                                                                               ')
+
+
+    print('-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    print('Computation of Greens functions for U =', U, '| Temperature =', T, '| time =', tmax, '| dt =', dt,
+          '| lambda =', lambda_const, '| turn on =', t_turn, 'finished after', counter,
+          'iterations and', datetime.now() - start, 'seconds.')
+    print('-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
 

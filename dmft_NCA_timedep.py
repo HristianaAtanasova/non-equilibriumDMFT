@@ -210,7 +210,7 @@ def Solver(DeltaMatrix, U, init):
     # initialize bare propagators
     start = datetime.now()
 
-    E = np.zeros((4, len(t)), int)
+    E = np.zeros((4, len(t)), float)
     G_0 = np.zeros((4, len(t), len(t)), complex)  # g_0 as a two-times Matrix for convolution integrals
     G = np.zeros((4, len(t), len(t)), complex)  # indices are initial state, contour times located on the same branch t_n, t_m (propagation from t_m to t_n)
     Sigma = np.zeros((4, len(t), len(t)), complex)
@@ -218,7 +218,7 @@ def Solver(DeltaMatrix, U, init):
     E[1] = -U_/2
     E[2] = -U_/2
 
-    # Computation of bare propagators g_0
+    # Computation of bare propagators G_0
     for i in range(4):
         for t1 in range(len(t)):
             for t2 in range(t1+1):

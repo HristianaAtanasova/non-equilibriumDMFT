@@ -73,51 +73,60 @@ def initMatrix(Delta_init, phononBath, phononCoupling):
             PhononCoupling[t1, t2] = phononCoupling[t1]*phononCoupling[t2]
 
 
-def fillDeltaMatrix(Delta):
+def fillDeltaMatrix(DeltaMatrix, Delta):
     # fill in DeltaMatrix for all times | first index is gtr/les | second is spin up/spin down
     # initial dot state |0> can only go to |up> or |down> with a Delta_gtr
-    DeltaMatrix[0, 1] = Delta[0, 0, 0]
-    DeltaMatrix[0, 2] = Delta[0, 1, 0]
+    DeltaMatrix[0, 1] = Delta[0, 0]
+    DeltaMatrix[0, 2] = Delta[0, 1]
 
     # initial dot state |up> can only go to |0> or |up,down>
-    DeltaMatrix[1, 0] = Delta[1, 0, 1]
-    DeltaMatrix[1, 3] = Delta[0, 1, 1]
+    DeltaMatrix[1, 0] = Delta[1, 0]
+    DeltaMatrix[1, 3] = Delta[0, 1]
 
     # initial dot state |down> can only go to |0> or |up,down>
-    DeltaMatrix[2, 0] = Delta[1, 1, 1]
-    DeltaMatrix[2, 3] = Delta[0, 0, 1]
+    DeltaMatrix[2, 0] = Delta[1, 1]
+    DeltaMatrix[2, 3] = Delta[0, 0]
 
     # initial dot state |up,down> can only go to |up> or |down> with a Delta_les
-    DeltaMatrix[3, 1] = Delta[1, 1, 0]
-    DeltaMatrix[3, 2] = Delta[1, 0, 0]
-
+    DeltaMatrix[3, 1] = Delta[1, 1]
+    DeltaMatrix[3, 2] = Delta[1, 0]
 
 ########## Impurity solver computes two-times correlation functions/Greens functions ##########
 
-def Solver(U, init, Delta):
+def Solver(t, dt, U_, Delta):
+# def Solver(t, dt, U_, Delta, PhononBath, PhononCoupling):
 
     ########## Computation of bold propagators on separate branches of the contour ##########
 
     # initialize bare propagators
     start = datetime.now()
-    fillDeltaMatrix(Delta)
 
+    delta_ = 0
     E = np.zeros((4, len(t)), float)
-    g_0 = np.zeros((4, len(t)), complex)  # As long as Impurity hamiltonian is time-independent G_0 depends only on time differences
+    DeltaMatrix = np.zeros((4, 4, len(t), len(t)), complex)  # indices are initial and final states
+
     G_0 = np.zeros((4, len(t), len(t)), complex)  # g_0 as a two-times Matrix for convolution integrals
     G = np.zeros((4, len(t), len(t)), complex)  # indices are initial state, contour times located on the same branch t_n, t_m (propagation from t_m to t_n)
     Sigma = np.zeros((4, len(t), len(t)), complex)
-    DeltaMatrix = np.zeros((4, 4, len(t), len(t)), complex)  # indices are initial and final states
+
+    K_0 = np.zeros((4, 4, len(t), len(t)), complex) # indices are initial state | contour times on lower and upper branch
+    K = np.zeros((4, 4, len(t), len(t)), complex)
+
+    Green = np.zeros((2, 2, 4, len(t), len(t)), complex)  # Greens function with indices gtr/les | spin up/spin down | initial state | lower and upper branch time
 
     E[1] = -U_/2.0
     E[2] = -U_/2.0
 
-    # Computation of bare propagators g_0
+    fillDeltaMatrix(DeltaMatrix, Delta)
+
+    # Computation of bare propagators G_0
     for i in range(4):
-        g_0[i] = (np.exp(-1j * E[i] * t))
         for t1 in range(len(t)):
             for t2 in range(t1+1):
-                G_0[i, t1, t2] = g_0[i, t1-t2]
+                G_0[i, t1, t2] = np.exp(-1j * E[i, t1-t2] * t[t1-t2])
+
+        plt.plot(t, np.real(G_0[i, len(t) - 1, ::-1]), 'r--', t, np.imag(G_0[i, len(t) - 1, ::-1]), 'b--')
+        plt.show()
 
     # main loop over every pair of times t_n and t_m (located on the same contour-branch), where t_m is the smaller contour time
     # take integral over t1 outside the t_m loop
@@ -137,9 +146,9 @@ def Solver(U, init, Delta):
             # Compute self-energy for time (t_m, t_n)
             Sigma[:, t_n, t_m] = np.sum(G[:, None, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 0)
 
-            if delta_ == 1:
-                Sigma[0, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * G[0, t_n, t_m] * PhononBath[t_n, t_m]
-                Sigma[3, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * G[3, t_n, t_m] * PhononBath[t_n, t_m]
+            # if delta_ == 1:
+            #     Sigma[0, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * G[0, t_n, t_m] * PhononBath[t_n, t_m]
+            #     Sigma[3, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * G[3, t_n, t_m] * PhononBath[t_n, t_m]
 
             for i in range(4):
                 sum_t1[i, t_m] = weights(Sigma[i, t_m:t_n+1, t_m] * G_0[i, t_n, t_m:t_n+1])  # sum[:, t2=t_m]
@@ -149,20 +158,20 @@ def Solver(U, init, Delta):
         for t_m in range(t_n+1, len(t), +1):
                 G[:, t_n, t_m] = np.conj(G[:, t_m, t_n])
 
+    # for i in range(4):
+    #     plt.plot(t, np.real(G[i, len(t)-1, ::-1]), 'r--', t, np.imag(G[i, len(t)-1, ::-1]), 'b--')
+    #     plt.show()
+
     print('-------------------------------------------------------------------------------------------------------------------------------------------------------')
     print('Finished calculation of bold propagators after', datetime.now() - start)
     print('                                                                                                                               ')
 
     ########## Computation of Vertex Functions including hybridization lines between the upper and lower branch ##########
 
-    start = datetime.now()
-    K = np.zeros((4, 4, len(t), len(t)), complex)  # indices are initial state | contour times on lower and upper branch
-    K_0 = np.zeros((4, 4, len(t), len(t)), complex)
-
     # for every initial state i there is a set of 4 coupled equations for K
     # for i in range(4):
-    i = init
-    start_i = datetime.now()
+    i = 1
+
     for f in range(4):
         K_0[i, f] = delta(i, f) * np.conj(G[i, :, None, 0]) * G[i, None, :, 0]
 
@@ -188,45 +197,32 @@ def Solver(U, init, Delta):
             # Compute self-energy for time (t_m, t_n)
             SelfEnergy(K[i, :, t_n, t_m], DeltaMatrix[:, :, t_n, t_m], Sigma[:, t_n, t_m])
 
-            # Add contribution from the phonon Bath
-            if delta_ == 1:
-                Sigma[0, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * K[i, 0, t_n, t_m] * PhononBath[t_n, t_m]
-                Sigma[3, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * K[i, 3, t_n, t_m] * PhononBath[t_n, t_m]
+            # # Add contribution from the phonon Bath
+            # if delta_ == 1:
+            #     Sigma[0, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * K[i, 0, t_n, t_m] * PhononBath[t_n, t_m]
+            #     Sigma[3, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * K[i, 3, t_n, t_m] * PhononBath[t_n, t_m]
 
             for f in range(4):
                 # sum_t1[f, t_m] = np.trapz(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1]))  # t_m = t_2
                 sum_t1[f, t_m] = weights(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1]))  # t_m = t_2
 
-    print('Finished calculation of K for initial state', i, 'after', datetime.now() - start_i)
-    err = np.abs(1 - np.abs(np.sum(K[i, :, len(t)-1, len(t)-1], 0)))
-    print('Error for inital state =', i, 'is', err)
-    print('                                                                                                                               ')
-
-    # output
-    file = 'K_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_f={}_test.out'
-    for f in range(4):
-        np.savetxt(file.format(U, T, tmax, dt, t_turn, lambda_const, i, f), K[i, f].view(float), delimiter=' ')
-
+    # plt.plot(t, np.real(K[1, 0].diagonal()), 'b--', t, np.real(K[1, 1].diagonal()), 'r', t, np.real(K[1, 2].diagonal()), 'g--', t, np.real(K[1, 3].diagonal()), 'k--')
+    # plt.grid()
+    # plt.show()
 
     ########## Computation of two-times Green's functions ##########
     for t1 in range(len(t)):
         for t_1 in range(len(t)):
-
             Green[0, 0, i, t1, t_1] = (K[i, 0, t1, t_1] * G[1, t1, t_1] + K[i, 2, t1, t_1] * G[3, t1, t_1])
             Green[1, 0, i, t1, t_1] = (K[i, 1, t1, t_1] * G[0, t1, t_1] + K[i, 3, t1, t_1] * G[2, t1, t_1])
             Green[0, 1, i, t1, t_1] = (K[i, 0, t1, t_1] * G[2, t1, t_1] + K[i, 1, t1, t_1] * G[3, t1, t_1])
             Green[1, 1, i, t1, t_1] = (K[i, 2, t1, t_1] * G[0, t1, t_1] + K[i, 3, t1, t_1] * G[1, t1, t_1])
 
-    # output
-    gtr_up = 'gtr_up_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
-    les_up = 'les_up_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
-    np.savetxt(gtr_up.format(U, T, tmax, dt, t_turn, lambda_const, i), Green[0, 0, i].view(float), delimiter=' ')
-    np.savetxt(les_up.format(U, T, tmax, dt, t_turn, lambda_const, i), Green[1, 0, i].view(float), delimiter=' ')
 
-    gtr_down = 'gtr_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
-    les_down = 'les_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
-    np.savetxt(gtr_down.format(U, T, tmax, dt, t_turn, lambda_const, i), Green[0, 1, i].view(float), delimiter=' ')
-    np.savetxt(les_down.format(U, T, tmax, dt, t_turn, lambda_const, i), Green[1, 1, i].view(float), delimiter=' ')
+    print('Finished calculation of K for initial state', i, 'after', datetime.now() - start)
+    err = np.abs(1 - np.abs(np.sum(K[i, :, len(t)-1, len(t)-1], 0)))
+    print('Error for inital state =', i, 'is', err)
+    print('                                                                                                                               ')
 
     print('1 - (Green_gtr + Green_les) for Spin Up site', i, 'is', 1 - np.real(Green[0, 0, i, len(t)-1, len(t)-1] + Green[1, 0, i, len(t)-1, len(t)-1]))
     print('1 - (Green_gtr + Green_les) for Spin Down site', i, 'is', 1 - np.real(Green[0, 1, i, len(t)-1, len(t)-1] + Green[1, 1, i, len(t)-1, len(t)-1]))
@@ -239,3 +235,11 @@ def Solver(U, init, Delta):
     print('Population for Spin Down gtr on site', i, 'is', Green[0, 1, i, len(t) - 1, len(t) - 1])
 
     print('                                                                                                                               ')
+
+
+    # # OUTPUT
+    # file = 'K_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_f={}_test.out'
+    # for f in range(4):
+    #     np.savetxt(file.format(U_[0], T, tmax, dt, t_turn, lambda_const, i, f), K[i, f].view(float), delimiter=' ')
+
+    return Green

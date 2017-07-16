@@ -10,7 +10,7 @@ w_0 = 1
 
 # numerical paramters
 lambda_const = 0
-delta_ = 1
+delta_ = 0
 rho = 6
 wC = 10
 v = 10
@@ -18,7 +18,7 @@ delta_width = 0.1
 treshold = 1e-6
 
 # time domain
-tmax = 2
+tmax = 0.5
 dt = 0.01
 t = np.arange(0, tmax, dt)
 
