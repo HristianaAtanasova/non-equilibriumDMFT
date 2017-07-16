@@ -3,50 +3,71 @@ import numpy as np
 from scipy.fftpack import fft, ifft, fftshift, ifftshift
 
 tmax = 5
-dt = 0.005
+dt = 0.01
 t = np.arange(0, tmax, dt)
+U = 4
+T = 10
+turn = 0.5
+field = 1
+F0 = 0
+l = 0.0
+
 Cut = np.pi/dt
 ft = np.arange(0, Cut, dt)
-wmax = np.pi/(2*dt)
+wmax = np.pi/dt
 dw = np.pi/Cut
 fw = np.arange(-wmax, wmax, dw)
-w = np.arange(-7, 7, dw)
+w = np.arange(-8, 8, dw)
 
-Mles = np.zeros((2, 4, len(t), len(t)), complex) # timedep/fft, init, lower/upper time
-Mgtr = np.zeros((2, 4, len(t), len(t)), complex)
+Green = np.zeros((4, 2, 2, len(t), len(t)), complex) # initial state, gtr/les, spin up/spin down
 
-les = 'Green_les_t={}_dt={}_i={}.out'
-gtr = 'Green_gtr_t={}_dt={}_i={}.out'
+gtr_up = 'gtr_up_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
+les_up = 'les_up_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
 
-les_fft = 'Green_fft_les_t={}_dt={}_i={}.out'
-gtr_fft = 'Green_fft_gtr_t={}_dt={}_i={}.out'
+gtr_down = 'gtr_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
+les_down = 'les_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
 
-for i in range(4):
-    Mles[0, i] = np.loadtxt(les.format(tmax,dt,i)).view(complex)
-    Mgtr[0, i] = np.loadtxt(gtr.format(tmax,dt,i)).view(complex)
+# gtr_up = 'gtr_up_U={}_T={}_t={}_dt={}_turn={}_F0={}_i={}.out'
+# les_up = 'les_up_U={}_T={}_t={}_dt={}_turn={}_F0={}_i={}.out'
+#
+# gtr_down = 'gtr_down_U={}_T={}_t={}_dt={}_turn={}_F0={}_i={}.out'
+# les_down = 'les_down_U={}_T={}_t={}_dt={}_turn={}_F0={}_i={}.out'
 
-    Mles[1, i] = np.loadtxt(les_fft.format(tmax,dt,i)).view(complex)
-    Mgtr[1, i] = np.loadtxt(gtr_fft.format(tmax,dt,i)).view(complex)
+for i in range(1,2,1):
+    Green[i, 0, 0] = np.loadtxt(gtr_up.format(U,T,tmax,dt,turn,l,i)).view(complex)
+    Green[i, 1, 0] = np.loadtxt(les_up.format(U,T,tmax,dt,turn,l,i)).view(complex)
+    Green[i, 0, 1] = np.loadtxt(gtr_down.format(U,T,tmax,dt,turn,l,i)).view(complex)
+    Green[i, 1, 1] = np.loadtxt(les_down.format(U,T,tmax,dt,turn,l,i)).view(complex)
 
-i= 0
-timedep = 1
+spin = 0
+init = 1
 
-Gles = Mles[timedep, i, len(t)-1, ::-1]
-Ggtr = Mgtr[timedep, i, len(t)-1, ::-1]
+# Gles = 1j*np.sum(Green[init, 1, :, len(t)-1, ::-1],0)/2
+# Ggtr = -1j*np.sum(Green[init, 0, :, len(t)-1, ::-1],0)/2
+
+Gles = 1j*Green[init, 1, spin, len(t)-1, ::-1]
+Ggtr = -1j*Green[init, 0, spin, len(t)-1, ::-1]
+
+# Gles = 1j*np.sum(Green[:, 1, spin, len(t)-1, ::-1],0)/4
+# Ggtr = -1j*np.sum(Green[:, 0, spin, len(t)-1, ::-1],0)/4
 
 N = int(Cut/dt)
-Gret = np.zeros(N+1, complex)
-Gret[0:int(len(t))] = Ggtr + np.conj(Gles)
-# Gret[0:int(len(t))] = Ggtr
+Gadv = np.zeros(N+1, complex)
+Gadv[0:int(len(t))] = (Gles - Ggtr)
+# Gadv[0:int(len(t))] = (Gles + np.conj(Ggtr))
+# Gadv[0:int(len(t))] = -Ggtr
+# Gadv[0:int(len(t))] = Gles
 
-fGret = fftshift(fft(Gret)) * dt/np.pi
-fGret = np.imag(fGret) + 1j*np.real(fGret)
+
+fGadv = fftshift(fft(Gadv)) / (np.pi)
+# fGadv = np.imag(fGadv) + 1j*np.real(fGadv)
 a = int((N-len(w))/2)
 b = int((N+len(w))/2)
 
 # plt.plot(t, np.imag(Gles), 'b--', t, np.real(Gles), 'r--')
-# plt.plot(t, np.imag(Gret[0:int(len(t))]), 'b--', t, np.real(Gret[0:int(len(t))]), 'r--')
-plt.plot(w, np.imag(fGret[a:b]), 'b--', w, np.real(fGret[a:b]), 'r--')
+# plt.plot(t, np.imag(Ggtr), 'y--', t, np.real(Ggtr), 'k--')
+# plt.plot(t, np.imag(Gadv[0:int(len(t))]), 'b--', t, np.real(Gadv[0:int(len(t))]), 'r--')
+plt.plot(w, np.imag(fGadv[a:b]), 'b--', w, np.real(fGadv[a:b]), 'r--')
 plt.legend(loc='best')
 plt.ylabel('A($\omega$)')
 plt.xlabel('$\omega$')
