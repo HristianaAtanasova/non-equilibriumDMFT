@@ -1,120 +1,118 @@
-from scipy.signal import fftconvolve
+#!/usr/bin/env python3
+
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.fftpack import fft, ifft, fftfreq, fftshift, ifftshift
+import argparse
+import h5py
+import toml
+
 from datetime import datetime
-from scipy.integrate import quad
-from scipy.signal import hilbert
-from numpy.linalg import inv
-from numpy.linalg import solve
-import Hybridization
-from parameters import *
-from ImpuritySolver import Solver
+from scipy.fftpack import fft, ifft, fftfreq, fftshift, ifftshift
 
-########################################################################################################################
-''' Time-dependent coupling to the phonon Bath lambda | hopping v | interaction U '''
+import nca
+import hybridization
+import hdf5
 
-t_turn = 2
-t0 = 0.1
-F_0 = 0
+def runNCA(U, tmax, dt, Delta, iteration, output):
+    t  = np.arange(0, tmax, dt)
+    U_ = U * np.ones(t.shape[0], float)
 
-def tune_Coupling(t):
-    return lambda_const / (1 + np.exp(10 * (t - 10)))
+    hybsection = "dmft/iterations/{}/delta".format(iteration)
+    gfsection  = "dmft/iterations/{}/gf".format(iteration)
 
+    with h5py.File(output, "a") as h5f:
+        hdf5.save_green(h5f, hybsection, Delta, (t,t))
 
-def tune_U(x):
-    if t_turn <= x <= t0+t_turn:
-        return U + (Uc-U)*(1/2 - 3/4 * np.cos(np.pi*(x-t_turn)/t0) + 1/4 * (np.cos(np.pi*(x-t_turn)/t0))**3)
-    elif x < t_turn:
-        return U
-    return Uc
+    nca.solve(t, U_, output, hybsection, gfsection)
 
+    with h5py.File(output, "r") as h5f:
+        Green, _ = hdf5.load_green(h5f, gfsection)
 
-def tune_Hopping(x):
-    if t_turn_on <= x <= t0+t_turn:
-        return 1/2 - 3/4 * np.cos(np.pi*(x-t_turn)/t0) + 1/4 * (np.cos(np.pi*(x-t_turn)/t0))**3
-    elif x < t_turn:
-        return 0
-    else:
-        return 1
+    return Green
 
+def runInch(U, tmax, dt, Delta):
+    pass
 
-def integrate_F(t):
-    return F_0*quad(rampHopping,0,t)[0]
+def run_dmft(U, T, mu, v_0, tmax, dt, dw, tol, solver, output, **kwargs):
+    t  = np.arange(0, tmax, dt)
 
+    msg = 'Starting DMFT loop for U = {} | Temperature = {} | time = {} | dt = {}'.format(U, T, tmax, dt)
+    print('-'*len(msg))
+    print(msg)
+    print('-'*len(msg))
 
-########################################################################################################################
-''' Main part starts here '''
-
-Umax = 9
-Umin = 8
-
-######### perform loop over U #########
-for U in np.arange(Umin, Umax, 2):
-
-    U_ = np.zeros(len(t), float)
-    Uc = 8
-
-    for t_ in range(len(t)):
-        U_[t_] = tune_U(t[t_])
-
-    phononCoupling = tune_Coupling(t)
-
-    plt.plot(t, U_, 'r--')
-    plt.plot(t, phononCoupling, 'b--')
-    plt.show()
-
-    print('-------------------------------------------------------------------------------------------------------------------------------------------------------')
-    print('Starting DMFT loop for U =', U, '| Temperature =', T, '| time =', tmax, '| dt =', dt, '| turn on =', t_turn, '| lambda = ', lambda_const)
     start = datetime.now()
-    print('                                                                                                                               ')
 
-    Green_old = np.zeros((2, 2, 4, len(t), len(t)), complex)
+    # gf indices: [gtr/les, up/down, state, time, time]
+    Green     = np.zeros((2, 2, len(t), len(t)), complex)
+    Green_old = np.zeros((2, 2, len(t), len(t)), complex)
 
-    Delta, PhononBath, PhononCoupling = Hybridization.generate(t, Cut, w, dw, wDOS, v_0, phononCoupling)
+    # delta indices: [gtr/les, up/down, time, time]
+    np.seterr(over="ignore")
+    Delta = hybridization.genSemicircularHyb(T, mu, v_0, tmax, dt, dw)
+    np.seterr(over="warn")
 
-    # first DMFT loop with initial guess for Delta
-    Green = Solver(t, dt, U_, Delta)
+    if solver == "NCA":
+        Solver = runNCA
+    elif solver == "inchworm":
+        Solver = runInch
+    else:
+        raise Exception("solver {:s} not recognized".format(solver))
 
-    counter = 0
-    while np.amax(np.abs(Green_old - Green)) > 0.001:
-        counter += 1
+    # DMFT self-consistency loop
+    diff = np.inf
+    iteration = 0
+    while diff > tol:
+        iteration += 1
 
-        # self-consistency condition for Bethe-lattice in initial Neel-state
-        # including the phonon bath
-        if delta_ == 1:
-            Delta[:, 0, 1] = v_0 * Green[:, 1, 1] * v_0
-            Delta[:, 1, 1] = v_0 * Green[:, 0, 1] * v_0
+        Green_old = Green
 
-            Delta[:, 0, 0] = v_0 * Green[:, 1, 1] * v_0 + PhononCoupling[:, :] * PhononBath
-            Delta[:, 1, 0] = v_0 * Green[:, 0, 1] * v_0 + PhononCoupling[:, :] * PhononBath
+        Green = Solver(U, tmax, dt, Delta, iteration, output)
 
-        # without the phonon bath
-        Delta[:, 0] = v_0 * Green[:, 1, 1] * v_0
-        Delta[:, 1] = v_0 * Green[:, 0, 1] * v_0
+        diff = np.amax(np.abs(Green_old - Green))
 
-        Green_old[:] = Green
+        # antiferromagnetic self-consistency
+        Delta[:, 0, :, :] = v_0 * Green[:, 1, :, :] * v_0
+        Delta[:, 1, :, :] = v_0 * Green[:, 0, :, :] * v_0
 
-        Green = Solver(t, dt, U_, Delta)
+        msg = 'U = {}, iteration {}: diff = {} (elapsed time = {})'
+        print(msg.format(U, iteration, diff, datetime.now() - start))
 
-        Diff = np.amax(np.abs(Green_old - Green))
+    msg = 'Computation finished after {} iterations and {} seconds'.format(iteration, datetime.now() - start)
+    print('-'*len(msg))
+    print(msg)
+    print('-'*len(msg))
 
-        print('for U = ', U, ' and iteration Nr. ', counter, ' the Difference is ', Diff, ' after a calculation time ', datetime.now() - start)
-        print('                                                                                                                               ')
+    return Green
 
-    print('-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
-    print('Computation of Greens functions for U =', U, '| Temperature =', T, '| time =', tmax, '| dt =', dt,
-          '| lambda =', lambda_const, '| turn on =', t_turn, 'finished after', counter,
-          'iterations and', datetime.now() - start, 'seconds.')
-    print('-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
+def main():
+    parser = argparse.ArgumentParser(description = "run dmft")
+    parser.add_argument("--output",   default = "output.h5")
+    parser.add_argument("--params",   default = "params.toml")
+    parser.add_argument("--savetxt",  action  = "store_true")
+    args = parser.parse_args()
 
-    # output
-    gtr_up = 'gtr_up_U={}_T={}_t={}_dt={}_turn={}_lambda={}.out'
-    les_up = 'les_up_U={}_T={}_t={}_dt={}_turn={}_lambda={}.out'
-    gtr_down = 'gtr_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}.out'
-    les_down = 'les_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}.out'
+    with open(args.params, "r") as f:
+        params = toml.load(f)
 
-    np.savetxt(gtr_up.format(int(U_[0]), T, tmax, dt, t_turn, lambda_const), Green[0, 0, 1].view(float), delimiter=' ')
-    np.savetxt(les_up.format(int(U_[0]), T, tmax, dt, t_turn, lambda_const), Green[1, 0, 1].view(float), delimiter=' ')
-    np.savetxt(gtr_down.format(int(U_[0]), T, tmax, dt, t_turn, lambda_const), Green[0, 1, 1].view(float), delimiter=' ')
-    np.savetxt(les_down.format(int(U_[0]), T, tmax, dt, t_turn, lambda_const), Green[1, 1, 1].view(float), delimiter=' ')
+    params.update(vars(args))
+
+    with h5py.File(args.output, "a") as h5f:
+        for k,v in params.items():
+            h5f.create_dataset("dmft/params/" + k, data=v)
+
+    Green = run_dmft(**params)
+
+    if args.savetxt:
+        gtr_up   = 'gtr_up_U={}_T={}_t={}_dt={}.out'
+        les_up   = 'les_up_U={}_T={}_t={}_dt={}.out'
+        gtr_down = 'gtr_down_U={}_T={}_t={}_dt={}.out'
+        les_down = 'les_down_U={}_T={}_t={}_dt={}.out'
+
+        np.savetxt(gtr_up.format(*[params[x] for x in ["U", "T", "tmax", "dt"]]), Green[0, 0, 1].view(float), delimiter=' ')
+        np.savetxt(les_up.format(*[params[x] for x in ["U", "T", "tmax", "dt"]]), Green[1, 0, 1].view(float), delimiter=' ')
+        np.savetxt(gtr_down.format(*[params[x] for x in ["U", "T", "tmax", "dt"]]), Green[0, 1, 1].view(float), delimiter=' ')
+        np.savetxt(les_down.format(*[params[x] for x in ["U", "T", "tmax", "dt"]]), Green[1, 1, 1].view(float), delimiter=' ')
+
+if __name__ == "__main__":
+    main()
