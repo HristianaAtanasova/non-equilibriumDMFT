@@ -82,12 +82,12 @@ for U in np.arange(Umin, Umax, 2):
 
         # self-consistency condition for Bethe-lattice in initial Neel-state
         # including the phonon bath
-        if delta_ == 1:
-            Delta[:, 0, 1] = v_0 * Green[:, 1, 1] * v_0
-            Delta[:, 1, 1] = v_0 * Green[:, 0, 1] * v_0
-
-            Delta[:, 0, 0] = v_0 * Green[:, 1, 1] * v_0 + PhononCoupling[:, :] * PhononBath
-            Delta[:, 1, 0] = v_0 * Green[:, 0, 1] * v_0 + PhononCoupling[:, :] * PhononBath
+        # if counter_term == 1:
+        #     Delta[:, 0, 0] = v_0 * Green[:, 1, 1] * v_0
+        #     Delta[:, 1, 0] = v_0 * Green[:, 0, 1] * v_0
+        #
+        #     Delta[:, 0, 1] = v_0 * Green[:, 1, 1] * v_0 + PhononCoupling[:, :] * PhononBath
+        #     Delta[:, 1, 1] = v_0 * Green[:, 0, 1] * v_0 + PhononCoupling[:, :] * PhononBath
 
         # without the phonon bath
         Delta[:, 0] = v_0 * Green[:, 1, 1] * v_0

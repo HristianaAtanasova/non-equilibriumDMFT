@@ -106,6 +106,9 @@ def Solver(t, dt, U_, Delta):
             for t2 in range(t1+1):
                 G_0[i, t1, t2] = np.exp(-1j * E[i, t1-t2] * t[t1-t2])
 
+        # plt.plot(t, np.real(G_0[i, len(t)-1, :]), 'r--', t, np.imag(G_0[i, len(t)-1, :]), 'b--')
+        # plt.grid()
+        # plt.show()
 
     # main loop over every pair of times t_n and t_m (located on the same contour-branch), where t_m is the smaller contour time
     # take integral over t1 outside the t_m loop
@@ -125,7 +128,7 @@ def Solver(t, dt, U_, Delta):
             # Compute self-energy for time (t_m, t_n)
             Sigma[:, t_n, t_m] = np.sum(G[:, None, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 0)
 
-            # if delta_ == 1:
+            # if counter_term == 1:
             #     Sigma[0, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * G[0, t_n, t_m] * PhononBath[t_n, t_m]
             #     Sigma[3, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * G[3, t_n, t_m] * PhononBath[t_n, t_m]
 
@@ -163,11 +166,11 @@ def Solver(t, dt, U_, Delta):
             M = np.eye(4, dtype=complex)
 
             for f in range(4):
-                # sum_t2[f] = dt**2 * np.trapz(G[f, t_m, :t_m+1] * sum_t1[f, :t_m+1])
-                sum_t2[f] = dt ** 2 * weights(G[f, t_m, :t_m + 1] * sum_t1[f, :t_m + 1])
+                sum_t2[f] = dt**2 * np.trapz(G[f, t_m, :t_m+1] * sum_t1[f, :t_m+1])
+                # sum_t2[f] = dt ** 2 * weights(G[f, t_m, :t_m + 1] * sum_t1[f, :t_m + 1])
 
-                # M[f] -= dt**2*np.sum(DeltaMatrix[f, :, t_n, t_m]*np.conj(G[:, t_n, t_n])*G[:, t_m, t_m], 0) * 1/4
-                M[f] -= dt**2 * np.sum(DeltaMatrix[f, :, t_n, t_m] * np.conj(G[:, t_n, t_n]) * G[:, t_m, t_m], 0) * w(G[f, t_m, :t_m + 1] * sum_t1[f, :t_m + 1])
+                M[f] -= dt**2*np.sum(DeltaMatrix[f, :, t_n, t_m]*np.conj(G[:, t_n, t_n])*G[:, t_m, t_m], 0) * 1/4
+                # M[f] -= dt**2 * np.sum(DeltaMatrix[f, :, t_n, t_m] * np.conj(G[:, t_n, t_n]) * G[:, t_m, t_m], 0) * w(G[f, t_m, :t_m + 1] * sum_t1[f, :t_m + 1])
 
             # Dyson equation for time (t_m, t_n)
             K[i, :, t_n, t_m] = np.linalg.solve(M, K_0[i, :, t_n, t_m] + sum_t2)
@@ -175,14 +178,14 @@ def Solver(t, dt, U_, Delta):
             # Compute self-energy for time (t_m, t_n)
             SelfEnergy(K[i, :, t_n, t_m], DeltaMatrix[:, :, t_n, t_m], Sigma[:, t_n, t_m])
 
-            # # Add contribution from the phonon Bath
-            # if delta_ == 1:
+            # Add contribution from the phonon Bath
+            # if counter_term == 1:
             #     Sigma[0, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * K[i, 0, t_n, t_m] * PhononBath[t_n, t_m]
             #     Sigma[3, t_n, t_m] += 2*PhononCoupling[t_n, t_m] * K[i, 3, t_n, t_m] * PhononBath[t_n, t_m]
 
             for f in range(4):
-                # sum_t1[f, t_m] = np.trapz(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1]))  # t_m = t_2
-                sum_t1[f, t_m] = weights(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1]))  # t_m = t_2
+                sum_t1[f, t_m] = np.trapz(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1]))  # t_m = t_2
+                # sum_t1[f, t_m] = weights(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1]))  # t_m = t_2
 
     ########## Computation of two-times Green's functions ##########
 

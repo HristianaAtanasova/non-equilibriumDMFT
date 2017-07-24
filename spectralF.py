@@ -5,12 +5,12 @@ from scipy.fftpack import fft, ifft, fftshift, ifftshift
 tmax = 5
 dt = 0.01
 t = np.arange(0, tmax, dt)
-U = 4
-T = 10
+U = 8
+T = 0.1
 turn = 0.5
 field = 1
 F0 = 0
-l = 0.0
+l = 1
 
 Cut = np.pi/dt
 ft = np.arange(0, Cut, dt)
@@ -19,13 +19,13 @@ dw = np.pi/Cut
 fw = np.arange(-wmax, wmax, dw)
 w = np.arange(-8, 8, dw)
 
-Green = np.zeros((4, 2, 2, len(t), len(t)), complex) # initial state, gtr/les, spin up/spin down
+Green = np.zeros((2, 2, len(t), len(t)), complex) # initial state, gtr/les, spin up/spin down
 
-gtr_up = 'gtr_up_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
-les_up = 'les_up_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
+gtr_up = 'gtr_up_U={}_T={}_t={}_dt={}_turn={}_lambda={}_test.out'
+les_up = 'les_up_U={}_T={}_t={}_dt={}_turn={}_lambda={}_test.out'
 
-gtr_down = 'gtr_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
-les_down = 'les_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
+gtr_down = 'gtr_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}_test.out'
+les_down = 'les_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}_test.out'
 
 # gtr_up = 'gtr_up_U={}_T={}_t={}_dt={}_turn={}_F0={}_i={}.out'
 # les_up = 'les_up_U={}_T={}_t={}_dt={}_turn={}_F0={}_i={}.out'
@@ -33,28 +33,23 @@ les_down = 'les_down_U={}_T={}_t={}_dt={}_turn={}_lambda={}_i={}_test.out'
 # gtr_down = 'gtr_down_U={}_T={}_t={}_dt={}_turn={}_F0={}_i={}.out'
 # les_down = 'les_down_U={}_T={}_t={}_dt={}_turn={}_F0={}_i={}.out'
 
-for i in range(1,2,1):
-    Green[i, 0, 0] = np.loadtxt(gtr_up.format(U,T,tmax,dt,turn,l,i)).view(complex)
-    Green[i, 1, 0] = np.loadtxt(les_up.format(U,T,tmax,dt,turn,l,i)).view(complex)
-    Green[i, 0, 1] = np.loadtxt(gtr_down.format(U,T,tmax,dt,turn,l,i)).view(complex)
-    Green[i, 1, 1] = np.loadtxt(les_down.format(U,T,tmax,dt,turn,l,i)).view(complex)
-
 spin = 0
-init = 1
 
-# Gles = 1j*np.sum(Green[init, 1, :, len(t)-1, ::-1],0)/2
-# Ggtr = -1j*np.sum(Green[init, 0, :, len(t)-1, ::-1],0)/2
+Green[0, 0] = np.loadtxt(gtr_up.format(U,T,tmax,dt,turn,l)).view(complex)
+Green[1, 0] = np.loadtxt(les_up.format(U,T,tmax,dt,turn,l)).view(complex)
+Green[0, 1] = np.loadtxt(gtr_down.format(U,T,tmax,dt,turn,l)).view(complex)
+Green[1, 1] = np.loadtxt(les_down.format(U,T,tmax,dt,turn,l)).view(complex)
 
-Gles = 1j*Green[init, 1, spin, len(t)-1, ::-1]
-Ggtr = -1j*Green[init, 0, spin, len(t)-1, ::-1]
+# Gles = 1j*np.sum(Green[1, :, len(t)-1, ::-1],0)/2
+# Ggtr = -1j*np.sum(Green[0, :, len(t)-1, ::-1],0)/2
 
-# Gles = 1j*np.sum(Green[:, 1, spin, len(t)-1, ::-1],0)/4
-# Ggtr = -1j*np.sum(Green[:, 0, spin, len(t)-1, ::-1],0)/4
+Gles = 1j*Green[1, spin, len(t)-1, ::-1]
+Ggtr = -1j*Green[0, spin, len(t)-1, ::-1]
 
 N = int(Cut/dt)
 Gadv = np.zeros(N+1, complex)
-Gadv[0:int(len(t))] = (Gles - Ggtr)
-# Gadv[0:int(len(t))] = (Gles + np.conj(Ggtr))
+# Gadv[0:int(len(t))] = (Gles - Ggtr)
+Gadv[0:int(len(t))] = (Gles + np.conj(Ggtr))
 # Gadv[0:int(len(t))] = -Ggtr
 # Gadv[0:int(len(t))] = Gles
 

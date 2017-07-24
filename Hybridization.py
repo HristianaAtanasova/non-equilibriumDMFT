@@ -92,7 +92,7 @@ def generate(t, Cut, w, dw, wDOS, v_0, phononCoupling):
         Delta_init[0, :, t1] = fDelta_gtr[int(N / 2) + t1]
         Delta_init[1, :, t1] = fDelta_les[int(N / 2) + t1]
 
-        phononBath[t1] = (2/np.pi) * (quad(lambda w: np.real(phononBath_(t[t1],w)), -100, -0.01, limit=600)[0] + quad(lambda w: np.real(phononBath_(t[t1],w)), 0.01, 100, limit=600)[0]
+        phononBath[t1] = (quad(lambda w: np.real(phononBath_(t[t1],w)), -100, -0.01, limit=600)[0] + quad(lambda w: np.real(phononBath_(t[t1],w)), 0.01, 100, limit=600)[0]
                                       + 1j * quad(lambda w: np.imag(phononBath_(t[t1],w)), -100, -0.01, limit=600)[0] + 1j * quad(lambda w: np.imag(phononBath_(t[t1],w)), 0.01, 100, limit=600)[0])
 
         # phononBath[t_] = (2 / np.pi) * (quad(lambda w: np.real(phononBath_(t[t_], w)), 0, 10, limit=300)[0] + 1j * quad(lambda w: np.imag(phononBath_(t[t_], w)), 0, 10, limit=300)[0])
