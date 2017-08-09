@@ -5,6 +5,9 @@
 \save_transient_properties true
 \origin unavailable
 \textclass article
+\begin_preamble
+\pagenumbering{Roman}
+\end_preamble
 \use_default_options true
 \maintain_unincluded_children false
 \language english
@@ -986,16 +989,16 @@ Dynamical Mean Field Theory is a method to solve a lattice problem with
  many degrees of freedom by mapping it to an impurity problem consisting
  of a single correlated site embedded in an uncorrelated bath.
  The bath is formed by the residual sites of the lattice and the hybridization
- between the impurity and the bath (the dynamical mean field) is the two
- times function 
-\begin_inset Formula $\mathrm{\Delta(t,t^{\prime})}$
+ between the impurity and the bath (the dynamical mean field) is the function
+ 
+\begin_inset Formula $\mathrm{\Delta(\omega)}$
 \end_inset
 
 .
  It resembles the exchange of particles with the rest of the lattice and
  must be determined self consistently as a functional of the lattice Greens
  function 
-\begin_inset Formula $\mathrm{G(t,t^{\prime})}$
+\begin_inset Formula $\mathrm{G(\omega)}$
 \end_inset
 
 .
@@ -1003,7 +1006,7 @@ Dynamical Mean Field Theory is a method to solve a lattice problem with
  
 \begin_inset Formula 
 \[
-\mathrm{\Sigma_{ij}^{lat}(t,t^{\prime})\backsimeq\delta_{ij}\Sigma^{imp}(t,t^{\prime})}
+\mathrm{\Sigma_{ij}^{lat}(\omega)\backsimeq\delta_{ij}\Sigma^{imp}(\omega)}
 \]
 
 \end_inset
@@ -1170,36 +1173,102 @@ The self-consistency condition relates for each frequency
  
 \end_layout
 
+\begin_layout Standard
+We will focus on the Hubbard model for a Bethe lattice in the limit of infinite
+ dimensions, where DMFT becomes exact.
+ With its semicircular Density of states 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\mathrm{D(\epsilon)=\frac{1}{2\pi v_{0}^{2}}\sqrt{4v_{0}-\epsilon^{2}}}\label{semicircularDOS}
+\end{equation}
+
+\end_inset
+
+it relates the Greens function to the hybridization function in the simple
+ way
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\mathrm{\Delta(\omega)=v_{0}^{2}G(\omega).}\label{eq:selfconsistency}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsection
+Systems out of Equilibrium 
+\end_layout
+
+\begin_layout Standard
+To capture non-equilibirum physics one must extend the dynamical mean field
+ 
+\begin_inset Formula $\Delta(\omega)$
+\end_inset
+
+ to a time-dependent field 
+\begin_inset Formula $\Delta(t,t')$
+\end_inset
+
+ and the Greens functions 
+\begin_inset Formula $G(t,t')$
+\end_inset
+
+ therefore become two times objects as well.
+ In the limit 
+\begin_inset Formula $d\rightarrow\infty$
+\end_inset
+
+ the self energy is local in space 
+\begin_inset Formula 
+\[
+\Sigma_{ij}(t,t')=\delta_{ij}\Sigma_{i}(t,t')
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+and is used to obtain the contour-ordered lattice Greens function 
+\begin_inset Formula $\mathrm{G_{ij}(t,t^{\prime})=-i\langle\mathcal{T}d_{i}(t)d_{j}^{\dagger}(t^{\prime})\rangle}$
+\end_inset
+
+ from a Dyson equation 
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Subsection
+Time-dependent Electric Field 
+\end_layout
+
+\begin_layout Subsection
+Set Up for initial Neel State
+\end_layout
+
+\begin_layout Subsection
+Dissipative systems
+\end_layout
+
+\begin_layout Section
 Results 
 \end_layout
 
-\begin_layout Standard
-We consider the Bethe lattice with nearest-neighbour hopping and an infinite
- coordination number, which corresponds to the limit of infinite dimensions,
- where DMFT becomes exact.
- In this case the Density of states takes a semicircular shape
+\begin_layout Subsection
+Equilibrium DMFT
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula 
-\begin{equation}
-\mathrm{D(\epsilon)=\frac{1}{2\pi v^{2}}\sqrt{4v-\epsilon^{2}}}\label{semicircularDOS}
-\end{equation}
-
-\end_inset
-
-and the self consistency condition collapses to the simple form 
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\begin{equation}
-\mathrm{\Delta(t,t^{\prime})=v^{2}G(t,t^{\prime}).}\label{eq:selfconsistency}
-\end{equation}
-
-\end_inset
-
 We perform the DMFT iteration scheme with the initial hybridization function
  calculated from 
 \begin_inset CommandInset ref
@@ -1298,14 +1367,31 @@ As the temperature is lowered and the interaction reduced we observe the
 \end_layout
 
 \begin_layout Standard
+\begin_inset Note Note
+status collapsed
+
+\begin_layout Plain Layout
+It is not clear, what the inital state of the system is.
+ I have either picked one inital state or avareged over all initial states
+ to obtain Delta out of the Greens functions.
+ Both cases do not correspond to any physical state.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/DOS_A(w)_U=0_T=1_t=10.svg
+	filename /home/hristiana/eq_dmft/results/DOS_A(w)_U=0_T=1_t=10.svg
 	scale 70
 
 \end_inset
@@ -1339,11 +1425,11 @@ Spectral function for U=0,
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/A(w)_t=4.svg
+	filename /home/hristiana/eq_dmft/results/T=1/A(w)_t=4.svg
 	scale 70
 
 \end_inset
@@ -1352,7 +1438,7 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Splitting of the Spectral function for short timescales
+Splitting of the Spectral function for short timescales 
 \begin_inset Formula $\mathrm{\Gamma t=4}$
 \end_inset
 
@@ -1377,11 +1463,11 @@ Splitting of the Spectral function for short timescales
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/A(w)_t=8_multiple.svg
+	filename /home/hristiana/eq_dmft/results/T=1/A(w)_t=8_multiple.svg
 	scale 70
 
 \end_inset
@@ -1390,7 +1476,7 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Splitting of the Spectral function for long timescales
+Splitting of the Spectral function for long timescales 
 \begin_inset Formula $\mathrm{\Gamma t=8}$
 \end_inset
 
@@ -1419,11 +1505,11 @@ Splitting of the Spectral function for long timescales
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/DOS_A_U=8_t=10.svg
+	filename /home/hristiana/eq_dmft/results/DOS_A(w)_U=0_T=1_t=8.svg
 	scale 70
 
 \end_inset
@@ -1465,18 +1551,18 @@ Mott physics for
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/init0_U=3.svg
+	filename /home/hristiana/eq_dmft/results/T=1/init0_U=3.svg
 	scale 60
 
 \end_inset
 
 
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=1/init3_U=3.svg
+	filename /home/hristiana/eq_dmft/results/T=1/init3_U=3.svg
 	scale 60
 
 \end_inset
@@ -1523,7 +1609,7 @@ status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=0.06/Kondo_t=8.svg
+	filename /home/hristiana/eq_dmft/results/T=0.06/Kondo_t=8.svg
 	scale 60
 
 \end_inset
@@ -1557,11 +1643,11 @@ Kondo physics for parameters
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/hristiana/dmft_NCA_PycharmProject/results/T=0.06/Kondo_U=2.png
+	filename /home/hristiana/eq_dmft/results/T=0.06/Kondo_U=2.png
 	scale 70
 
 \end_inset
@@ -1592,6 +1678,17 @@ Emergence of the Kondo peak for different timescales with parameters
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage clearpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Non-equilibrium DMFT
 \end_layout
 
 \end_body
