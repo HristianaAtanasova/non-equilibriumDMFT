@@ -16,7 +16,7 @@ wC = 10
 v_0 = 1
 v = 10
 treshold = 1e-6
-tmax = 2
+tmax = 1
 dt = 0.01
 t = np.arange(0, tmax, dt)
 
@@ -57,11 +57,11 @@ DOS[b:a] = semicircularDos(wDOS)
 #DOS = hilbert(DOS)
 
 # frequency-domain Hybridization function
-# Hyb_les = DOS * fermi_function(w)
-# Hyb_gtr = DOS * (1 - fermi_function(w))
+Hyb_les = DOS * fermi_function(w)
+Hyb_gtr = DOS * (1 - fermi_function(w))
 
-Hyb_les = A(w) * fermi_function(w)
-Hyb_gtr = A(w) * (1 - fermi_function(w))
+# Hyb_les = A(w) * fermi_function(w)
+# Hyb_gtr = A(w) * (1 - fermi_function(w))
 
 fDelta_les = np.conj(ifftshift(fft(fftshift(Hyb_les)))) * dw/np.pi
 fDelta_gtr = ifftshift(fft(fftshift(Hyb_gtr))) * dw/np.pi
@@ -224,9 +224,6 @@ def Solver(DeltaMatrix, U, init):
             for t2 in range(t1+1):
                 G_0[i, t1, t2] = np.exp(-1j * E[i, t1-t2] * t[t1-t2])
 
-    plt.plot(t, np.real(G_0[1, len(t) - 1]), 'r--', t, np.imag(G_0[1, len(t) - 1]), 'b--')
-    plt.show()
-
     # main loop over every pair of times t_n and t_m (located on the same contour-branch), where t_m is the smaller contour time
     # take integral over t1 outside the t_m loop
     for t_n in range(len(t)):
@@ -249,10 +246,6 @@ def Solver(DeltaMatrix, U, init):
     for t_n in range(len(t)):
         for t_m in range(t_n+1, len(t), +1):
                 G[:, t_n, t_m] = np.conj(G[:, t_m, t_n])
-
-    for i in range(4):
-        plt.plot(t, np.real(G[i, len(t)-1, ::-1]), 'r--', t, np.imag(G[i, len(t)-1, ::-1]), 'b--')
-        plt.show()
 
     print('-------------------------------------------------------------------------------------------------------------------------------------------------------')
     print('Finished calculation of bold propagators after', datetime.now() - start)
@@ -284,7 +277,7 @@ def Solver(DeltaMatrix, U, init):
                 sum_t2[f] = dt**2 * np.trapz(G[f, t_m, :t_m+1] * sum_t1[f, :t_m+1])
                 # sum_t2[f] = dt ** 2 * weights(G[f, t_m, :t_m + 1] * sum_t1[f, :t_m + 1])
 
-                M[f] += dt**2*np.sum(DeltaMatrix[f, :, t_n, t_m]*np.conj(G[:, t_n, t_n])*G[:, t_m, t_m], 0) * 1/4
+                M[f] -= dt**2*np.sum(DeltaMatrix[f, :, t_n, t_m]*np.conj(G[:, t_n, t_n])*G[:, t_m, t_m], 0) * 1/4
                 # M[f] -= dt**2*np.sum(DeltaMatrix[f, :, t_n, t_m]*np.conj(G[:, t_n, t_n])*G[:, t_m, t_m], 0) * w(G[f, t_m, :t_m + 1] * sum_t1[f, :t_m + 1])
 
             # Dyson equation for time (t_m, t_n)
@@ -309,8 +302,9 @@ def Solver(DeltaMatrix, U, init):
 
     # plt.plot(t, np.real(K[i, 1, :, len(t) - 1]), 'r--', t, np.imag(K[i, 1, :, len(t) - 1]), 'b--')
     # plt.plot(t, np.real(K[i, 1, len(t) - 1]), 'y--', t, np.imag(K[i, 1, len(t) - 1]), 'k--')
-    # plt.grid()
-    # plt.show()
+    plt.plot(t, np.real(K[i,0].diagonal()), 'y--', t, np.real(K[i, 3].diagonal()), 'k--')
+    plt.grid()
+    plt.show()
 
     ########## Computation of two-times Green's functions ##########
     for t1 in range(len(t)):
@@ -323,12 +317,6 @@ def Solver(DeltaMatrix, U, init):
     # for t_n in range(len(t)):
     #     for t_m in range(t_n + 1, len(t), +1):
     #         Green[:, :, :, t_n, t_m] = np.conj(Green[:, :, :, t_m, t_n])
-
-    # plt.plot(t, np.real(Green[1, 0, 1, len(t) - 1]), 'y--', t, np.imag(Green[1, 0, 1, len(t) - 1]), 'k--')
-    # plt.plot(t, np.real(Green[1, 0, 1, :, len(t) - 1]), 'r--', t, np.imag(Green[1, 0, 1, :, len(t) - 1]), 'b--')
-    # plt.plot(t, np.real(Green[0, 0, 1, len(t) - 1]), 'r--', t, np.imag(Green[0, 0, 1, len(t) - 1]), 'b--')
-    # plt.grid()
-    # plt.show()
 
     # plt.plot(t, np.real(Green[0, 0, 1, len(t)-1]), 'y--', t, np.imag(Green[0, 0, 1, len(t)-1]), 'k--')
     # plt.plot(t, np.real(Green[1, 1, 1, len(t)-1]), 'r--', t, np.imag(Green[1, 1, 1, len(t)-1]), 'b--')
@@ -362,24 +350,21 @@ def Solver(DeltaMatrix, U, init):
 ########################################################################################################################
 ''' Main part starts here '''
 
-Umax = 4
-Umin = 3
+Umax = 5
+Umin = 4
 
 ######### perform loop over U #########
 for U in np.arange(Umin, Umax, 2):
 
     U_ = np.zeros(len(t), float)
-    Uc = 3
-    # t0 = int(1/(2*dt))
-    # U_[0:t0] = U
-    # U_[t0:len(t)+1] = 8
+    Uc = 4
 
     # smooth tuning of U
     for t_ in range(len(t)):
         U_[t_] = ramp(t[t_])
 
-    plt.plot(t, U_)
-    plt.show()
+    # plt.plot(t, U_)
+    # plt.show()
 
     print('-------------------------------------------------------------------------------------------------------------------------------------------------------')
     print('Starting DMFT loop for U =', U, '| Temperature =', T, '| time =', tmax, '| dt =', dt, '| F0=', F_0, '| turn on =', t_turn_on)
@@ -394,32 +379,35 @@ for U in np.arange(Umin, Umax, 2):
     initDeltaMatrix(Delta_init)
     Solver(DeltaMatrix, U, 1)
     # Solver(DeltaMatrix, U, 2)
-    # Delta = np.zeros((2, 2, 4, len(t), len(t)), complex)  # after the initial guess Delta becomes a two times function --> input into DeltaMatrix; indices are gtr/les | spin up/spin down | initial state
-    #
-    # counter = 0
-    # while np.amax(np.abs(Green_old - Green)) > 0.001:
-    #     counter += 1
-    #
-    #     # Delta[:] = v_0 * np.sum(Green[:, :, :], 2)/4 * v_0
-    #
-    #     Delta[:] = v_0 * Green[:, :, :] * v_0
-    #
-    #     Green_old[:] = Green
-    #
-    #     fillDeltaMatrix(Delta[:, :, 1])
-    #     Solver(DeltaMatrix, U, 2)
-    #
-    #     fillDeltaMatrix(Delta[:, :, 2])
-    #     Solver(DeltaMatrix, U, 1)
-    #
-    #     Diff = np.amax(np.abs(Green_old - Green))
-    #     print('for U = ', U, ' and iteration Nr. ', counter, ' the Difference is ', Diff, ' after a calculation time ', datetime.now() - start)
-    #     print('                                                                                                                               ')
-    #
-    #
-    # print('-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
-    # print('Computation of Greens functions for U =', U, '| Temperature =', T, '| time =', tmax, '| dt =', dt,
-    #       '| F0=', F_0, '| turn on =', t_turn_on, 'finished after', counter,
-    #       'iterations and', datetime.now() - start, 'seconds.')
-    # print('-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    Delta = np.zeros((2, 2, len(t), len(t)), complex)  # after the initial guess Delta becomes a two times function --> input into DeltaMatrix; indices are gtr/les | spin up/spin down | initial state
 
+    counter = 0
+    while np.amax(np.abs(Green_old - Green)) > 0.001:
+        counter += 1
+
+        # Delta[:] = v_0 * Green[:, :, :] * v_0
+
+        Delta[:, 0] = v_0 * Green[:, 1, 1] * v_0
+        Delta[:, 1] = v_0 * Green[:, 0, 1] * v_0
+
+
+        Green_old[:] = Green
+
+        fillDeltaMatrix(Delta)
+        Solver(DeltaMatrix, U, 1)
+        # fillDeltaMatrix(Delta[:, :, 2])
+        # Solver(DeltaMatrix, U, 1)
+
+        # fillDeltaMatrix(Delta[:, :, 2])
+        # Solver(DeltaMatrix, U, 1)
+
+        Diff = np.amax(np.abs(Green_old - Green))
+        print('for U = ', U, ' and iteration Nr. ', counter, ' the Difference is ', Diff, ' after a calculation time ', datetime.now() - start)
+        print('                                                                                                                               ')
+
+
+    print('-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
+    print('Computation of Greens functions for U =', U, '| Temperature =', T, '| time =', tmax, '| dt =', dt,
+          '| F0=', F_0, '| turn on =', t_turn_on, 'finished after', counter,
+          'iterations and', datetime.now() - start, 'seconds.')
+    print('-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------')
