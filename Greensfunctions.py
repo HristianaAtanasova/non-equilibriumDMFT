@@ -2,11 +2,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.fftpack import fft, ifft, fftshift, ifftshift
 
-tmax = 8
-dt = 0.01
+tmax = 2
+dt = 0.005
 t = np.arange(0, tmax, dt)
-U = 8
-T = 1
+U = 15
+T = 0.1
 turn = 0.5
 field = 1
 F0 = 0
