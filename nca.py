@@ -41,26 +41,26 @@ def w(A):
 def SelfEnergy(K, DeltaMatrix, Sigma):
     for f in range(4):
         for j in range(4):
-            Sigma[f] += K[j] * DeltaMatrix[f, j]
+            Sigma[f] += K[j] * DeltaMatrix[j, f]
 
 def fillDeltaMatrix(DeltaMatrix, Delta):
     # fill in DeltaMatrix for all times | first index is gtr/les | second is spin up/spin down
 
     # initial dot state |0> can only go to |up> or |down> with a Delta_gtr
-    DeltaMatrix[0, 1] = Delta[0, 0]
-    DeltaMatrix[0, 2] = Delta[0, 1]
+    DeltaMatrix[0, 1] = Delta[1, 0]
+    DeltaMatrix[0, 2] = Delta[1, 1]
 
     # initial dot state |up> can only go to |0> or |up,down>
-    DeltaMatrix[1, 0] = Delta[1, 0]
-    DeltaMatrix[1, 3] = Delta[0, 1]
+    DeltaMatrix[1, 0] = Delta[0, 0]
+    DeltaMatrix[1, 3] = Delta[1, 1]
 
     # initial dot state |down> can only go to |0> or |up,down>
-    DeltaMatrix[2, 0] = Delta[1, 1]
-    DeltaMatrix[2, 3] = Delta[0, 0]
+    DeltaMatrix[2, 0] = Delta[0, 1]
+    DeltaMatrix[2, 3] = Delta[1, 0]
 
     # initial dot state |up,down> can only go to |up> or |down> with a Delta_les
-    DeltaMatrix[3, 1] = Delta[1, 1]
-    DeltaMatrix[3, 2] = Delta[1, 0]
+    DeltaMatrix[3, 1] = Delta[0, 1]
+    DeltaMatrix[3, 2] = Delta[0, 0]
 
 def bare_prop(t, U_):
     E = np.zeros((4, len(t)), float)
