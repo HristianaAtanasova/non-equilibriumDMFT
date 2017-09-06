@@ -16,12 +16,13 @@ beta = 1 / T
 mu = 0
 v_0 = 1
 w_0 = 1
+gamma = 1
 # Amplitude = 3
 
 # numerical parameters
 phonon_bath = 1
 fermion_bath = 0
-lambda_const = 0.5
+lambda_const = 1
 counter_term = 1
 rho = 6
 wC = 10
@@ -30,7 +31,7 @@ delta_width = 0.1
 treshold = 1e-6
 
 # time domain
-tmax = 10
+tmax = 8
 dt = 0.005
 t = np.arange(0, tmax, dt)
 
@@ -55,7 +56,8 @@ def coth(w):
 
 def phononSpectral(w):
     # return (w-mu)/(rho-mu) / (np.exp(v*(w-rho)) + 1)
-    return (np.pi/2) * (1 / w_0) * (np.exp(-((w-w_0)/delta_width)**2) / (np.sqrt(np.pi)*delta_width))
+    return (1 / w_0) * (np.exp(-((w-w_0)/delta_width)**2) / (np.sqrt(np.pi)*delta_width))  # Delta function
+    # return (1/(np.pi*0.1)) * (1 / (1 + ((w-1)/0.1)**2))   # Lorenz distribution
 
 
 def phononCorrelation(t, w):
@@ -63,7 +65,7 @@ def phononCorrelation(t, w):
 
 
 def phononBath_(t,w):
-    return (2/np.pi) * phononSpectral(w) * w * phononCorrelation(t, w)
+    return phononSpectral(w) * w * phononCorrelation(t, w)
 
 
 # fermi distribution
@@ -78,15 +80,17 @@ def bose_function(w):
 
 # flat band with soft cutoff
 def A(w):
-    return 1 / ((np.exp(v * (w - wC)) + 1) * (np.exp(-v * (w + wC)) + 1))
+    return gamma / ((np.exp(v * (w - wC)) + 1) * (np.exp(-v * (w + wC)) + 1))
 
 
 # semicircular density of states for bethe lattice
 def semicircularDos(w):
     return 1 / (2 * np.pi * v_0 ** 2) * np.sqrt(4 * v_0 ** 2 - w ** 2)
 
-
-########## Calculate Hybridization functions ###########
+#
+# plt.plot(wDOS, phononSpectral(wDOS),'r')
+# plt.show()
+######## Calculate Hybridization functions ###########
 
 # window function padded with zeros for semicircular DOS
 N = int(2*Cut/dw)
@@ -137,12 +141,12 @@ for t_ in range(len(t)):
 ########################################################################################################################
 ''' Time-dependent coupling to the phonon Bath lambda | hopping v | interaction U '''
 
-t_turn = 0.5
-t0 = 0.05
+t_turn = 3.0
+t0 = 1
 F_0 = 0
 
 def tune_Coupling(x):
-    return lambda_const / (1 + np.exp(20 * (x - 10)))
+    return lambda_const / (1 + np.exp(10 * (x - 20)))
 
 
 def tune_U(x):
@@ -352,10 +356,12 @@ def Solver(U, init):
     print('Error for inital state =', i, 'is', err)
     print('                                                                                                                               ')
 
-    # # output
+    # output
     # file = 'K_U={}_T={}_t={}_dt={}_A={}_lambda={}_i={}_f={}.out'
-    # for f in range(4):
-    #     np.savetxt(file.format(U, T, tmax, dt, Amplitude, lambda_const, i, f), K[i, f].view(float), delimiter=' ')
+    file = 'K_U={}_T={}_t={}_dt={}_A={}_lambda={}_i={}_f={}_ph.out'
+    for f in range(4):
+        # np.savetxt(file.format(U, T, tmax, dt, Amplitude, gamma, i, f), K[i, f].view(float), delimiter=' ')
+        np.savetxt(file.format(U, T, tmax, dt, Amplitude, lambda_const, i, f), K[i, f].view(float), delimiter=' ')
 
     # plt.plot(t, np.real(K[i,0].diagonal()), 'y--', t, np.real(K[i, 3].diagonal()), 'k--')
     # plt.grid()
@@ -406,19 +412,19 @@ def Solver(U, init):
 
 ########################################################################################################################
 ''' Main part starts here '''
-#Amplitude_max = 0.5
-#Amplitude_min = 0.0
+# Amplitude_max = 0.5
+# Amplitude_min = 0.0
 
-U_max = 3.0
-U_min = 0.0
+U_max = 9.0
+U_min = 8.0
 
 ######### perform loop over U #########
-#for Amplitude in np.arange(Amplitude_min, Amplitude_max, 1.0):
+# for Amplitude in np.arange(Amplitude_min, Amplitude_max, 1.0):
 for U in np.arange(U_min, U_max, 2.0):
 
     # U = 20.0
     U_ = np.zeros(len(t), float)
-    Uc = U
+    Uc = 8.0
 
     Amplitude = 0.0
 
@@ -431,8 +437,8 @@ for U in np.arange(U_min, U_max, 2.0):
 
     # v_t = jv(0, 2)*np.exp(1j*0*np.cos(15*t))              # renormalized hopping
 
-    # plt.plot(t, U_, 'r--')
-    # plt.plot(t, coupling, 'b--')
+    # plt.plot(t, U_, 'r')
+    # plt.plot(t, coupling, 'b')
     # plt.plot(t, v_t, 'k--')
     # plt.show()
 
@@ -464,20 +470,21 @@ for U in np.arange(U_min, U_max, 2.0):
     E[1] = -U_/2.0
     E[2] = -U_/2.0
 
-    # Computation of bare propagators G_0
-    for i in range(4):
-        for t1 in range(len(t)):
-            for t2 in range(t1+1):
-                G_0[i, t1, t2] = np.exp(-1j * E[i, t1-t2] * t[t1-t2])
+    # # Computation of bare propagators G_0
+    # for i in range(4):
+    #     for t1 in range(len(t)):
+    #         for t2 in range(t1+1):
+    #             G_0[i, t1, t2] = np.exp(-1j * E[i, t1-t2] * t[t1-t2])
 
-    # for t1 in range(len(t)):
-    #     for t2 in range(t1+1):
-    #         G_0[0, t1, t2] = np.exp(-1j * 0)
-    #         G_0[1, t1, t2] = np.exp(-1j * -integrate_U(t[t1], t[t2])/2)
-    #         G_0[2, t1, t2] = np.exp(-1j * -integrate_U(t[t1], t[t2])/2)
-    #         G_0[3, t1, t2] = np.exp(-1j * 0)
+    for t1 in range(len(t)):
+        for t2 in range(t1+1):
+            G_0[0, t1, t2] = np.exp(-1j * 0)
+            G_0[1, t1, t2] = np.exp(-1j * -integrate_U(t[t1], t[t2])/2)
+            G_0[2, t1, t2] = np.exp(-1j * -integrate_U(t[t1], t[t2])/2)
+            G_0[3, t1, t2] = np.exp(-1j * 0)
 
     # first DMFT loop with initial guess for Delta
+
     fillDeltaMatrixG(Delta)
 
     Solver(U, 1)
@@ -487,15 +494,6 @@ for U in np.arange(U_min, U_max, 2.0):
         counter += 1
 
         # self-consistency condition for Bethe-lattice in initial Neel-state
-
-        if phonon_bath == 1:
-            Delta[:, 0] = V_t * Green[:, 1, 1]
-            Delta[:, 1] = V_t * Green[:, 0, 1]
-
-            # Delta[:, 0, 1] = V_t * Green[:, 1, 1] + Coupling * PhononBath
-            # Delta[:, 1, 1] = V_t * Green[:, 0, 1] + Coupling * PhononBath
-
-
         if fermion_bath == 1:
             Delta[:, 0] = V_t * Green[:, 1, 1] + Coupling * FermionBath
             Delta[:, 1] = V_t * Green[:, 0, 1] + Coupling * FermionBath
