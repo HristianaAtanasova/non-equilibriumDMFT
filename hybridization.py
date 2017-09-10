@@ -53,10 +53,11 @@ def genSemicircularHyb(T, mu, v_0, tmax, dt, dw):
 
     for t1 in range(len(t)):
         for t2 in range(len(t)):
-            Delta[0, 0, t1, t2] = tdiff(Delta_init[0, 0], t1, t2)
-            Delta[0, 1, t1, t2] = tdiff(Delta_init[0, 1], t1, t2)
-            Delta[1, 0, t1, t2] = tdiff(Delta_init[1, 0], t1, t2)
-            Delta[1, 1, t1, t2] = tdiff(Delta_init[1, 1], t1, t2)
+            Delta[:, :, t1, t2] = tdiff(Delta_init[0, 0], t1, t2)
+            # Delta[0, 0, t1, t2] = tdiff(Delta_init[0, 0], t1, t2)
+            # Delta[0, 1, t1, t2] = tdiff(Delta_init[0, 1], t1, t2)
+            # Delta[1, 0, t1, t2] = tdiff(Delta_init[1, 0], t1, t2)
+            # Delta[1, 1, t1, t2] = tdiff(Delta_init[1, 1], t1, t2)
     # print(t,Delta[0,0])
     # np.savetxt("Delta_gtr_spin_up.out", (Delta[0,0].view(float)))
     return Delta
