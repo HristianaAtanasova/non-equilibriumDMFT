@@ -3,14 +3,14 @@
 import numpy as np
 from numpy.linalg import solve
 
+import h5py
+import hdf5
+
 import matplotlib.pyplot as plt
 
 from scipy.signal import fftconvolve
 from scipy.fftpack import fft, ifft, fftfreq, fftshift, ifftshift
 from datetime import datetime
-
-import h5py
-import hdf5
 
 ########## Define functions for impurity solver ##########
 
@@ -114,7 +114,7 @@ def solve(t, U_, output, hybsection, gfsection):
             G[:, t_n, t_m] = (G_0[:, t_n, t_m] - sum_t2) / (1 + dt ** 2 * G_0[:, t_n, t_n] * Sigma[:, t_n, t_n] * w(G[i, t_m:t_n+1, t_m]*sum_t1[i, t_m:]))
 
             # Compute self-energy for time (t_m, t_n)
-            Sigma[:, t_n, t_m] = np.sum(G[:, None, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 0)
+            Sigma[:, t_n, t_m] = np.sum(G[None, :, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 1)
 
             for i in range(4):
                 sum_t1[i, t_m] = weights(Sigma[i, t_m:t_n+1, t_m] * G_0[i, t_n, t_m:t_n+1])  # sum[:, t2=t_m]
@@ -205,4 +205,4 @@ def main():
     args = parser.parse_args()
 
 if __name__ == "__main__":
-main()
+    main()

@@ -55,4 +55,4 @@ def save_green(archive, section, Green, grids):
     save_grid_object(archive, section + "/gtr_up",   Green[0,0,:,:], grids)
     save_grid_object(archive, section + "/les_up",   Green[1,0,:,:], grids)
     save_grid_object(archive, section + "/gtr_down", Green[0,1,:,:], grids)
-save_grid_object(archive, section + "/les_down", Green[1,1,:,:], grids)
+    save_grid_object(archive, section + "/les_down", Green[1,1,:,:], grids)

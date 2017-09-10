@@ -3,6 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
+import h5py
 import toml
 
 from datetime import datetime
@@ -10,8 +11,6 @@ from scipy.fftpack import fft, ifft, fftfreq, fftshift, ifftshift
 
 import nca
 import hybridization
-
-import h5py
 import hdf5
 
 def runNCA(U, tmax, dt, Delta, iteration, output):
@@ -31,6 +30,8 @@ def runNCA(U, tmax, dt, Delta, iteration, output):
 
     return Green
 
+def runInch(U, tmax, dt, Delta):
+    pass
 
 def run_dmft(U, T, mu, v_0, tmax, dt, dw, tol, solver, output, **kwargs):
     t  = np.arange(0, tmax, dt)
@@ -114,4 +115,4 @@ def main():
         np.savetxt(les_down.format(*[params[x] for x in ["U", "T", "tmax", "dt"]]), Green[1, 1, 1].view(float), delimiter=' ')
 
 if __name__ == "__main__":
-main()
+    main()

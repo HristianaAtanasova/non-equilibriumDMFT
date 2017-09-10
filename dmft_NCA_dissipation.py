@@ -20,7 +20,7 @@ gamma = 1
 # Amplitude = 3
 
 # numerical parameters
-phonon_bath = 1
+phonon_bath = 0
 fermion_bath = 0
 lambda_const = 1
 counter_term = 1
@@ -31,8 +31,8 @@ delta_width = 0.1
 treshold = 1e-6
 
 # time domain
-tmax = 8
-dt = 0.005
+tmax = 0.5
+dt = 0.01
 t = np.arange(0, tmax, dt)
 
 # frequency domain
@@ -358,10 +358,10 @@ def Solver(U, init):
 
     # output
     # file = 'K_U={}_T={}_t={}_dt={}_A={}_lambda={}_i={}_f={}.out'
-    file = 'K_U={}_T={}_t={}_dt={}_A={}_lambda={}_i={}_f={}_ph.out'
-    for f in range(4):
+    # file = 'K_U={}_T={}_t={}_dt={}_A={}_lambda={}_i={}_f={}_ph.out'
+    # for f in range(4):
         # np.savetxt(file.format(U, T, tmax, dt, Amplitude, gamma, i, f), K[i, f].view(float), delimiter=' ')
-        np.savetxt(file.format(U, T, tmax, dt, Amplitude, lambda_const, i, f), K[i, f].view(float), delimiter=' ')
+        # np.savetxt(file.format(U, T, tmax, dt, Amplitude, lambda_const, i, f), K[i, f].view(float), delimiter=' ')
 
     # plt.plot(t, np.real(K[i,0].diagonal()), 'y--', t, np.real(K[i, 3].diagonal()), 'k--')
     # plt.grid()
@@ -399,15 +399,20 @@ def Solver(U, init):
     # gtr_down = 'gtr_down_U={}_T={}_t={}_dt={}_A={}_lambda={}.out'
     # les_down = 'les_down_U={}_T={}_t={}_dt={}_A={}_lambda={}.out'
 
-    gtr_up = 'gtr_up_U={}_T={}_t={}_dt={}_A={}_lambda={}_ph.out'
-    les_up = 'les_up_U={}_T={}_t={}_dt={}_A={}_lambda={}_ph.out'
-    gtr_down = 'gtr_down_U={}_T={}_t={}_dt={}_A={}_lambda={}_ph.out'
-    les_down = 'les_down_U={}_T={}_t={}_dt={}_A={}_lambda={}_ph.out'
+    # gtr_up = 'gtr_up_U={}_T={}_t={}_dt={}_A={}_lambda={}_ph.out'
+    # les_up = 'les_up_U={}_T={}_t={}_dt={}_A={}_lambda={}_ph.out'
+    # gtr_down = 'gtr_down_U={}_T={}_t={}_dt={}_A={}_lambda={}_ph.out'
+    # les_down = 'les_down_U={}_T={}_t={}_dt={}_A={}_lambda={}_ph.out'
 
-    np.savetxt(gtr_up.format(U, T, tmax, dt, Amplitude, lambda_const), Green[0, 0, i].view(float), delimiter=' ')
-    np.savetxt(les_up.format(U, T, tmax, dt, Amplitude, lambda_const), Green[1, 0, i].view(float), delimiter=' ')
-    np.savetxt(gtr_down.format(U, T, tmax, dt, Amplitude, lambda_const), Green[0, 1, i].view(float), delimiter=' ')
-    np.savetxt(les_down.format(U, T, tmax, dt, Amplitude, lambda_const), Green[1, 1, i].view(float), delimiter=' ')
+    # np.savetxt(gtr_up.format(U, T, tmax, dt, Amplitude, lambda_const), Green[0, 0, i].view(float), delimiter=' ')
+    # np.savetxt(les_up.format(U, T, tmax, dt, Amplitude, lambda_const), Green[1, 0, i].view(float), delimiter=' ')
+    # np.savetxt(gtr_down.format(U, T, tmax, dt, Amplitude, lambda_const), Green[0, 1, i].view(float), delimiter=' ')
+    # np.savetxt(les_down.format(U, T, tmax, dt, Amplitude, lambda_const), Green[1, 1, i].view(float), delimiter=' ')
+
+    # np.savetxt(gtr_up.format(U, T, tmax, dt, Amplitude, lambda_const), zip(t, np.real(Green[0, 0, i])), np.imag(Green[0, 0, i]))
+    # np.savetxt(les_up.format(U, T, tmax, dt, Amplitude, lambda_const), zip(t, np.real(Green[1, 0, i])), np.imag(Green[1, 0, i]))
+    # np.savetxt(gtr_down.format(U, T, tmax, dt, Amplitude, lambda_const), zip(t, np.real(Green[0, 1, i])), np.imag(Green[0, 1, i]))
+    # np.savetxt(les_down.format(U, T, tmax, dt, Amplitude, lambda_const), zip(t, np.real(Green[1, 1, i])), np.imag(Green[1, 1, i]))
 
 
 ########################################################################################################################
