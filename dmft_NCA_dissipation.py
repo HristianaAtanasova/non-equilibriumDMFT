@@ -22,7 +22,7 @@ gamma = 1
 # numerical parameters
 phonon_bath = 0
 fermion_bath = 0
-lambda_const = 1
+lambda_const = 0
 counter_term = 1
 rho = 6
 wC = 10
@@ -230,11 +230,11 @@ def SelfEnergy(K, DeltaMatrix, Sigma):
 def initMatrix(Delta_init, phononBath, fermionBath, coupling, v_t):
     for t1 in range(len(t)):
         for t2 in range(len(t)):
-
-            Delta[0, 0, t1, t2] = tdiff(Delta_init[0, 0], t1, t2)
-            Delta[0, 1, t1, t2] = tdiff(Delta_init[0, 1], t1, t2)
-            Delta[1, 0, t1, t2] = tdiff(Delta_init[1, 0], t1, t2)
-            Delta[1, 1, t1, t2] = tdiff(Delta_init[1, 1], t1, t2)
+            Delta[:, :, t1, t2] = tdiff(Delta_init[0, 0], t1, t2)
+            # Delta[0, 0, t1, t2] = tdiff(Delta_init[0, 0], t1, t2)
+            # Delta[0, 1, t1, t2] = tdiff(Delta_init[0, 1], t1, t2)
+            # Delta[1, 0, t1, t2] = tdiff(Delta_init[1, 0], t1, t2)
+            # Delta[1, 1, t1, t2] = tdiff(Delta_init[1, 1], t1, t2)
 
             PhononBath[t1, t2] = tdiff(phononBath, t1, t2)
 
