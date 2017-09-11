@@ -72,8 +72,8 @@ def run_dmft(U, T, mu, v_0, tmax, dt, dw, tol, solver, output, **kwargs):
         diff = np.amax(np.abs(Green_old - Green))
 
         # antiferromagnetic self-consistency
-        Delta[:, 0, :, :] = v_0 * Green[:, 1, :, :] * v_0
-        Delta[:, 1, :, :] = v_0 * Green[:, 0, :, :] * v_0
+        Delta[:, 0] = v_0 * Green[:, 1] * v_0
+        Delta[:, 1] = v_0 * Green[:, 0] * v_0
 
         msg = 'U = {}, iteration {}: diff = {} (elapsed time = {})'
         print(msg.format(U, iteration, diff, datetime.now() - start))
