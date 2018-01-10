@@ -10,12 +10,17 @@ from datetime import datetime
 from scipy.fftpack import fft, ifft, fftfreq, fftshift, ifftshift
 
 import nca
+import bareprop
 import hybridization
+import timedep_hybridization
+import phononBath
+import fermionBath
+import electricField
 import hdf5
 
-def runNCA(U, tmax, dt, Delta, iteration, output):
+
+def runNCA(U, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output):
     t  = np.arange(0, tmax, dt)
-    U_ = U * np.ones(t.shape[0], float)
 
     hybsection = "dmft/iterations/{}/delta".format(iteration)
     gfsection  = "dmft/iterations/{}/gf".format(iteration)
@@ -23,7 +28,7 @@ def runNCA(U, tmax, dt, Delta, iteration, output):
     with h5py.File(output, "a") as h5f:
         hdf5.save_green(h5f, hybsection, Delta, (t,t))
 
-    nca.solve(t, U_, output, hybsection, gfsection)
+    nca.solve(t, U, G_0, phonon, fermion, Lambda, dissBath, output, hybsection, gfsection)
 
     with h5py.File(output, "r") as h5f:
         Green, _ = hdf5.load_green(h5f, gfsection)
@@ -33,10 +38,10 @@ def runNCA(U, tmax, dt, Delta, iteration, output):
 def runInch(U, tmax, dt, Delta):
     pass
 
-def run_dmft(U, T, mu, v_0, tmax, dt, dw, tol, solver, output, **kwargs):
+def run_dmft(U, Uconst, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fermion, Lambda, pumpOmega, probeOmega, output, **kwargs):
     t  = np.arange(0, tmax, dt)
 
-    msg = 'Starting DMFT loop for U = {} | Temperature = {} | time = {} | dt = {}'.format(U, T, tmax, dt)
+    msg = 'Starting DMFT loop for U = {} | Uconst = {} | Temperature = {} | mu = {} | phonon = {} | fermion = {} | Lambda = {} | time = {} | dt = {}'.format(U, Uconst, T, mu, phonon, fermion, Lambda, tmax, dt)
     print('-'*len(msg))
     print(msg)
     print('-'*len(msg))
@@ -47,14 +52,36 @@ def run_dmft(U, T, mu, v_0, tmax, dt, dw, tol, solver, output, **kwargs):
     Green     = np.zeros((2, 2, len(t), len(t)), complex)
     Green_old = np.zeros((2, 2, len(t), len(t)), complex)
 
-    # delta indices: [gtr/les, up/down, time, time]
-    np.seterr(over="ignore")
-    Delta = hybridization.genSemicircularHyb(T, mu, v_0, tmax, dt, dw)
-    np.seterr(over="warn")
+    # calculate and load bare propagators
+    bareprop.bare_prop(t, U, Uconst)
+    loaded = np.load('barePropagators.npz')
+    G_0 = loaded['G_0']
 
-    if solver == "NCA":
+    # delta indices: [gtr/les, up/down, time, time]
+    hybridization.genSemicircularHyb(T, mu, v_0, tmax, dt, dw)
+    # hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
+    # timedep_hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
+    loaded = np.load('Delta.npz')
+    Delta = loaded['D']
+
+    if phonon == 1:
+        phononBath.genPhononBath(t, mu, T)
+        loaded = np.load('PhononBath.npz')
+        dissBath = loaded['P']
+    elif fermion == 1:
+        fermionBath.genFermionBath(T, mu, tmax, dt, dw)
+        loaded = np.load('FermionBath.npz')
+        dissBath = loaded['F']
+    else:
+        dissBath = 0
+
+    # option of turning on a pump field and/or a probe field
+    v = electricField.genv(pumpA, pumpOmega, probeA, probeOmega, v_0, t)
+
+    # set solver
+    if solver == 0:
         Solver = runNCA
-    elif solver == "inchworm":
+    elif solver == 1:
         Solver = runInch
     else:
         raise Exception("solver {:s} not recognized".format(solver))
@@ -67,13 +94,14 @@ def run_dmft(U, T, mu, v_0, tmax, dt, dw, tol, solver, output, **kwargs):
 
         Green_old = Green
 
-        Green = Solver(U, tmax, dt, Delta, iteration, output)
+        Green = Solver(U, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output)
 
         diff = np.amax(np.abs(Green_old - Green))
+        # diff = 0
 
         # antiferromagnetic self-consistency
-        Delta[:, 0, :, :] = v_0 * Green[:, 1, :, :] * v_0
-        Delta[:, 1, :, :] = v_0 * Green[:, 0, :, :] * v_0
+        Delta[:, 0] = v * Green[:, 1]
+        Delta[:, 1] = v * Green[:, 0]
 
         msg = 'U = {}, iteration {}: diff = {} (elapsed time = {})'
         print(msg.format(U, iteration, diff, datetime.now() - start))
@@ -88,7 +116,8 @@ def run_dmft(U, T, mu, v_0, tmax, dt, dw, tol, solver, output, **kwargs):
 def main():
     parser = argparse.ArgumentParser(description = "run dmft")
     parser.add_argument("--output",   default = "output.h5")
-    parser.add_argument("--params",   default = "params.toml")
+    # parser.add_argument("--output",   default = "savetxt")
+    parser.add_argument("--params",   default = "run.toml")
     parser.add_argument("--savetxt",  action  = "store_true")
     args = parser.parse_args()
 
@@ -102,17 +131,6 @@ def main():
             h5f.create_dataset("dmft/params/" + k, data=v)
 
     Green = run_dmft(**params)
-
-    if args.savetxt:
-        gtr_up   = 'gtr_up_U={}_T={}_t={}_dt={}.out'
-        les_up   = 'les_up_U={}_T={}_t={}_dt={}.out'
-        gtr_down = 'gtr_down_U={}_T={}_t={}_dt={}.out'
-        les_down = 'les_down_U={}_T={}_t={}_dt={}.out'
-
-        np.savetxt(gtr_up.format(*[params[x] for x in ["U", "T", "tmax", "dt"]]), Green[0, 0, 1].view(float), delimiter=' ')
-        np.savetxt(les_up.format(*[params[x] for x in ["U", "T", "tmax", "dt"]]), Green[1, 0, 1].view(float), delimiter=' ')
-        np.savetxt(gtr_down.format(*[params[x] for x in ["U", "T", "tmax", "dt"]]), Green[0, 1, 1].view(float), delimiter=' ')
-        np.savetxt(les_down.format(*[params[x] for x in ["U", "T", "tmax", "dt"]]), Green[1, 1, 1].view(float), delimiter=' ')
 
 if __name__ == "__main__":
     main()

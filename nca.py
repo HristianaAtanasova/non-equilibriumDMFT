@@ -6,6 +6,8 @@ from numpy.linalg import solve
 import h5py
 import hdf5
 
+import bareprop
+
 import matplotlib.pyplot as plt
 
 from scipy.signal import fftconvolve
@@ -40,8 +42,8 @@ def w(A):
 # Self energy for vertex functions
 def SelfEnergy(K, DeltaMatrix, Sigma):
     for f in range(4):
-        for j in range(4):
-            Sigma[f] += K[j] * DeltaMatrix[j, f]
+        for i in range(4):
+            Sigma[f] += K[i] * DeltaMatrix[i, f]
 
 def fillDeltaMatrix(DeltaMatrix, Delta):
     # fill in DeltaMatrix for all times | first index is gtr/les | second is spin up/spin down
@@ -62,24 +64,7 @@ def fillDeltaMatrix(DeltaMatrix, Delta):
     DeltaMatrix[3, 1] = Delta[0, 1]
     DeltaMatrix[3, 2] = Delta[0, 0]
 
-def bare_prop(t, U_):
-    E = np.zeros((4, len(t)), float)
-
-    E[1, :] = -U_/2.0
-    E[2, :] = -U_/2.0
-
-    # g_0 as a two-times Matrix for convolution integrals
-    G_0 = np.zeros((4, len(t), len(t)), complex)
-
-    # Computation of bare propagators G_0
-    for i in range(4):
-        for t1 in range(len(t)):
-            for t2 in range(t1+1):
-                G_0[i, t1, t2] = np.exp(-1j * E[i, t1-t2] * t[t1-t2])
-
-    return G_0
-
-def solve(t, U_, output, hybsection, gfsection):
+def solve(t, U, G_0, phonon, fermion, Lambda, dissBath, output, hybsection, gfsection):
     ########## Computation of bold propagators on separate branches of the contour ##########
 
     with h5py.File(output, "r") as h5f:
@@ -95,33 +80,83 @@ def solve(t, U_, output, hybsection, gfsection):
     fillDeltaMatrix(DeltaMatrix, Delta)
 
     # indices are initial state, contour times located on the same branch t_n, t_m (propagation from t_m to t_n)
-    G_0   = bare_prop(t, U_)
     G     = np.zeros((4, len(t), len(t)), complex)
     Sigma = np.zeros((4, len(t), len(t)), complex)
 
     # main loop over every pair of times t_n and t_m (located on the same contour-branch), where t_m is the smaller contour time
     # take integral over t1 outside the t_m loop
     for t_n in range(len(t)):
-        sum_t1 = np.zeros((4, t_n+1), complex)
+        sum_t1_upper = np.zeros((4, t_n+1), complex)
+        # sum_t1_lower = np.zeros((4, t_n+1), complex)
         for t_m in range(t_n, -1, -1):
+
+            sum_t2_upper = np.zeros(4, complex)
+            # sum_t2_lower = np.zeros(4, complex)
+            for i in range(4):
+                sum_t2_upper[i] = dt**2 * weights(G[i, t_m:t_n+1, t_m] * sum_t1_upper[i, t_m:])
+                # sum_t2_lower[i] = dt**2 * weights(G[i, t_m, t_m:t_n+1] * sum_t1_lower[i, t_m:])
+                # sum_t2[i] = dt**2 * np.trapz(G[i, t_m:t_n + 1, t_m] * sum_t1[i, t_m:])
+
+            # Dyson equation for time (t_m, t_n)
+            G[:, t_n, t_m] = (G_0[:, t_n, t_m] - sum_t2_upper) / (1 + dt ** 2 * G_0[:, t_n, t_n] * Sigma[:, t_n, t_n] * w(G[i, t_m:t_n+1, t_m]*sum_t1_upper[i, t_m:]))
+            # G[:, t_m, t_n] = (G_0[:, t_m, t_n] - sum_t2_lower) / (1 + dt ** 2 * G_0[:, t_m, t_m] * Sigma[:, t_m, t_m] * w(G[i, t_m, t_m:t_n+1]*sum_t1_lower[i, t_m:]))
+            # G[:, t_n, t_m] = (G_0[:, t_n, t_m] - sum_t2) / (1 + dt ** 2 * G_0[:, t_n, t_n] * Sigma[:, t_n, t_n] * 1/4)
+
+            # Compute self-energy for time (t_m, t_n)
+            Sigma[:, t_n, t_m] = np.sum(G[None, :, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 1)
+            # Sigma[:, t_m, t_n] = np.sum(G[None, :, t_m, t_n] * DeltaMatrix[:, :, t_m, t_n], 1)
+
+            if phonon == 1:
+                Sigma[0, t_n, t_m] += Lambda * (G[0, t_n, t_m] * dissBath[t_n, t_m])
+                # Sigma[3, t_n, t_m] += Lambda * (G[3, t_n, t_m] * dissBath[t_n, t_m])
+
+            elif fermion == 1:
+                Sigma[0, t_n, t_m] += Lambda * (G[1, t_n, t_m] * dissBath[1, 0, t_n, t_m] + G[2, t_n, t_m] * dissBath[1, 1, t_n, t_m])
+                Sigma[1, t_n, t_m] += Lambda * (G[0, t_n, t_m] * dissBath[0, 0, t_n, t_m] + G[3, t_n, t_m] * dissBath[1, 1, t_n, t_m])
+                Sigma[2, t_n, t_m] += Lambda * (G[0, t_n, t_m] * dissBath[0, 1, t_n, t_m] + G[3, t_n, t_m] * dissBath[1, 0, t_n, t_m])
+                Sigma[3, t_n, t_m] += Lambda * (G[1, t_n, t_m] * dissBath[0, 1, t_n, t_m] + G[2, t_n, t_m] * dissBath[0, 0, t_n, t_m])
+
+            for i in range(4):
+                sum_t1_upper[i, t_m] = weights(Sigma[i, t_m:t_n+1, t_m] * G_0[i, t_n, t_m:t_n+1])  # sum[:, t2=t_m]
+                # sum_t1_lower[i, t_m] = weights(Sigma[i, t_m, t_m:t_n+1] * G_0[i, t_m:t_n+1, t_n])  # sum[:, t2=t_n]
+                # sum_t1[i, t_m] = np.trapz(Sigma[i, t_m:t_n+1, t_m] * G_0[i, t_n, t_m:t_n+1])  # sum[:, t2=t_m]
+
+    # for t_n in range(len(t)):
+    #     for t_m in range(t_n+1, len(t), +1):
+    #             G[:, t_n, t_m] = np.conj(G[:, t_m, t_n])
+
+    # Note that the propagator for the lower branch is calculated explicitly (see Notes)
+    for t_m in range(len(t)):
+        sum_t1 = np.zeros((4, t_m+1), complex)
+        for t_n in range(t_m, -1, -1):
 
             sum_t2 = np.zeros(4, complex)
             for i in range(4):
-                sum_t2[i] = dt**2 * weights(G[i, t_m:t_n+1, t_m]*sum_t1[i, t_m:])
-                # sum_t2[i] = dt ** 2 * np.trapz(G[i, t_m:t_n + 1, t_m] * sum_t1[i, t_m:])
+                sum_t2[i] = dt**2 * weights(G[i, t_n, t_n:t_m+1] * sum_t1[i, t_n:])
+                # sum_t2[i] = dt**2 * np.trapz(G[i, t_m:t_n + 1, t_m] * sum_t1[i, t_m:])
 
             # Dyson equation for time (t_m, t_n)
-            G[:, t_n, t_m] = (G_0[:, t_n, t_m] - sum_t2) / (1 + dt ** 2 * G_0[:, t_n, t_n] * Sigma[:, t_n, t_n] * w(G[i, t_m:t_n+1, t_m]*sum_t1[i, t_m:]))
+            G[:, t_n, t_m] = (G_0[:, t_n, t_m] - sum_t2) / (1 + dt ** 2 * G_0[:, t_n, t_n] * Sigma[:, t_n, t_n] * w(G[i, t_n, t_n:t_m+1]*sum_t1[i, t_n:]))
+            # G[:, t_n, t_m] = (G_0[:, t_n, t_m] - sum_t2) / (1 + dt ** 2 * G_0[:, t_n, t_n] * Sigma[:, t_n, t_n] * 1/4)
 
             # Compute self-energy for time (t_m, t_n)
             Sigma[:, t_n, t_m] = np.sum(G[None, :, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 1)
 
-            for i in range(4):
-                sum_t1[i, t_m] = weights(Sigma[i, t_m:t_n+1, t_m] * G_0[i, t_n, t_m:t_n+1])  # sum[:, t2=t_m]
+            if phonon == 1:
+                Sigma[0, t_n, t_m] += Lambda * (G[0, t_n, t_m] * dissBath[t_n, t_m])
+                Sigma[3, t_n, t_m] += Lambda * (G[3, t_n, t_m] * dissBath[t_n, t_m])
 
-    for t_n in range(len(t)):
-        for t_m in range(t_n+1, len(t), +1):
-                G[:, t_n, t_m] = np.conj(G[:, t_m, t_n])
+            elif fermion == 1:
+                Sigma[0, t_n, t_m] += Lambda * (G[1, t_n, t_m] * dissBath[1, 0, t_n, t_m] + G[2, t_n, t_m] * dissBath[1, 1, t_n, t_m])
+                Sigma[1, t_n, t_m] += Lambda * (G[0, t_n, t_m] * dissBath[0, 0, t_n, t_m] + G[3, t_n, t_m] * dissBath[1, 1, t_n, t_m])
+                Sigma[2, t_n, t_m] += Lambda * (G[0, t_n, t_m] * dissBath[0, 1, t_n, t_m] + G[3, t_n, t_m] * dissBath[1, 0, t_n, t_m])
+                Sigma[3, t_n, t_m] += Lambda * (G[1, t_n, t_m] * dissBath[0, 1, t_n, t_m] + G[2, t_n, t_m] * dissBath[0, 0, t_n, t_m])
+
+            for i in range(4):
+                sum_t1[i, t_n] = weights(Sigma[i, t_n, t_n:t_m+1] * G_0[i, t_n:t_m+1, t_m])  # sum[:, t2=t_n]
+                # sum_t1[i, t_m] = np.trapz(Sigma[i, t_m:t_n+1, t_m] * G_0[i, t_n, t_m:t_n+1])  # sum[:, t2=t_m]
+
+    np.savez_compressed('Prop', t=t, Prop=G)
 
     print('-'*100)
     print('Finished calculation of bold propagators after', datetime.now() - start)
@@ -140,8 +175,8 @@ def solve(t, U_, output, hybsection, gfsection):
         # indices are final state | lower and upper branch time
         Sigma = np.zeros((4, len(t), len(t)), complex)
 
-        for f in range(4):
-            K_0[i, f] = delta(i, f) * np.conj(G[i, :, None, 0]) * G[i, None, :, 0]
+        # for f in range(4):
+            # K_0[i, f] = delta(i, f) * np.conj(G[i, :, None, 0]) * G[i, None, :, 0]
 
         for t_n in range(len(t)):
             sum_t1 = np.zeros((4, len(t)), complex)
@@ -151,9 +186,13 @@ def solve(t, U_, output, hybsection, gfsection):
                 M = np.eye(4, dtype=complex)
 
                 for f in range(4):
-                    sum_t2[f] = dt ** 2 * weights(G[f, t_m, :t_m + 1] * sum_t1[f, :t_m + 1])
+                    K_0[i, f, t_n, t_m] = delta(i, f) * G[f, 0, None, t_n] * G[f, None, t_m, 0]
+
+                    sum_t2[f] = dt**2 * weights(G[f, t_m, :t_m + 1] * sum_t1[f, :t_m + 1])
+                    # sum_t2[f] = dt**2 * np.trapz(G[f, t_m, :t_m+1] * sum_t1[f, :t_m+1])
 
                     M[f] -= dt**2 * np.sum(DeltaMatrix[f, :, t_n, t_m] * np.conj(G[:, t_n, t_n]) * G[:, t_m, t_m], 0) * w(G[f, t_m, :t_m + 1] * sum_t1[f, :t_m + 1])
+                    # M[f] -= dt**2 * np.sum(DeltaMatrix[f, :, t_n, t_m] * np.conj(G[:, t_n, t_n])*G[:, t_m, t_m], 0) * 1/4
 
                 # Dyson equation for time (t_m, t_n)
                 K[i, :, t_n, t_m] = np.linalg.solve(M, K_0[i, :, t_n, t_m] + sum_t2)
@@ -161,9 +200,19 @@ def solve(t, U_, output, hybsection, gfsection):
                 # Compute self-energy for time (t_m, t_n)
                 SelfEnergy(K[i, :, t_n, t_m], DeltaMatrix[:, :, t_n, t_m], Sigma[:, t_n, t_m])
 
+                if phonon == 1:
+                    Sigma[0, t_n, t_m] += Lambda * (K[i, 0, t_n, t_m] * dissBath[t_n, t_m])
+                    Sigma[3, t_n, t_m] += Lambda * (K[i, 3, t_n, t_m] * dissBath[t_n, t_m])
+
+                elif fermion == 1:
+                    Sigma[0, t_n, t_m] += Lambda * (K[i, 1, t_n, t_m] * dissBath[1, 0, t_n, t_m] + K[i, 2, t_n, t_m] * dissBath[1, 1, t_n, t_m])
+                    Sigma[1, t_n, t_m] += Lambda * (K[i, 0, t_n, t_m] * dissBath[0, 0, t_n, t_m] + K[i, 3, t_n, t_m] * dissBath[1, 0, t_n, t_m])
+                    Sigma[2, t_n, t_m] += Lambda * (K[i, 0, t_n, t_m] * dissBath[0, 1, t_n, t_m] + K[i, 3, t_n, t_m] * dissBath[1, 1, t_n, t_m])
+                    Sigma[3, t_n, t_m] += Lambda * (K[i, 1, t_n, t_m] * dissBath[0, 1, t_n, t_m] + K[i, 2, t_n, t_m] * dissBath[0, 0, t_n, t_m])
+
                 for f in range(4):
-                    # sum_t1[f, t_m] = np.trapz(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1]))  # t_m = t_2
-                    sum_t1[f, t_m] = weights(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1]))  # t_m = t_2
+                    sum_t1[f, t_m] = weights(Sigma[f, :t_n+1, t_m] * G[f, :t_n+1, t_n])  # sum[:, t2=t_m]
+                    # sum_t1[f, t_m] = np.trapz(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1])) # sum[:, t2=t_m]
 
         ########## Computation of two-times Green's functions ##########
 
@@ -171,14 +220,14 @@ def solve(t, U_, output, hybsection, gfsection):
         Green = np.zeros((2, 2, 4, len(t), len(t)), complex)
 
         for t1 in range(len(t)):
-            for t_1 in range(len(t)):
-                Green[0, 0, i, t1, t_1] = (K[i, 0, t1, t_1] * G[1, t1, t_1] + K[i, 2, t1, t_1] * G[3, t1, t_1])
-                Green[1, 0, i, t1, t_1] = (K[i, 1, t1, t_1] * G[0, t1, t_1] + K[i, 3, t1, t_1] * G[2, t1, t_1])
-                Green[0, 1, i, t1, t_1] = (K[i, 0, t1, t_1] * G[2, t1, t_1] + K[i, 1, t1, t_1] * G[3, t1, t_1])
-                Green[1, 1, i, t1, t_1] = (K[i, 2, t1, t_1] * G[0, t1, t_1] + K[i, 3, t1, t_1] * G[1, t1, t_1])
+            for t2 in range(len(t)):
+                Green[0, 0, i, t1, t2] = (K[i, 0, t1, t2] * G[1, t1, t2] + K[i, 2, t1, t2] * G[3, t1, t2])
+                Green[1, 0, i, t1, t2] = (K[i, 1, t1, t2] * G[0, t1, t2] + K[i, 3, t1, t2] * G[2, t1, t2])
+                Green[0, 1, i, t1, t2] = (K[i, 0, t1, t2] * G[2, t1, t2] + K[i, 1, t1, t2] * G[3, t1, t2])
+                Green[1, 1, i, t1, t2] = (K[i, 2, t1, t2] * G[0, t1, t2] + K[i, 3, t1, t2] * G[1, t1, t2])
 
         print('Finished calculation of K for initial state', i, 'after', datetime.now() - start)
-        err = np.abs(1 - np.abs(np.sum(K[i, :, len(t)-1, len(t)-1], 0)))
+        err = np.abs(1 - np.real(np.sum(K[i, :, len(t)-1, len(t)-1], 0)))
         print('Error for inital state =', i, 'is', err)
         print('\n')
 
@@ -187,15 +236,16 @@ def solve(t, U_, output, hybsection, gfsection):
 
         print('\n')
 
-        print('Population for Spin Up les on site', i, 'is', Green[1, 0, i, len(t) - 1, len(t) - 1])
-        print('Population for Spin Down les on site', i, 'is', Green[1, 1, i, len(t) - 1, len(t) - 1])
-        print('Population for Spin Up gtr on site', i, 'is', Green[0, 0, i, len(t) - 1, len(t) - 1])
-        print('Population for Spin Down gtr on site', i, 'is', Green[0, 1, i, len(t) - 1, len(t) - 1])
+        print('Final population for Spin Up on site', i, 'is', np.real(Green[1, 0, i, len(t) - 1, len(t) - 1]))
+        print('Final population for Spin Down on site', i, 'is', np.real(Green[1, 1, i, len(t) - 1, len(t) - 1]))
 
         print('\n')
 
         with h5py.File(output, "a") as h5f:
             hdf5.save_green(h5f, gfsection, Green[:,:,1,:,:], (t,t))
+
+        np.savez_compressed('K_1_f', t=t, K=K[i])
+        np.savez_compressed('Green', t=t, Green=Green[:,:,i])
 
 def main():
     parser = argparse.ArgumentParser(description = "run nca impurity solver")
