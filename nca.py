@@ -107,14 +107,14 @@ def solve(t, U, G_0, phonon, fermion, Lambda, dissBath, output, hybsection, gfse
             # Sigma[:, t_m, t_n] = np.sum(G[None, :, t_m, t_n] * DeltaMatrix[:, :, t_m, t_n], 1)
 
             if phonon == 1:
-                Sigma[0, t_n, t_m] += Lambda * (G[0, t_n, t_m] * dissBath[t_n, t_m])
-                # Sigma[3, t_n, t_m] += Lambda * (G[3, t_n, t_m] * dissBath[t_n, t_m])
+                Sigma[0, t_n, t_m] += Lambda[t_n, t_m] * (G[0, t_n, t_m] * dissBath[t_n, t_m])
+                # Sigma[3, t_n, t_m] += Lambda[t_n, t_m] * (G[3, t_n, t_m] * dissBath[t_n, t_m])
 
             elif fermion == 1:
-                Sigma[0, t_n, t_m] += Lambda * (G[1, t_n, t_m] * dissBath[1, 0, t_n, t_m] + G[2, t_n, t_m] * dissBath[1, 1, t_n, t_m])
-                Sigma[1, t_n, t_m] += Lambda * (G[0, t_n, t_m] * dissBath[0, 0, t_n, t_m] + G[3, t_n, t_m] * dissBath[1, 1, t_n, t_m])
-                Sigma[2, t_n, t_m] += Lambda * (G[0, t_n, t_m] * dissBath[0, 1, t_n, t_m] + G[3, t_n, t_m] * dissBath[1, 0, t_n, t_m])
-                Sigma[3, t_n, t_m] += Lambda * (G[1, t_n, t_m] * dissBath[0, 1, t_n, t_m] + G[2, t_n, t_m] * dissBath[0, 0, t_n, t_m])
+                Sigma[0, t_n, t_m] += Lambda[t_n, t_m] * (G[1, t_n, t_m] * dissBath[1, 0, t_n, t_m] + G[2, t_n, t_m] * dissBath[1, 1, t_n, t_m])
+                Sigma[1, t_n, t_m] += Lambda[t_n, t_m] * (G[0, t_n, t_m] * dissBath[0, 0, t_n, t_m] + G[3, t_n, t_m] * dissBath[1, 1, t_n, t_m])
+                Sigma[2, t_n, t_m] += Lambda[t_n, t_m] * (G[0, t_n, t_m] * dissBath[0, 1, t_n, t_m] + G[3, t_n, t_m] * dissBath[1, 0, t_n, t_m])
+                Sigma[3, t_n, t_m] += Lambda[t_n, t_m] * (G[1, t_n, t_m] * dissBath[0, 1, t_n, t_m] + G[2, t_n, t_m] * dissBath[0, 0, t_n, t_m])
 
             for i in range(4):
                 sum_t1_upper[i, t_m] = weights(Sigma[i, t_m:t_n+1, t_m] * G_0[i, t_n, t_m:t_n+1])  # sum[:, t2=t_m]
@@ -143,14 +143,14 @@ def solve(t, U, G_0, phonon, fermion, Lambda, dissBath, output, hybsection, gfse
             Sigma[:, t_n, t_m] = np.sum(G[None, :, t_n, t_m] * DeltaMatrix[:, :, t_n, t_m], 1)
 
             if phonon == 1:
-                Sigma[0, t_n, t_m] += Lambda * (G[0, t_n, t_m] * dissBath[t_n, t_m])
-                Sigma[3, t_n, t_m] += Lambda * (G[3, t_n, t_m] * dissBath[t_n, t_m])
+                Sigma[0, t_n, t_m] += Lambda[t_n, t_m] * (G[0, t_n, t_m] * dissBath[t_n, t_m])
+                Sigma[3, t_n, t_m] += Lambda[t_n, t_m] * (G[3, t_n, t_m] * dissBath[t_n, t_m])
 
             elif fermion == 1:
-                Sigma[0, t_n, t_m] += Lambda * (G[1, t_n, t_m] * dissBath[1, 0, t_n, t_m] + G[2, t_n, t_m] * dissBath[1, 1, t_n, t_m])
-                Sigma[1, t_n, t_m] += Lambda * (G[0, t_n, t_m] * dissBath[0, 0, t_n, t_m] + G[3, t_n, t_m] * dissBath[1, 1, t_n, t_m])
-                Sigma[2, t_n, t_m] += Lambda * (G[0, t_n, t_m] * dissBath[0, 1, t_n, t_m] + G[3, t_n, t_m] * dissBath[1, 0, t_n, t_m])
-                Sigma[3, t_n, t_m] += Lambda * (G[1, t_n, t_m] * dissBath[0, 1, t_n, t_m] + G[2, t_n, t_m] * dissBath[0, 0, t_n, t_m])
+                Sigma[0, t_n, t_m] += Lambda[t_n, t_m] * (G[1, t_n, t_m] * dissBath[1, 0, t_n, t_m] + G[2, t_n, t_m] * dissBath[1, 1, t_n, t_m])
+                Sigma[1, t_n, t_m] += Lambda[t_n, t_m] * (G[0, t_n, t_m] * dissBath[0, 0, t_n, t_m] + G[3, t_n, t_m] * dissBath[1, 1, t_n, t_m])
+                Sigma[2, t_n, t_m] += Lambda[t_n, t_m] * (G[0, t_n, t_m] * dissBath[0, 1, t_n, t_m] + G[3, t_n, t_m] * dissBath[1, 0, t_n, t_m])
+                Sigma[3, t_n, t_m] += Lambda[t_n, t_m] * (G[1, t_n, t_m] * dissBath[0, 1, t_n, t_m] + G[2, t_n, t_m] * dissBath[0, 0, t_n, t_m])
 
             for i in range(4):
                 sum_t1[i, t_n] = weights(Sigma[i, t_n, t_n:t_m+1] * G_0[i, t_n:t_m+1, t_m])  # sum[:, t2=t_n]
@@ -201,14 +201,14 @@ def solve(t, U, G_0, phonon, fermion, Lambda, dissBath, output, hybsection, gfse
                 SelfEnergy(K[i, :, t_n, t_m], DeltaMatrix[:, :, t_n, t_m], Sigma[:, t_n, t_m])
 
                 if phonon == 1:
-                    Sigma[0, t_n, t_m] += Lambda * (K[i, 0, t_n, t_m] * dissBath[t_n, t_m])
-                    Sigma[3, t_n, t_m] += Lambda * (K[i, 3, t_n, t_m] * dissBath[t_n, t_m])
+                    Sigma[0, t_n, t_m] += Lambda[t_n, t_m] * (K[i, 0, t_n, t_m] * dissBath[t_n, t_m])
+                    Sigma[3, t_n, t_m] += Lambda[t_n, t_m] * (K[i, 3, t_n, t_m] * dissBath[t_n, t_m])
 
                 elif fermion == 1:
-                    Sigma[0, t_n, t_m] += Lambda * (K[i, 1, t_n, t_m] * dissBath[1, 0, t_n, t_m] + K[i, 2, t_n, t_m] * dissBath[1, 1, t_n, t_m])
-                    Sigma[1, t_n, t_m] += Lambda * (K[i, 0, t_n, t_m] * dissBath[0, 0, t_n, t_m] + K[i, 3, t_n, t_m] * dissBath[1, 0, t_n, t_m])
-                    Sigma[2, t_n, t_m] += Lambda * (K[i, 0, t_n, t_m] * dissBath[0, 1, t_n, t_m] + K[i, 3, t_n, t_m] * dissBath[1, 1, t_n, t_m])
-                    Sigma[3, t_n, t_m] += Lambda * (K[i, 1, t_n, t_m] * dissBath[0, 1, t_n, t_m] + K[i, 2, t_n, t_m] * dissBath[0, 0, t_n, t_m])
+                    Sigma[0, t_n, t_m] += Lambda[t_n, t_m] * (K[i, 1, t_n, t_m] * dissBath[1, 0, t_n, t_m] + K[i, 2, t_n, t_m] * dissBath[1, 1, t_n, t_m])
+                    Sigma[1, t_n, t_m] += Lambda[t_n, t_m] * (K[i, 0, t_n, t_m] * dissBath[0, 0, t_n, t_m] + K[i, 3, t_n, t_m] * dissBath[1, 0, t_n, t_m])
+                    Sigma[2, t_n, t_m] += Lambda[t_n, t_m] * (K[i, 0, t_n, t_m] * dissBath[0, 1, t_n, t_m] + K[i, 3, t_n, t_m] * dissBath[1, 1, t_n, t_m])
+                    Sigma[3, t_n, t_m] += Lambda[t_n, t_m] * (K[i, 1, t_n, t_m] * dissBath[0, 1, t_n, t_m] + K[i, 2, t_n, t_m] * dissBath[0, 0, t_n, t_m])
 
                 for f in range(4):
                     sum_t1[f, t_m] = weights(Sigma[f, :t_n+1, t_m] * G[f, :t_n+1, t_n])  # sum[:, t2=t_m]

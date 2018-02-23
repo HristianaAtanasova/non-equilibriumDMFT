@@ -15,6 +15,7 @@ import hybridization
 import timedep_hybridization
 import phononBath
 import fermionBath
+import coupling_to_diss_bath
 import electricField
 import hdf5
 
@@ -38,7 +39,7 @@ def runNCA(U, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration
 def runInch(U, tmax, dt, Delta):
     pass
 
-def run_dmft(U, Uconst, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fermion, Lambda, pumpOmega, probeOmega, output, **kwargs):
+def run_dmft(U, Uconst,  T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fermion, Lambda, t_diss_end, pumpOmega, t_pump_start, t_pump_end, probeOmega, t_probe_start, t_probe_end, output, **kwargs):
     t  = np.arange(0, tmax, dt)
 
     msg = 'Starting DMFT loop for U = {} | Uconst = {} | Temperature = {} | mu = {} | phonon = {} | fermion = {} | Lambda = {} | time = {} | dt = {}'.format(U, Uconst, T, mu, phonon, fermion, Lambda, tmax, dt)
@@ -75,8 +76,11 @@ def run_dmft(U, Uconst, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, ph
     else:
         dissBath = 0
 
+    # coupling to the dissipation bath can be turned off
+    Lambda = coupling_to_diss_bath.gen_timedepLambda(t, t_diss_end, Lambda)
+
     # option of turning on a pump field and/or a probe field
-    v = electricField.genv(pumpA, pumpOmega, probeA, probeOmega, v_0, t)
+    v = electricField.genv(pumpA, pumpOmega, t_pump_start, t_pump_end, probeA, probeOmega, t_probe_start, t_probe_end, v_0, t)
 
     # set solver
     if solver == 0:
