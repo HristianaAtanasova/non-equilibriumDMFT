@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def gen_timedepLambda(t, t_diss_end,  Lambda):
+def gen_timedepLambda(t, t_diss_end, Lambda):
     Lambda_t = np.zeros((len(t), len(t)), float)
-    lambda_t = Lambda / (1 + np.exp(-10 * (t - t_diss_end)))
+    lambda_t = Lambda / (1 + np.exp(10 * (t - t_diss_end)))
 
     for t1 in range(len(t)):
         for t2 in range(len(t)):
