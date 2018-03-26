@@ -703,7 +703,7 @@ It was first shown by Georges ans Kotliar in 1992 that the Hubbard model
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\mathrm{H_{imp}=H_{D}+H_{B}+H_{hyb},}\label{eq:AIM}
+H_{imp}=H_{D}+H_{B}+H_{hyb},\label{eq:AIM}
 \end{equation}
 
 \end_inset
@@ -714,7 +714,7 @@ with the dot-Hamiltonian
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{H_{D}=\sum_{\sigma\epsilon\uparrow,\downarrow}\varepsilon_{\sigma}d_{\sigma}^{\dagger}d_{\sigma}+Ud_{\uparrow}^{\dagger}d_{\uparrow}d_{\downarrow}^{\dagger}d_{\downarrow},}
+H_{D}=\sum_{\sigma\epsilon\uparrow,\downarrow}\varepsilon_{\sigma}d_{\sigma}^{\dagger}d_{\sigma}+Ud_{\uparrow}^{\dagger}d_{\uparrow}d_{\downarrow}^{\dagger}d_{\downarrow},
 \]
 
 \end_inset
@@ -745,7 +745,7 @@ where
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{H_{B}=\sum_{\sigma,k}\varepsilon_{k}b_{k}^{\dagger}b_{k}}
+H_{B}=\sum_{\sigma,k}\varepsilon_{k}b_{k}^{\dagger}b_{k}
 \]
 
 \end_inset
@@ -757,7 +757,7 @@ and the coupling between dot and bath is given through the Hybridization
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{H_{hyb}=\sum_{\sigma,k}(v_{\sigma k}b_{k}^{\dagger}d_{\sigma}+v_{\sigma k}^{\ast}d_{\sigma}^{\dagger}b_{k}),}
+H_{hyb}=\sum_{\sigma,k}(v_{\sigma k}b_{k}^{\dagger}d_{\sigma}+v_{\sigma k}^{\ast}d_{\sigma}^{\dagger}b_{k}),
 \]
 
 \end_inset
@@ -798,61 +798,79 @@ Physical observables and the contour idea
 \end_layout
 
 \begin_layout Standard
-Obtaining quantum and statistical averages 
+Expectation values of observables 
+\begin_inset Formula $\langle O(t)\rangle$
+\end_inset
+
+, where 
 \begin_inset Formula $\langle\cdots\rangle$
 \end_inset
 
- for the AIM is usually approached by splitting 
-\begin_inset Formula $H_{imp}$
-\end_inset
-
- into a sum 
-\begin_inset Formula $H_{imp}=H_{0}+H_{int}$
-\end_inset
-
-, where the time propagation is computed exactly in 
-\begin_inset Formula $H_{0}$
-\end_inset
-
- and 
-\begin_inset Formula $H_{int}$
-\end_inset
-
- is treated by a formal pertubative expansion.
- For a weak electronic coupling (small 
-\begin_inset Formula $U$
-\end_inset
-
-) the expansion is performed in terms of the paramter 
-\begin_inset Formula $U$
-\end_inset
-
-, while in the strong-coupling approach (large 
-\begin_inset Formula $U$
-\end_inset
-
-) 
-\begin_inset Formula $H_{D}$
-\end_inset
-
- and 
-\begin_inset Formula $H_{B}$
-\end_inset
-
- sum up to 
-\begin_inset Formula $H_{0}$
-\end_inset
-
- and the expansion is performed in terms of 
-\begin_inset Formula $H_{hyb}$
-\end_inset
-
-.
- 
+ denotes a quantum and a statistical average, can be related to experimental
+ measurements.
+ If the measurement is time dependent, a framework which tracks the temporal
+ evolution of the statistical ensemble is desirable.
+ Our main goal is to calculate the time dependent correlation of these observabl
+es, such as 
 \end_layout
 
 \begin_layout Standard
-We are interested in the calculation of correlation functions like 
+\begin_inset Formula 
+\[
+\langle O(t)O(t')\rangle.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Knowing all correlations of all observables, would fully describe the system.
+ In second quantization these correlations come in pairs of creation and
+ annihilation operators, which are called Green's functions.
+ A n-particle Green's function with the creation and annihilation operators
+ 
+\begin_inset Formula $d(t),d^{\dagger}(t^{\prime})$
+\end_inset
+
+ is given by 
+\begin_inset Formula 
+\[
+G_{n}(t_{1},...,t_{n};t'_{n},...,t'_{1})=(-i)^{^{n}}\langle d(t_{1})...d(t_{n})d^{\dagger}(t_{n}^{\prime})...d^{\dagger}(t_{1}^{\prime})\rangle
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+and the operators obey the commutation [anticommutation] relations for bosons
+ [fermions]
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\left[d(i),d(j)\right]_{-\text{[+]}}=\left[d^{\dagger}(i),d^{\dagger}(j)\right]_{-\text{[+]}}=0,
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\left[d(i),d^{\dagger}(j)\right]_{-\text{[+]}}=\delta_{ij}.
+\]
+
+\end_inset
+
+We are interested in the calculation of one-particle correlation functions
+ like 
 \begin_inset Formula $G^{>}(t,t^{\prime})=-i\mathrm{\mathrm{\langle d(t)d^{\dagger}(t^{\prime})}\rangle}$
 \end_inset
 
@@ -860,20 +878,13 @@ We are interested in the calculation of correlation functions like
 \begin_inset Formula $G^{<}(t,t^{\prime})=i\mathrm{\langle d^{\dagger}(t^{\prime})d(t)\rangle}$
 \end_inset
 
- from which we can extract information about physical properties of the
- system like the density of single particle excitations.
- The times 
-\begin_inset Formula $t,t'$
-\end_inset
+ from which information about physical properties of the system, like the
+ density of single particle excitations, can be extracted.
+ 
+\end_layout
 
- exist on the real part of the Keldysh contour.
- Since in the strong coupling approach interactions between electrons are
- strong, we expand in terms of the weak hybridization 
-\begin_inset Formula $H_{hyb}$
-\end_inset
-
- to the bath.
- The expectation value 
+\begin_layout Standard
+The expectation value 
 \begin_inset Formula $\langle\cdots\rangle$
 \end_inset
 
@@ -884,12 +895,17 @@ We are interested in the calculation of correlation functions like
  at time t is given by
 \begin_inset Formula 
 \[
-\mathrm{\langle O(t)\rangle=Tr\left(\rho U^{\dagger}(t)\hat{O}U(t)\right),}
+\langle O(t)\rangle=Tr\left(\rho U^{\dagger}(t)\hat{O}U(t)\right),
 \]
 
 \end_inset
 
-with the initial density matrix 
+with the time evolution operator 
+\begin_inset Formula $U(t)$
+\end_inset
+
+, which propagates a quantum system in time.
+ The initial density matrix 
 \begin_inset Formula $\mathrm{\mathrm{\mathrm{\rho}}}$
 \end_inset
 
@@ -925,8 +941,68 @@ with the initial density matrix
 \begin_inset Formula $\rho_{B}$
 \end_inset
 
- density matirx, because the dot is initially decoupled from the bath.
- In the interaction picture the operators, here denoted by a hat 
+ density matirx, since the dot is initially decoupled from the bath.
+ 
+\end_layout
+
+\begin_layout Standard
+The usual approach to obtain the expectation value 
+\begin_inset Formula $\langle\cdots\rangle$
+\end_inset
+
+ is to split 
+\begin_inset Formula $H_{imp}$
+\end_inset
+
+ into a sum 
+\begin_inset Formula $H_{imp}=H_{0}+H_{int}$
+\end_inset
+
+ and compute time propagation exactly in 
+\begin_inset Formula $H_{0}$
+\end_inset
+
+ while 
+\begin_inset Formula $H_{int}$
+\end_inset
+
+ is treated by a formal pertubative expansion.
+ For a weak electronic coupling (small 
+\begin_inset Formula $U$
+\end_inset
+
+) the expansion (known as the weak-coupling approach) is performed in terms
+ of the paramter 
+\begin_inset Formula $U$
+\end_inset
+
+.
+ In the strong-coupling approach (large 
+\begin_inset Formula $U$
+\end_inset
+
+), the one used in this thesis, 
+\begin_inset Formula $H_{D}$
+\end_inset
+
+ and 
+\begin_inset Formula $H_{B}$
+\end_inset
+
+ sum up to 
+\begin_inset Formula $H_{0}$
+\end_inset
+
+ and the expansion is performed in terms of 
+\begin_inset Formula $H_{hyb}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+In the interaction picture the operators, here denoted by a hat 
 \begin_inset Formula $\widehat{}$
 \end_inset
 
@@ -936,7 +1012,7 @@ with the initial density matrix
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{\hat{O}(t)=\exp^{iH_{0}t}\mathrm{O}\exp^{-iH_{0}t},}
+\hat{O}(t)=\exp^{iH_{0}t}\mathrm{O}\exp^{-iH_{0}t},
 \]
 
 \end_inset
@@ -945,7 +1021,7 @@ with the reduced Hamiltonian
 \begin_inset Formula $H_{0}=H_{imp}-H_{hyb}$
 \end_inset
 
- containing information about the coupling 
+ containing information about the electron coupling 
 \begin_inset Formula $U$
 \end_inset
 
@@ -954,9 +1030,10 @@ with the reduced Hamiltonian
 \end_layout
 
 \begin_layout Standard
+ss
 \begin_inset Formula 
 \[
-\mathrm{U(t)=\exp^{iH_{0}t}\exp^{-iHt}.}
+U(t)=\exp^{iH_{0}t}\exp^{-iHt}.
 \]
 
 \end_inset
@@ -976,7 +1053,7 @@ with the reduced Hamiltonian
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{\mathrm{\mathrm{\frac{\partial}{\partial t}U(t)=i\exp^{iH_{0}t}(H_{0}-H)\exp^{-iH_{0}t}}}}
+\frac{\partial}{\partial t}U(t)=i\exp^{iH_{0}t}(H_{0}-H)\exp^{-iH_{0}t}
 \]
 
 \end_inset
@@ -984,7 +1061,7 @@ with the reduced Hamiltonian
 
 \begin_inset Formula 
 \[
-\mathrm{=-i\exp^{iH_{0}t}H_{hyb}(\exp^{-iH_{0}t}\exp^{iH_{0}t})\exp^{iHt}}
+=-i\exp^{iH_{0}t}H_{hyb}(\exp^{-iH_{0}t}\exp^{iH_{0}t})\exp^{iHt}
 \]
 
 \end_inset
@@ -995,7 +1072,7 @@ with the reduced Hamiltonian
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{=-i\widehat{H}_{hyb}(t)U(t)}.
+=-i\widehat{H}_{hyb}(t)U(t).
 \]
 
 \end_inset
@@ -1006,7 +1083,7 @@ with the reduced Hamiltonian
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{U(t)=1-i\int_{0}^{t}dt_{1}\widehat{H}_{hyb}(t_{1})U(t_{1})}
+U(t)=1-i\int_{0}^{t}dt_{1}\widehat{H}_{hyb}(t_{1})U(t_{1})
 \]
 
 \end_inset
@@ -1016,9 +1093,9 @@ and after repeatedly iterating we arrive at
 
 \begin_layout Standard
 \begin_inset Formula 
-\[
-\mathrm{U(t)=\sum_{n=0}^{\infty}(-i)^{n}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}\cdots\int_{0}^{t_{n-1}}dt_{n}\widehat{H}_{hyb}(t_{1})\widehat{H}_{hyb}(t_{2})\cdots\widehat{H}_{hyb}(t_{n})}
-\]
+\begin{equation}
+U(t)=\sum_{n=0}^{\infty}(-i)^{n}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}\cdots\int_{0}^{t_{n-1}}dt_{n}\widehat{H}_{hyb}(t_{1})\widehat{H}_{hyb}(t_{2})\cdots\widehat{H}_{hyb}(t_{n})\label{eq:expansion_for_U}
+\end{equation}
 
 \end_inset
 
@@ -1034,7 +1111,7 @@ with time ordering
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{\widehat{H}_{hyb}(t)=exp^{iH_{0}t}Vexp^{-iH_{0}t}}
+\widehat{H}_{hyb}(t)=exp^{iH_{0}t}Vexp^{-iH_{0}t}
 \]
 
 \end_inset
@@ -1045,7 +1122,7 @@ with time ordering
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{\mathrm{=\sum_{n=0}^{\infty}\frac{i}{n!}^{n}(H_{0}t)^{n}}\sum_{\sigma,k}(v_{\sigma k}b_{\sigma}^{\dagger}d_{\sigma}+v_{\sigma k}^{\star}d_{\sigma}^{\dagger}b_{\lambda})\mathrm{\sum_{n=0}^{\infty}\frac{(-i)}{n!}^{n}(H_{0}t)^{n}}}
+=\sum_{n=0}^{\infty}\frac{i}{n!}^{n}(H_{0}t)^{n}\sum_{\sigma,k}(v_{\sigma k}b_{\sigma}^{\dagger}d_{\sigma}+v_{\sigma k}^{\star}d_{\sigma}^{\dagger}b_{\lambda})\mathrm{\sum_{n=0}^{\infty}\frac{(-i)}{n!}^{n}(H_{0}t)^{n}}
 \]
 
 \end_inset
@@ -1056,7 +1133,7 @@ with time ordering
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{\mathrm{=\sum_{\sigma,k}\sum_{n=0}^{\infty}\frac{i}{n!}^{n}(\varepsilon_{\sigma}d_{\sigma}^{\dagger}d_{\sigma}+Un_{\uparrow}n_{\downarrow}+\varepsilon_{k}b_{k}^{\dagger}b_{k})^{n}(t)^{n}}\sum_{\sigma,k}(v_{\sigma k}b_{\sigma}^{\dagger}d_{\sigma}+v_{\sigma k}^{\star}d_{\sigma}^{\dagger}b_{k})\mathrm{\sum_{n=0}^{\infty}\frac{(-i)}{n!}^{n}(\varepsilon_{\sigma}d_{\sigma}^{\dagger}d_{\sigma}+Un_{\uparrow}n_{\downarrow}+\varepsilon_{\lambda}b_{\lambda}^{\dagger}b_{\lambda})^{n}(t)^{n}}}
+=\sum_{\sigma,k}\sum_{n=0}^{\infty}\frac{i}{n!}^{n}(\varepsilon_{\sigma}d_{\sigma}^{\dagger}d_{\sigma}+Un_{\uparrow}n_{\downarrow}+\varepsilon_{k}b_{k}^{\dagger}b_{k})^{n}(t)^{n}\sum_{\sigma,k}(v_{\sigma k}b_{\sigma}^{\dagger}d_{\sigma}+v_{\sigma k}^{\star}d_{\sigma}^{\dagger}b_{k})\mathrm{\sum_{n=0}^{\infty}\frac{(-i)}{n!}^{n}(\varepsilon_{\sigma}d_{\sigma}^{\dagger}d_{\sigma}+Un_{\uparrow}n_{\downarrow}+\varepsilon_{\lambda}b_{\lambda}^{\dagger}b_{\lambda})^{n}(t)^{n}}
 \]
 
 \end_inset
@@ -1071,7 +1148,7 @@ Using
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{d_{\sigma}(t)=exp^{iH_{0}t}d_{\sigma}exp^{-iH_{0}t}=exp^{-itL_{H_{0}}}d_{\sigma}},
+d_{\sigma}(t)=exp^{iH_{0}t}d_{\sigma}exp^{-iH_{0}t}=exp^{-itL_{H_{0}}}d_{\sigma},
 \]
 
 \end_inset
@@ -1086,7 +1163,7 @@ where
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{\widehat{H}_{hyb}(t)=\sum_{\sigma,k}\left\{ v_{\sigma k}exp^{i(\varepsilon_{\sigma}+Ud_{\sigma}^{\dagger}d_{\sigma}-\varepsilon_{\sigma k})t}b_{\sigma k}^{\dagger}d_{\sigma}+v_{\sigma k}^{\star}exp^{-i(\varepsilon_{\sigma}+Ud_{\sigma}^{\dagger}d_{\sigma}-\varepsilon_{\sigma k})t}d_{\sigma}^{\dagger}b_{\sigma k}\right\} }.
+\widehat{H}_{hyb}(t)=\sum_{\sigma,k}\left\{ v_{\sigma k}exp^{i(\varepsilon_{\sigma}+Ud_{\sigma}^{\dagger}d_{\sigma}-\varepsilon_{\sigma k})t}b_{\sigma k}^{\dagger}d_{\sigma}+v_{\sigma k}^{\star}exp^{-i(\varepsilon_{\sigma}+Ud_{\sigma}^{\dagger}d_{\sigma}-\varepsilon_{\sigma k})t}d_{\sigma}^{\dagger}b_{\sigma k}\right\} .
 \]
 
 \end_inset
@@ -1104,10 +1181,10 @@ Bold propagators
 
 \begin_layout Standard
 The first step is to compute so called bold propagators 
-\begin_inset Formula $\mathrm{G_{\alpha\beta}(t)}$
+\begin_inset Formula $G_{\alpha\beta}(t)$
 \end_inset
 
- between many body states 
+ between many the body states 
 \begin_inset Formula $\alpha$
 \end_inset
 
@@ -1115,37 +1192,45 @@ The first step is to compute so called bold propagators
 \begin_inset Formula $\beta$
 \end_inset
 
- containing all hybridization lines that do not cross each other in a given
- time intervall.
- The hybridization lines exist only on one branch and do not connects times
- between the two branches.
- Propagators on the upper and lower branch obey the relation
-\begin_inset Formula $\mathrm{\mathrm{G_{\alpha\beta}^{\dagger}}(t)=G_{\alpha\beta}(\overline{t}).}$
+ containing all hybridization lines in a given time intervall that do not
+ cross each other (therefore the name non-crossing approximation) and exist
+ on one branch only.
+ Propagators on the upper and lower branch obey the relation 
+\begin_inset Formula $G_{\alpha\beta}^{\dagger}(t)=G_{\alpha\beta}(\overline{t}).$
 \end_inset
 
- We start with the formal expression
+ Starting from the formal expression
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{G_{\alpha\beta}(t)=\langle\langle\alpha\mid\rho_{D}exp^{-iHt}\mid\beta\rangle\rangle_{B}=\langle\langle\alpha\mid\rho_{D}\exp^{-iH_{0}t}U(t)\mid\beta\rangle\rangle_{B}},
+G_{\alpha\beta}(t)=\langle\langle\alpha\mid\rho_{D}exp^{-iHt}\mid\beta\rangle\rangle_{B}=\langle\langle\alpha\mid\rho_{D}\exp^{-iH_{0}t}U(t)\mid\beta\rangle\rangle_{B},
 \]
 
 \end_inset
 
 where 
-\begin_inset Formula $\mathrm{\langle\cdots\rangle_{B}=Tr\left\{ \rho_{B}\cdots\right\} }$
+\begin_inset Formula $\langle\cdots\rangle_{B}=Tr\left\{ \rho_{B}\cdots\right\} $
 \end_inset
 
-denotes that the bath degrees are traced out.
- We insert the expansion for U
+ denotes that the bath degrees are traced out, the expansion for U 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:expansion_for_U"
+plural "false"
+caps "false"
+noprefix "false"
+
+\end_inset
+
+ can be inserted
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{\mathrm{\mathrm{G_{\alpha\alpha}(t)=\langle\langle\alpha\mid\rho_{D}\exp^{-iH_{0}t}\mid\alpha\rangle\rangle_{B}+(-i)^{2}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}\langle\langle\alpha\mid\rho_{D}\exp^{-iH_{0}t}\widehat{H}_{hyb}(t_{1})\widehat{H}_{hyb}(t_{2})\mid\alpha\rangle\rangle_{B}}}}+\cdots
+G_{\alpha\alpha}(t)=\langle\langle\alpha\mid\rho_{D}\exp^{-iH_{0}t}\mid\alpha\rangle\rangle_{B}+(-i)^{2}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}\langle\langle\alpha\mid\rho_{D}\exp^{-iH_{0}t}\widehat{H}_{hyb}(t_{1})\widehat{H}_{hyb}(t_{2})\mid\alpha\rangle\rangle_{B}+\cdots
 \]
 
 \end_inset
@@ -1153,8 +1238,8 @@ denotes that the bath degrees are traced out.
 
 \begin_inset Formula 
 \begin{multline*}
-=\mathrm{\sum_{\beta}\langle\langle\alpha\mid\beta\rangle\langle\beta\mid\exp^{-iH_{0}t}\mid\alpha\rangle\rangle_{B}-\sum_{\beta}\sum_{\sigma,\lambda}\int dt_{1}\int_{0}^{t_{1}}dt_{2}\left|t_{\sigma\lambda}\right|^{2}\times}\\
-\mathrm{\mathrm{\left(\langle\langle\alpha\mid\exp^{-iH_{0}t}d_{\sigma}\mid\beta\rangle\langle\beta\mid d_{\sigma}^{\dagger}\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\hat{b}_{\sigma\lambda}(t_{2})\mid\alpha\rangle\rangle_{B}+\langle\langle\alpha\mid\exp^{-iH_{0}t}d_{\sigma}^{\dagger}\mid\beta\rangle\langle\beta\mid d_{\sigma}\hat{b}_{\sigma\lambda}(t_{2})\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\mid\alpha\rangle\rangle_{B}\right)+\cdots}}
+=\sum_{\beta}\langle\langle\alpha\mid\beta\rangle\langle\beta\mid\exp^{-iH_{0}t}\mid\alpha\rangle\rangle_{B}-\sum_{\beta}\sum_{\sigma,\lambda}\int dt_{1}\int_{0}^{t_{1}}dt_{2}\left|t_{\sigma\lambda}\right|^{2}\times\\
+\left(\langle\langle\alpha\mid\exp^{-iH_{0}t}d_{\sigma}\mid\beta\rangle\langle\beta\mid d_{\sigma}^{\dagger}\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\hat{b}_{\sigma\lambda}(t_{2})\mid\alpha\rangle\rangle_{B}+\langle\langle\alpha\mid\exp^{-iH_{0}t}d_{\sigma}^{\dagger}\mid\beta\rangle\langle\beta\mid d_{\sigma}\hat{b}_{\sigma\lambda}(t_{2})\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\mid\alpha\rangle\rangle_{B}\right)+\cdots
 \end{multline*}
 
 \end_inset
@@ -1162,8 +1247,8 @@ denotes that the bath degrees are traced out.
 
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{\mathrm{=\delta_{\alpha\beta}exp^{-i\varepsilon_{\alpha}t}-\sum_{\beta}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\alpha\alpha}^{(0)}(t-t_{1})}G_{\beta\beta}^{(0)}(t_{1}-t_{2})\times}\\
-\mathrm{\left(\langle\alpha\mid d_{\sigma}\mid\beta\rangle\langle\beta\mid d_{\sigma}^{\dagger}\mid\alpha\rangle\sum_{\sigma,\lambda}\left|t_{\sigma\lambda}\right|^{2}\langle\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\hat{b}_{\sigma\lambda}(t_{2})\rangle_{B}+\langle\alpha\mid d_{\sigma}^{\dagger}\mid\beta\rangle\langle\beta\mid d_{\sigma}\mid\alpha\rangle\sum_{\sigma,\lambda}\left|t_{\sigma\lambda}\right|^{2}\langle\hat{b}_{\sigma\lambda}(t_{2})\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\rangle_{B}\right)G_{\alpha\alpha}(t_{2})}+\cdots
+\mathrm{=\delta_{\alpha\beta}exp^{-i\varepsilon_{\alpha}t}-\sum_{\beta}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\alpha\alpha}^{(0)}(t-t_{1})G_{\beta\beta}^{(0)}(t_{1}-t_{2})\times}\\
+\left(\langle\alpha\mid d_{\sigma}\mid\beta\rangle\langle\beta\mid d_{\sigma}^{\dagger}\mid\alpha\rangle\sum_{\sigma,\lambda}\left|t_{\sigma\lambda}\right|^{2}\langle\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\hat{b}_{\sigma\lambda}(t_{2})\rangle_{B}+\langle\alpha\mid d_{\sigma}^{\dagger}\mid\beta\rangle\langle\beta\mid d_{\sigma}\mid\alpha\rangle\sum_{\sigma,\lambda}\left|t_{\sigma\lambda}\right|^{2}\langle\hat{b}_{\sigma\lambda}(t_{2})\hat{b}_{\sigma\lambda}^{\dagger}(t_{1})\rangle_{B}\right)G_{\alpha\alpha}(t_{2})+\cdots
 \end{multline*}
 
 \end_inset
@@ -1174,55 +1259,50 @@ denotes that the bath degrees are traced out.
 \begin_layout Standard
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{=G_{\alpha\alpha}^{(0)}(t)-\sum_{\beta}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\alpha\alpha}^{(0)}(t-t_{1})}G_{\beta\beta}^{(0)}(t_{1}-t_{2})\times\\
-\mathrm{\left(\langle\alpha\mid d_{\sigma}\mid\beta\rangle\langle\beta\mid d_{\sigma}^{\dagger}\mid\alpha\rangle\bigtriangleup_{\sigma}^{<}(t_{1}-t_{2})+\langle\alpha\mid d_{\sigma}^{\dagger}\mid\beta\rangle\langle\beta\mid d_{\sigma}\mid\alpha\rangle\bigtriangleup_{\sigma}^{>}(t_{1}-t_{2})\right)G_{\alpha\alpha}^{(0)}(t_{2})+\cdots}
+=G_{\alpha\alpha}^{(0)}(t)-\sum_{\beta}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\alpha\alpha}^{(0)}(t-t_{1})G_{\beta\beta}^{(0)}(t_{1}-t_{2})\times\\
+\left(\langle\alpha\mid d_{\sigma}\mid\beta\rangle\langle\beta\mid d_{\sigma}^{\dagger}\mid\alpha\rangle\bigtriangleup_{\sigma}^{<}(t_{1}-t_{2})+\langle\alpha\mid d_{\sigma}^{\dagger}\mid\beta\rangle\langle\beta\mid d_{\sigma}\mid\alpha\rangle\bigtriangleup_{\sigma}^{>}(t_{1}-t_{2})\right)G_{\alpha\alpha}^{(0)}(t_{2})+\cdots
 \end{multline*}
 
 \end_inset
 
 with the bare atomic state propagators 
-\begin_inset Formula $\mathrm{G_{\alpha\alpha}^{(0)}(t)=\exp^{-i\varepsilon_{\alpha}t}}$
+\begin_inset Formula $G_{\alpha\alpha}^{(0)}(t)=\exp^{-i\varepsilon_{\alpha}t}$
 \end_inset
 
  leaving the dot state invariant.
- Note that both the bare 
-\begin_inset Formula $\mathrm{G_{\alpha\alpha}^{(0)}(t)}$
+ Both the bare 
+\begin_inset Formula $G_{\alpha\alpha}^{(0)}(t)$
 \end_inset
 
  and bold propagator 
-\begin_inset Formula $\mathrm{G_{\alpha\alpha}(t)}$
+\begin_inset Formula $G_{\alpha\alpha}(t)$
 \end_inset
 
  are diagonal for the Anderson impurity model because the trace over the
- bath degrees gives results only for an even number of creation and annhilation
- operators.
- Therefore only square terms of 
-\begin_inset Formula $\mathrm{\widehat{H}_{hyb}}$
+ bath differs from zero only for an even number of creation and annhilation
+ operators, therefore only square terms of 
+\begin_inset Formula $\widehat{H}_{hyb}$
 \end_inset
 
- appear in the expansion for 
-\begin_inset Formula $\mathrm{G}$
-\end_inset
-
-.
+ appear in the expansion for the propagators.
  In DMFT the hybridization function 
 \begin_inset Formula $\Delta_{\sigma}^{>/<}$
 \end_inset
 
- is obtained from the self-consistency condition.
- Here we will write it in terms of the coupling density 
+ is obtained from the self-consistency condition, but for the initial guess
+ it can be expressed in terms of the coupling density 
 \begin_inset Formula $\Gamma(\omega)=\pi\sum_{k}\mid t_{k}\mid^{2}\delta(\omega-\varepsilon_{k})$
 \end_inset
 
- that fully describe the bath and hybridization and the initial Fermi Dirac
- distribution 
+ that fully describes the bath properties and the hybridization with the
+ initial Fermi Dirac distribution 
 \begin_inset Formula $f(\omega-\mu)=\frac{1}{1+\exp^{\beta(\omega-\mu)}}$
 \end_inset
 
 
 \begin_inset Formula 
 \begin{equation}
-\mathrm{\mathrm{\Delta^{<}(t_{1},t_{2})=\int_{-\infty}^{\infty}\frac{d\omega}{\pi}exp^{-i\omega(t_{1}-t_{2})}\varGamma(\omega)f(\omega-\mu)}}\label{eq:Delta}
+\Delta^{<}(t_{1},t_{2})=\int_{-\infty}^{\infty}\frac{d\omega}{\pi}exp^{-i\omega(t_{1}-t_{2})}\varGamma(\omega)f(\omega-\mu)\label{eq:Delta}
 \end{equation}
 
 \end_inset
@@ -1233,19 +1313,19 @@ and
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{\mathrm{\mathrm{\Delta^{>}(t_{1},t_{2})=\int_{-\infty}^{\infty}\frac{d\omega}{\pi}exp^{-i\omega(t_{1}-t_{2})}\varGamma(\omega)(1-f(\omega-\mu)})}.}
+\Delta^{>}(t_{1},t_{2})=\int_{-\infty}^{\infty}\frac{d\omega}{\pi}exp^{-i\omega(t_{1}-t_{2})}\varGamma(\omega)(1-f(\omega-\mu)).
 \]
 
 \end_inset
 
-With the approximation for the self-energy, that it includes only hybridizaton
- lines that do not cross, the Dyson equation can be written as
+With the approximation for the self-energy, that it includes only non-crossing
+ hybridizaton lines, the Dyson equation can be written as
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{\mathrm{\mathrm{\mathrm{G_{\alpha\alpha}(t)=G_{\alpha\alpha}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\alpha\alpha}^{(0)}(t-t_{1})\varSigma_{\alpha\alpha}(t_{1}-t_{2})G_{\alpha\alpha}(t_{2})}}}}
+G_{\alpha\alpha}(t)=G_{\alpha\alpha}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\alpha\alpha}^{(0)}(t-t_{1})\varSigma_{\alpha\alpha}(t_{1}-t_{2})G_{\alpha\alpha}(t_{2})
 \]
 
 \end_inset
@@ -1257,19 +1337,19 @@ with
 \begin_inset Formula 
 \begin{multline*}
 \varSigma_{\alpha\alpha}(t_{1}-t_{2})=\sum_{\sigma}\sum_{\beta}G_{\beta\beta}(t_{1}-t_{2})\times\\
-\mathrm{\mathrm{\mathrm{\left(\langle\alpha\mid d_{\sigma}\mid\beta\rangle\langle\beta\mid d_{\sigma}^{\dagger}\mid\alpha\rangle\Delta_{\sigma}^{<}(t_{1}-t_{2})+\langle\alpha\mid d_{\sigma}^{\dagger}\mid\beta\rangle\langle\beta\mid d_{\sigma}\mid\alpha\rangle\Delta_{\sigma}^{>}(t_{1}-t_{2})\right)}}}.
+\left(\langle\alpha\mid d_{\sigma}\mid\beta\rangle\langle\beta\mid d_{\sigma}^{\dagger}\mid\alpha\rangle\Delta_{\sigma}^{<}(t_{1}-t_{2})+\langle\alpha\mid d_{\sigma}^{\dagger}\mid\beta\rangle\langle\beta\mid d_{\sigma}\mid\alpha\rangle\Delta_{\sigma}^{>}(t_{1}-t_{2})\right).
 \end{multline*}
 
 \end_inset
 
-For the four different initial states (denoted by the outer index 
+For the four different initial states, denoted by the outer index 
 \begin_inset Formula $\alpha$
 \end_inset
 
-) on the dot we can derive a set of coupled Dyson equations
+, on the dot a set of coupled Dyson equations is derived
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{\mathrm{\mathrm{\mathrm{G_{0}(t)=G_{0}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{0}^{(0)}(t-t_{1})G_{\uparrow}(t_{1}-t_{2})\Delta_{\uparrow}^{<}(t_{1}-t_{2})G_{0}(t_{2})}}}-}\\
+G_{0}(t)=G_{0}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{0}^{(0)}(t-t_{1})G_{\uparrow}(t_{1}-t_{2})\Delta_{\uparrow}^{<}(t_{1}-t_{2})G_{0}(t_{2})-\\
 \mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{0}^{(0)}(t-t_{1})G_{\downarrow}(t_{1}-t_{2})\Delta_{\downarrow}^{<}(t_{1}-t_{2})G_{0}(t_{2}})
 \end{multline*}
 
@@ -1278,7 +1358,7 @@ For the four different initial states (denoted by the outer index
 
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{\mathrm{\mathrm{\mathrm{G_{\uparrow}(t)=G_{\uparrow}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\uparrow}^{(0)}(t-t_{1})G_{0}(t_{1}-t_{2})\Delta_{\uparrow}^{>}(t_{1}-t_{2})G_{\uparrow}(t_{2})}}}-}\\
+G_{\uparrow}(t)=G_{\uparrow}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\uparrow}^{(0)}(t-t_{1})G_{0}(t_{1}-t_{2})\Delta_{\uparrow}^{>}(t_{1}-t_{2})G_{\uparrow}(t_{2})-\\
 \mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\uparrow}^{(0)}(t-t_{1})G_{\uparrow\downarrow}(t_{1}-t_{2})\Delta_{\downarrow}^{<}(t_{1}-t_{2})G_{\uparrow}(t_{2})}
 \end{multline*}
 
@@ -1287,7 +1367,7 @@ For the four different initial states (denoted by the outer index
 
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{\mathrm{\mathrm{G_{\downarrow}(t)=G_{\downarrow}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\downarrow}^{(0)}(t-t_{1})G_{0}(t_{1}-t_{2})\Delta_{\uparrow}^{>}(t_{1}-t_{2})G_{\downarrow}(t_{2})}}}-\\
+G_{\downarrow}(t)=G_{\downarrow}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\downarrow}^{(0)}(t-t_{1})G_{0}(t_{1}-t_{2})\Delta_{\uparrow}^{>}(t_{1}-t_{2})G_{\downarrow}(t_{2})-\\
 \mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\downarrow}^{(0)}(t-t_{1})G_{\uparrow\downarrow}(t_{1}-t_{2})\Delta_{\downarrow}^{<}(t_{1}-t_{2})G_{\downarrow}(t_{2})}
 \end{multline*}
 
@@ -1296,15 +1376,18 @@ For the four different initial states (denoted by the outer index
 
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{\mathrm{\mathrm{G_{\uparrow\downarrow}(t)=G_{\uparrow\downarrow}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\uparrow\downarrow}^{(0)}(t-t_{1})G_{\downarrow}(t_{1}-t_{2})\Delta_{\uparrow}^{>}(t_{1}-t_{2})G_{\uparrow\downarrow}(t_{2})}}}-\\
+G_{\uparrow\downarrow}(t)=G_{\uparrow\downarrow}^{(0)}(t)-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\uparrow\downarrow}^{(0)}(t-t_{1})G_{\downarrow}(t_{1}-t_{2})\Delta_{\uparrow}^{>}(t_{1}-t_{2})G_{\uparrow\downarrow}(t_{2})-\\
 \mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\uparrow\downarrow}^{(0)}(t-t_{1})G_{\uparrow}(t_{1}-t_{2})\Delta_{\downarrow}^{>}(t_{1}-t_{2})G_{\uparrow\downarrow}(t_{2}),}
 \end{multline*}
 
 \end_inset
 
 which can be solved by a self consistent iteration.
- All entities depend only on time differences and one can evaluate the integrals
- in the Fourier space, where convolutions become simple multiplications.
+ In equilibirum all entities depend only on time differences and one can
+ evaluate the integrals in the Fourier space, where convolutions correspond
+ to multiplications.
+ Solving these above equations for non-equilibirum system is more complex
+ and will be treated in the next chapter.
  Before starting with the first iteration, the bold propagators 
 \begin_inset Formula $\mathrm{G_{\alpha\alpha}(t)}$
 \end_inset
@@ -1378,7 +1461,7 @@ So far we have calculated propagators between many body states, which contain
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{K_{\alpha\beta}(t,t^{\prime})=K_{\alpha\beta}^{(0)}(t,t^{\prime})+\sum_{\gamma\delta}\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}K_{\alpha\gamma}(t_{1},t_{2})\mathbf{\Delta}_{\gamma\delta}(t_{1},t_{2})G_{\delta\beta}^{\dagger}(t-t_{1})G_{\delta\beta}(t^{\prime}-t_{2}).}
+K_{\alpha\beta}(t,t^{\prime})=K_{\alpha\beta}^{(0)}(t,t^{\prime})+\sum_{\gamma\delta}\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}K_{\alpha\gamma}(t_{1},t_{2})\mathbf{\Delta}_{\gamma\delta}(t_{1},t_{2})G_{\delta\beta}^{\dagger}(t-t_{1})G_{\delta\beta}(t^{\prime}-t_{2}).
 \]
 
 \end_inset
@@ -1390,7 +1473,7 @@ The vertex functions without inter-branch hybridization lines are composed
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{\mathrm{K_{\alpha\beta}^{(0)}(t,t^{\prime})=\delta_{\alpha\beta}G_{\alpha\beta}^{\dagger}(t)G_{\alpha\beta}(t^{\prime})}.}
+K_{\alpha\beta}^{(0)}(t,t^{\prime})=\delta_{\alpha\beta}G_{\alpha\beta}^{\dagger}(t)G_{\alpha\beta}(t^{\prime}).
 \]
 
 \end_inset
@@ -1401,7 +1484,7 @@ The self consistent equations for the initially unoccupied dot are
 \begin_layout Standard
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{\mathrm{K_{00}(t,t^{\prime})=K_{00}^{(0)}(t,t^{\prime})+\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{0}^{\dagger}(t^{\prime}-t_{2})G_{0}(t-t_{1})\Delta_{\uparrow}^{<}(t_{1},t_{2})K_{0\uparrow}(t_{1},t_{2})}+}\\
+K_{00}(t,t^{\prime})=K_{00}^{(0)}(t,t^{\prime})+\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{0}^{\dagger}(t^{\prime}-t_{2})G_{0}(t-t_{1})\Delta_{\uparrow}^{<}(t_{1},t_{2})K_{0\uparrow}(t_{1},t_{2})+\\
 \mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{0}^{\dagger}(t^{\prime}-t_{2})G_{0}(t-t_{1})\Delta_{\downarrow}^{<}(t_{1},t_{2})K_{0\downarrow}(t_{1},t_{2})}
 \end{multline*}
 
@@ -1413,7 +1496,7 @@ The self consistent equations for the initially unoccupied dot are
 \begin_layout Standard
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{K_{0\uparrow}(t,t^{\prime})=\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\uparrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow}(t-t_{1})\Delta_{\uparrow}^{>}(t_{1},t_{2})K_{00}(t_{1},t_{2})}+\\
+K_{0\uparrow}(t,t^{\prime})=\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\uparrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow}(t-t_{1})\Delta_{\uparrow}^{>}(t_{1},t_{2})K_{00}(t_{1},t_{2})+\\
 \mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\uparrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow}(t-t_{1})\Delta_{\downarrow}^{<}(t_{1},t_{2})K_{0\uparrow\downarrow}(t_{1},t_{2})}
 \end{multline*}
 
@@ -1425,7 +1508,7 @@ The self consistent equations for the initially unoccupied dot are
 \begin_layout Standard
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{K_{0\downarrow}(t,t^{\prime})=\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\downarrow}(t-t_{1})\Delta_{\downarrow}^{>}(t_{1},t_{2})K_{00}(t_{1},t_{2})}+\\
+K_{0\downarrow}(t,t^{\prime})=\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\downarrow}(t-t_{1})\Delta_{\downarrow}^{>}(t_{1},t_{2})K_{00}(t_{1},t_{2})+\\
 \mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\downarrow}(t-t_{1})\Delta_{\uparrow}^{<}(t_{1},t_{2})K_{0\uparrow\downarrow}(t_{1},t_{2})}
 \end{multline*}
 
@@ -1437,23 +1520,23 @@ The self consistent equations for the initially unoccupied dot are
 \begin_layout Standard
 \begin_inset Formula 
 \begin{multline*}
-\mathrm{K_{0\uparrow\downarrow}(t,t^{\prime})=\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\uparrow\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow\downarrow}(t-t_{1})\Delta_{\downarrow}^{>}(t_{1},t_{2})K_{0\uparrow}(t_{1},t_{2})}+\\
+K_{0\uparrow\downarrow}(t,t^{\prime})=\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\uparrow\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow\downarrow}(t-t_{1})\Delta_{\downarrow}^{>}(t_{1},t_{2})K_{0\uparrow}(t_{1},t_{2})+\\
 \mathrm{\int_{0}^{t}dt_{1}\int_{0}^{t^{\prime}}dt_{2}G_{\uparrow\downarrow}^{\dagger}(t^{\prime}-t_{2})G_{\uparrow\downarrow}(t-t_{1})\Delta_{\uparrow}^{>}(t_{1},t_{2})K_{0\downarrow}(t_{1},t_{2})}.
 \end{multline*}
 
 \end_inset
 
 For equal times, 
-\begin_inset Formula $\mathrm{K_{\alpha\beta}(t,t)}$
+\begin_inset Formula $K_{\alpha\beta}(t,t)$
 \end_inset
 
  is the population probability on the dot.
  After initializing the vertex functions 
-\begin_inset Formula $\mathrm{K_{\alpha\beta}(t,t^{\prime})}$
+\begin_inset Formula $K_{\alpha\beta}(t,t^{\prime})$
 \end_inset
 
  with 
-\begin_inset Formula $\mathrm{K_{\alpha\beta}^{(0)}(t,t^{\prime})}$
+\begin_inset Formula $K_{\alpha\beta}^{(0)}(t,t^{\prime})$
 \end_inset
 
  and performing the self-consistent iteration sheme one is able to construct
@@ -1463,7 +1546,7 @@ For equal times,
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{G_{\alpha\uparrow}^{>}(t,t^{\prime})=-i\mathrm{\mathrm{\langle d_{\uparrow}(t)d_{\uparrow}^{\dagger}(t^{\prime})}\rangle}=K_{\alpha0}(t,t^{\prime})*G_{\uparrow}(t-t^{\prime})+K_{\alpha\downarrow}(t,t^{\prime})*G_{\uparrow\downarrow}(t-t^{\prime})}
+G_{\alpha\uparrow}^{>}(t,t^{\prime})=-i\mathrm{\mathrm{\langle d_{\uparrow}(t)d_{\uparrow}^{\dagger}(t^{\prime})}\rangle}=K_{\alpha0}(t,t^{\prime})*G_{\uparrow}(t-t^{\prime})+K_{\alpha\downarrow}(t,t^{\prime})*G_{\uparrow\downarrow}(t-t^{\prime})
 \]
 
 \end_inset
@@ -1474,7 +1557,7 @@ For equal times,
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{G_{\alpha\uparrow}^{<}(t,t^{\prime})=i\mathrm{\mathrm{\langle d_{\uparrow}^{\dagger}(t^{\prime})d_{\uparrow}(t)}\rangle}=K_{\alpha\uparrow}(t,t^{\prime})*G_{0}(t-t^{\prime})+K_{\alpha\uparrow\downarrow}(t,t^{\prime})*G_{\downarrow}(t-t^{\prime})}
+G_{\alpha\uparrow}^{<}(t,t^{\prime})=i\mathrm{\mathrm{\langle d_{\uparrow}^{\dagger}(t^{\prime})d_{\uparrow}(t)}\rangle}=K_{\alpha\uparrow}(t,t^{\prime})*G_{0}(t-t^{\prime})+K_{\alpha\uparrow\downarrow}(t,t^{\prime})*G_{\downarrow}(t-t^{\prime})
 \]
 
 \end_inset
@@ -1485,7 +1568,7 @@ For equal times,
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{G_{\alpha\downarrow}^{>}(t,t^{\prime})=-i\mathrm{\mathrm{\langle d_{\downarrow}(t)d_{\downarrow}^{\dagger}(t^{\prime})}\rangle}=K_{\alpha0}(t,t^{\prime})*G_{\downarrow}(t-t^{\prime})+K_{\alpha\uparrow}(t,t^{\prime})*G_{\uparrow\downarrow}(t-t^{\prime})}
+G_{\alpha\downarrow}^{>}(t,t^{\prime})=-i\mathrm{\mathrm{\langle d_{\downarrow}(t)d_{\downarrow}^{\dagger}(t^{\prime})}\rangle}=K_{\alpha0}(t,t^{\prime})*G_{\downarrow}(t-t^{\prime})+K_{\alpha\uparrow}(t,t^{\prime})*G_{\uparrow\downarrow}(t-t^{\prime})
 \]
 
 \end_inset
@@ -1496,7 +1579,7 @@ For equal times,
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{G_{\alpha\downarrow}^{<}(t,t^{\prime})=i\mathrm{\mathrm{\langle d_{\downarrow}^{\dagger}(t^{\prime})d_{\downarrow}(t)}\rangle=}K_{\alpha\downarrow}(t,t^{\prime})*G_{0}(t-t^{\prime})+K_{\alpha\uparrow\downarrow}(t,t^{\prime})*G_{\uparrow}(t-t^{\prime})}
+G_{\alpha\downarrow}^{<}(t,t^{\prime})=i\mathrm{\mathrm{\langle d_{\downarrow}^{\dagger}(t^{\prime})d_{\downarrow}(t)}\rangle=}K_{\alpha\downarrow}(t,t^{\prime})*G_{0}(t-t^{\prime})+K_{\alpha\uparrow\downarrow}(t,t^{\prime})*G_{\uparrow}(t-t^{\prime})
 \]
 
 \end_inset
@@ -1507,11 +1590,11 @@ with
 
  denoting the initial dot state.
  The conjugation yields to 
-\begin_inset Formula $\mathrm{\left(G^{>/<}(t,t^{\prime})\right)^{*}=-G^{>/<}(t^{\prime},t)}$
+\begin_inset Formula $\left(G^{>/<}(t,t^{\prime})\right)^{*}=-G^{>/<}(t^{\prime},t)$
 \end_inset
 
  and for particle-hole symmetric system 
-\begin_inset Formula $\mathrm{G^{>/<}(t,t^{\prime})=-G^{>/<}(t^{\prime},t)}$
+\begin_inset Formula $G^{>/<}(t,t^{\prime})=-G^{>/<}(t^{\prime},t)$
 \end_inset
 
 .
@@ -1530,7 +1613,7 @@ The advanced and retarded Green's function are defined via the lesser and
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{G^{R}(t,t^{\prime})=-i\Theta(t-t^{\prime})\langle\left[d(t),d^{\dagger}(t^{\prime})\right]_{+}\rangle}
+G^{R}(t,t^{\prime})=-i\Theta(t-t^{\prime})\langle\left[d(t),d^{\dagger}(t^{\prime})\right]_{+}\rangle
 \]
 
 \end_inset
@@ -1541,7 +1624,7 @@ The advanced and retarded Green's function are defined via the lesser and
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{G^{R}(t,t^{\prime})=-i\Theta(t-t^{\prime})\left(\langle d(t)d^{\dagger}(t^{\prime})\rangle+\langle d^{\dagger}(t^{\prime})d(t)\rangle\right)}
+G^{R}(t,t^{\prime})=-i\Theta(t-t^{\prime})\left(\langle d(t)d^{\dagger}(t^{\prime})\rangle+\langle d^{\dagger}(t^{\prime})d(t)\rangle\right)
 \]
 
 \end_inset
@@ -1552,7 +1635,7 @@ The advanced and retarded Green's function are defined via the lesser and
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{G^{R}(t,t^{\prime})=\Theta(t-t^{\prime})\left(G^{>}(t,t^{\prime})-G^{<}(t,t^{\prime})\right)}
+G^{R}(t,t^{\prime})=\Theta(t-t^{\prime})\left(G^{>}(t,t^{\prime})-G^{<}(t,t^{\prime})\right)
 \]
 
 \end_inset
@@ -1563,7 +1646,7 @@ and
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{G^{A}(t,t^{\prime})=i\Theta(t^{\prime}-t)\langle\left[d(t),d^{\dagger}(t^{\prime})\right]_{+}\rangle}
+G^{A}(t,t^{\prime})=i\Theta(t^{\prime}-t)\langle\left[d(t),d^{\dagger}(t^{\prime})\right]_{+}\rangle
 \]
 
 \end_inset
@@ -1574,7 +1657,7 @@ and
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{G^{A}(t,t^{\prime})=i\Theta(t^{\prime}-t)\left(\langle d(t)d^{\dagger}(t^{\prime})\rangle+\langle d^{\dagger}(t^{\prime})d(t)\rangle\right)}
+G^{A}(t,t^{\prime})=i\Theta(t^{\prime}-t)\left(\langle d(t)d^{\dagger}(t^{\prime})\rangle+\langle d^{\dagger}(t^{\prime})d(t)\rangle\right)
 \]
 
 \end_inset
@@ -1585,7 +1668,7 @@ and
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{G^{A}(t,t^{\prime})=-\Theta(t^{\prime}-t)\left(G^{>}(t,t^{\prime})-G^{<}(t,t^{\prime})\right)}.
+G^{A}(t,t^{\prime})=-\Theta(t^{\prime}-t)\left(G^{>}(t,t^{\prime})-G^{<}(t,t^{\prime})\right).
 \]
 
 \end_inset
@@ -1597,7 +1680,7 @@ They have an intuitive interpretation since the imaginary part of their
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{A(\omega)=-\frac{1}{\pi}ImG^{R}=\frac{1}{\pi}ImG^{A}.}
+A(\omega)=-\frac{1}{\pi}ImG^{R}=\frac{1}{\pi}ImG^{A}.
 \]
 
 \end_inset
@@ -1846,16 +1929,8 @@ v_{ij}(t)=v_{ij}\exp^{iA(s_{i}-s_{j})cos(\omega t)}.
 
 \end_inset
 
-The factor (s
-\begin_inset Formula $_{i}$
-\end_inset
-
- - s
-\begin_inset Formula $_{j}$
-\end_inset
-
-)=
-\begin_inset Formula $\pm1$
+The factor 
+\begin_inset Formula $(s_{i}-s_{j})=\pm1$
 \end_inset
 
  implies nearest neighbor hopping and we define the dimensionless driving
@@ -1899,7 +1974,7 @@ One can describe dissipation of energy to other degrees of freedom by coupling
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\mathrm{H_{f}=H_{fBath}+H_{fmix}}\label{eq:fermionBath}
+H_{f}=H_{fBath}+H_{fmix}\label{eq:fermionBath}
 \end{equation}
 
 \end_inset
@@ -1910,7 +1985,7 @@ One can describe dissipation of energy to other degrees of freedom by coupling
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{H_{fBath}=\sum_{k,\sigma}\varepsilon_{k}f_{k,\sigma}^{\dagger}f_{k,\sigma}}
+H_{fBath}=\sum_{k,\sigma}\varepsilon_{k}f_{k,\sigma}^{\dagger}f_{k,\sigma}
 \]
 
 \end_inset
@@ -1921,7 +1996,7 @@ and
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{H_{fmix}=\sum_{k,\sigma}(V_{k}f_{k,\sigma}^{\dagger}d_{\sigma}+V_{k}^{\ast}d_{\sigma}^{\dagger}f_{k,\sigma}),}
+H_{fmix}=\sum_{k,\sigma}(V_{k}f_{k,\sigma}^{\dagger}d_{\sigma}+V_{k}^{\ast}d_{\sigma}^{\dagger}f_{k,\sigma}),
 \]
 
 \end_inset
@@ -2221,7 +2296,7 @@ We will focus on the Hubbard model for a Bethe lattice in the limit of infinite
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\mathrm{D(\epsilon)=\frac{1}{2\pi v_{0}^{2}}\sqrt{4v_{0}-\epsilon^{2}}}\label{semicircularDOS}
+D(\epsilon)=\frac{1}{2\pi v_{0}^{2}}\sqrt{4v_{0}-\epsilon^{2}}\label{semicircularDOS}
 \end{equation}
 
 \end_inset
@@ -2233,7 +2308,7 @@ it relates the Greens function to the hybridization function in the simple
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\mathrm{\Delta(\omega)=v_{0}^{2}G(\omega).}\label{eq:selfconsistency}
+\Delta(\omega)=v_{0}^{2}G(\omega).\label{eq:selfconsistency}
 \end{equation}
 
 \end_inset
@@ -2736,7 +2811,7 @@ Working with non-equilibrium systems involves explicit time dependence,
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\mathrm{\mathrm{\mathrm{\mathrm{G_{\alpha\alpha}(t,t')=G_{\alpha\alpha}^{(0)}(t,t')-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\alpha\alpha}^{(0)}(t,t_{1})\varSigma_{\alpha\alpha}(t_{1},t_{2})G_{\alpha\alpha}(t_{2},t')}}}}.
+G_{\alpha\alpha}(t,t')=G_{\alpha\alpha}^{(0)}(t,t')-\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}G_{\alpha\alpha}^{(0)}(t,t_{1})\varSigma_{\alpha\alpha}(t_{1},t_{2})G_{\alpha\alpha}(t_{2},t').
 \]
 
 \end_inset
