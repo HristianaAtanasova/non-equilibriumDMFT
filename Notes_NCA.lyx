@@ -262,21 +262,21 @@ s in as well as out of equilibrium.
  the lattice.
  The hybridization between the impurity and the bath is the dynamical mean
  field 
-\begin_inset Formula $\Delta(t,t')$
+\begin_inset Formula $\Delta(t,t^{\prime})$
 \end_inset
 
 .
  It resembles the exchange of particles with the rest of the lattice and
  must be determined self consistently as a functional of the lattice Greens
  function 
-\begin_inset Formula $G_{ij}(t,t')$
+\begin_inset Formula $G_{ij}(t,t^{\prime})$
 \end_inset
 
 .
  The key approximation is the local nature of the lattice self energy 
 \begin_inset Formula 
 \begin{equation}
-\Sigma_{ij}(t,t')\backsimeq\delta_{ij}\Sigma_{ii}(t,t')\label{eq:self-energy-approx}
+\Sigma_{ij}(t,t')\backsimeq\delta_{ij}\Sigma_{ii}(t,t^{\prime})\label{eq:self-energy-approx}
 \end{equation}
 
 \end_inset
@@ -592,7 +592,7 @@ noprefix "false"
  then holds exactly 
 \begin_inset Formula 
 \[
-\lim_{Z\rightarrow\infty}\Sigma_{ij}(t,t')=\delta_{ij}\Sigma_{ii}(t,t').
+\lim_{Z\rightarrow\infty}\Sigma_{ij}(t,t^{\prime})=\delta_{ij}\Sigma_{ii}(t,t^{\prime}).
 \]
 
 \end_inset
@@ -621,6 +621,10 @@ Several proofs for this exist including a linked cluster expansion around
  
 \end_layout
 
+\begin_layout Itemize
+TODO: own schematic representation of DMFT mapping
+\end_layout
+
 \begin_layout Subsection
 Nonequilibrium DMFT formalism
 \end_layout
@@ -637,7 +641,7 @@ To capture non-equilibrium physics in time-dependent systems (e.g.
  the self energy is local in space 
 \begin_inset Formula 
 \[
-\Sigma_{ij}(t,t')=\delta_{ij}\Sigma_{i}(t,t')
+\Sigma_{ij}(t,t')=\delta_{ij}\Sigma_{i}(t,t^{\prime})
 \]
 
 \end_inset
@@ -652,13 +656,13 @@ and is used to obtain the contour-ordered lattice Green's function
 \begin_layout Standard
 \begin_inset Formula 
 \[
-G_{ij}^{-1}(t,t')=(G_{0}^{-1})_{ij}(t,t')-\delta_{ij}\Sigma_{ii}(t,t')
+G_{ij}^{-1}(t,t^{\prime})=(G_{0}^{-1})_{ij}(t,t^{\prime})-\delta_{ij}\Sigma_{ii}(t,t^{\prime})
 \]
 
 \end_inset
 
 with the non-interacting lattice Green's function 
-\begin_inset Formula $(G_{0}^{-1})_{ij}(t,t')$
+\begin_inset Formula $(G_{0}^{-1})_{ij}(t,t^{\prime})$
 \end_inset
 
 .
@@ -817,7 +821,7 @@ es, such as
 \begin_layout Standard
 \begin_inset Formula 
 \[
-\langle O(t)O(t')\rangle.
+\langle O(t)O(t^{\prime})\rangle.
 \]
 
 \end_inset
@@ -837,7 +841,7 @@ Knowing all correlations of all observables, would fully describe the system.
  is given by 
 \begin_inset Formula 
 \[
-G_{n}(t_{1},...,t_{n};t'_{n},...,t'_{1})=(-i)^{^{n}}\langle d(t_{1})...d(t_{n})d^{\dagger}(t_{n}^{\prime})...d^{\dagger}(t_{1}^{\prime})\rangle
+G_{n}(t_{1},...,t_{n};t^{\prime}{}_{n},...,t_{1}^{\prime})=(-i)^{^{n}}\langle d(t_{1})...d(t_{n})d^{\dagger}(t_{n}^{\prime})...d^{\dagger}(t_{1}^{\prime})\rangle
 \]
 
 \end_inset
@@ -895,13 +899,13 @@ The expectation value
  at time t is given by
 \begin_inset Formula 
 \[
-\langle O(t)\rangle=Tr\left(\rho U^{\dagger}(t)\hat{O}U(t)\right),
+\langle O(t)\rangle=tr\left(\rho U^{\dagger}(t_{0},t)\hat{O}U(t,t_{0})\right),
 \]
 
 \end_inset
 
 with the time evolution operator 
-\begin_inset Formula $U(t)$
+\begin_inset Formula $U(t,t_{0})$
 \end_inset
 
 , which propagates a quantum system in time.
@@ -941,16 +945,93 @@ with the time evolution operator
 \begin_inset Formula $\rho_{B}$
 \end_inset
 
- density matirx, since the dot is initially decoupled from the bath.
+ density matrix, since the dot is initially decoupled from the bath.
+ If one reads the trace from left to the right, it could be interpreted
+ as oriented contour depicted in Fig.
+ ...: States are propagated from time 
+\begin_inset Formula $t_{0}$
+\end_inset
+
+ to 
+\begin_inset Formula $t$
+\end_inset
+
+, then an operator acts at time 
+\begin_inset Formula $t$
+\end_inset
+
+, after which the states are propagated back to 
+\begin_inset Formula $t_{0}$
+\end_inset
+
+.
+ The forward [backward] propagation is represented by 
+\begin_inset Formula $U(t,t_{0})$
+\end_inset
+
+ [
+\begin_inset Formula $U^{\dagger}(t,t_{0})$
+\end_inset
+
+], which exists on the upper [lower] contour branch.
+ It is often assumed, that a quantum system, which is driven out of equilibrium,
+ starts out in a mixed state in thermal equilibrium, described by 
+\begin_inset Formula $H^{M}(t_{0})=H(t_{0})-\mu N(t_{0})$
+\end_inset
+
+, with the time 
+\begin_inset Formula $t_{0}$
+\end_inset
+
+ at which the system starts propagating in time, the chemical potential
+ 
+\begin_inset Formula $\mu$
+\end_inset
+
+ and the particle number operator 
+\begin_inset Formula $N$
+\end_inset
+
+.
+ The mixed state with the inverse temperature 
+\begin_inset Formula $\beta$
+\end_inset
+
+ can be represented by the dessity operator 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\rho=\frac{\exp^{-\beta H^{M}(t_{0})}}{Z},
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where 
+\begin_inset Formula $Z=tr\left(\exp^{-\beta H^{M}(t_{0})}\right)$
+\end_inset
+
+ is the thermal equilibrium partition function.
+ Then the exponential can be viewed as a propagation in imaginary time up
+ to 
+\begin_inset Formula $-i\beta$
+\end_inset
+
+ along the Matsubara contour.
  
 \end_layout
 
 \begin_layout Standard
-The usual approach to obtain the expectation value 
+Usually an expectation value 
 \begin_inset Formula $\langle\cdots\rangle$
 \end_inset
 
- is to split 
+ is obtained by splitting 
 \begin_inset Formula $H_{imp}$
 \end_inset
 
@@ -958,30 +1039,26 @@ The usual approach to obtain the expectation value
 \begin_inset Formula $H_{imp}=H_{0}+H_{int}$
 \end_inset
 
- and compute time propagation exactly in 
+, the time propagation is computed exactly in 
 \begin_inset Formula $H_{0}$
 \end_inset
 
- while 
+ and 
 \begin_inset Formula $H_{int}$
 \end_inset
 
  is treated by a formal pertubative expansion.
- For a weak electronic coupling (small 
-\begin_inset Formula $U$
-\end_inset
-
-) the expansion (known as the weak-coupling approach) is performed in terms
- of the paramter 
+ For a weak electronic coupling, known as the weak-coupling approach, the
+ expansion is performed in terms of the paramter 
 \begin_inset Formula $U$
 \end_inset
 
 .
- In the strong-coupling approach (large 
+ In the strong-coupling approach, the one used in this thesis, a large 
 \begin_inset Formula $U$
 \end_inset
 
-), the one used in this thesis, 
+ is assumed and 
 \begin_inset Formula $H_{D}$
 \end_inset
 
@@ -993,11 +1070,11 @@ The usual approach to obtain the expectation value
 \begin_inset Formula $H_{0}$
 \end_inset
 
- and the expansion is performed in terms of 
+ , while the expansion is performed in terms of 
 \begin_inset Formula $H_{hyb}$
 \end_inset
 
-.
+, which is demonstrated in the following.
  
 \end_layout
 
@@ -1030,24 +1107,14 @@ with the reduced Hamiltonian
 \end_layout
 
 \begin_layout Standard
-ss
 \begin_inset Formula 
 \[
-U(t)=\exp^{iH_{0}t}\exp^{-iHt}.
+U(t)=\exp^{iH_{0}t}\exp^{-iHt}
 \]
 
 \end_inset
 
-
-\begin_inset Formula $U(t)$
-\end_inset
-
- 
-\begin_inset Formula $\left[U^{\dagger}(t)\right]$
-\end_inset
-
- can be thought of the propagation on the upper [lower] branch of the Keldysh
- contour obeying the differential equation 
+ and obays the the differential equation 
 \end_layout
 
 \begin_layout Standard
@@ -1100,7 +1167,7 @@ U(t)=\sum_{n=0}^{\infty}(-i)^{n}\int_{0}^{t}dt_{1}\int_{0}^{t_{1}}dt_{2}\cdots\i
 \end_inset
 
 with time ordering 
-\begin_inset Formula $t_{1}\succ t_{2}\succ\ldots\succ t_{n}$
+\begin_inset Formula $t_{1}>t_{2}>\ldots>t_{n}$
 \end_inset
 
  .
@@ -1171,6 +1238,10 @@ where
 
 \end_layout
 
+\begin_layout Itemize
+TODO: add contour 
+\end_layout
+
 \begin_layout Subsubsection
 Green's function computation within the non-crossing approximation 
 \end_layout
@@ -1214,7 +1285,12 @@ where
 \begin_inset Formula $\langle\cdots\rangle_{B}=Tr\left\{ \rho_{B}\cdots\right\} $
 \end_inset
 
- denotes that the bath degrees are traced out, the expansion for U 
+ denotes that the bath degrees are traced out, the expansion for the time
+ evolution operator 
+\begin_inset Formula $U(t)$
+\end_inset
+
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:expansion_for_U"
@@ -1415,9 +1491,9 @@ Correlation functions
 \begin_layout Standard
 So far we have calculated propagators between many body states, which contain
  all non-crossing hybridization lines in a time segment on a single branch.
- These objects have no physical meaning, to calculate physical observables
- it is necessary to include hybridization lines connecting times on both
- branches.
+ These objects have no physical meaning and in torder to compute physical
+ observables it is necessary to include hybridization lines connecting times
+ on both branches.
  We introduce so called vertex functions 
 \begin_inset Formula $\mathrm{K_{\alpha\beta}(t,t^{\prime})}$
 \end_inset
@@ -1584,20 +1660,20 @@ G_{\alpha\downarrow}^{<}(t,t^{\prime})=i\mathrm{\mathrm{\langle d_{\downarrow}^{
 
 \end_inset
 
+
+\end_layout
+
+\begin_layout Standard
 with 
 \begin_inset Formula $\alpha$
 \end_inset
 
  denoting the initial dot state.
- The conjugation yields to 
-\begin_inset Formula $\left(G^{>/<}(t,t^{\prime})\right)^{*}=-G^{>/<}(t^{\prime},t)$
-\end_inset
+ 
+\end_layout
 
- and for particle-hole symmetric system 
-\begin_inset Formula $G^{>/<}(t,t^{\prime})=-G^{>/<}(t^{\prime},t)$
-\end_inset
-
-.
+\begin_layout Itemize
+TODO: Add schematic representation of diagrams.
  
 \end_layout
 
@@ -1606,8 +1682,23 @@ Properties of the Green's functions
 \end_layout
 
 \begin_layout Standard
-The advanced and retarded Green's function are defined via the lesser and
- greater component as 
+The retarded and advanced component of the Green's function are linked via
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+G^{R}(t,t^{\prime})=\left[G^{A}(t^{\prime},t)\right]^{*}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+and can be defined via the lesser and greater component as 
 \end_layout
 
 \begin_layout Standard
@@ -1673,19 +1764,115 @@ G^{A}(t,t^{\prime})=-\Theta(t^{\prime}-t)\left(G^{>}(t,t^{\prime})-G^{<}(t,t^{\p
 
 \end_inset
 
-They have an intuitive interpretation since the imaginary part of their
- Fourier transforms gives the single particle spectral function
+
+\end_layout
+
+\begin_layout Standard
+The lesser and greater component fulfil 
+\begin_inset Formula 
+\[
+-G^{>/<}(t,t^{\prime})=\left[G^{>/<}(t,t^{\prime})\right]
+\]
+
+\end_inset
+
+ and for particle-hole symmetric system they hold 
+\begin_inset Formula 
+\[
+G^{>/<}(t,t^{\prime})=-G^{>/<}(t^{\prime},t).
+\]
+
+\end_inset
+
+The imaginary part of their Fourier transforms gives an intuitive interpretation
+ in terms of the spectral function 
+\begin_inset Formula $A(\omega)$
+\end_inset
+
+, which corresponds to the density of states.
+ 
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \[
-A(\omega)=-\frac{1}{\pi}ImG^{R}=\frac{1}{\pi}ImG^{A}.
+A(\omega)=-\frac{1}{\pi}ImG(\omega)^{R}=\frac{1}{\pi}ImG(\omega)^{A}.
 \]
 
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+Out of equilibrium one can still define a spectral function via a partial
+ Fourier transform
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+A(\omega,t_{av})=-\frac{1}{\pi}Im\int dt_{rel}\exp^{i\omega t_{rel}}G^{R}(t,t^{\prime}),
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+with 
+\begin_inset Formula $t_{av}=(t+t{}^{\prime})/2$
+\end_inset
+
+ and 
+\begin_inset Formula $t_{rel}=t-t^{\prime}$
+\end_inset
+
+ and which satisfies
+\begin_inset Formula 
+\[
+\int d\omega A(\omega)=1.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The lesser [greater] Green's function contains information about the distributio
+n of occupied [unoccupied] states 
+\begin_inset Formula 
+\[
+\mp ImG^{<}(\omega)=2\pi A(\omega)n(\omega)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+-ImG^{>}(\omega)=2\pi A(\omega)[1\pm n(\omega)].
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The upper signs are valid for bosons and the lower for fermions.
+ Here, 
+\begin_inset Formula $n(\omega)$
+\end_inset
+
+ represents the nonequilibrium distribution function, in equilibrium coincides
+ with the Bose or Fermi distribution.
+ 
 \end_layout
 
 \begin_layout Subsection
@@ -2091,30 +2278,6 @@ reference "eq:Delta"
 \end_inset
 
 .
- The simplest treatment of the dissipation is to chose 
-\begin_inset Formula $\Gamma$
-\end_inset
-
- to be a flat density of states with a soft cutoff 
-\begin_inset Formula $\Gamma(\omega)=\frac{\lambda}{(1+\exp^{\nu(\omega-\omega_{c})})(1+\exp^{-\nu(\omega+\omega_{c})})}$
-\end_inset
-
-
-\begin_inset CommandInset label
-LatexCommand label
-name "flat-density-of-states"
-
-\end_inset
-
- (
-\begin_inset Formula $\nu=\omega_{c}=10$
-\end_inset
-
- and 
-\begin_inset Formula $\lambda=\Gamma(0)$
-\end_inset
-
-).
  
 \end_layout
 
@@ -2255,6 +2418,15 @@ As for the fermion bath, the spectral function
 \end_inset
 
 
+\end_layout
+
+\begin_layout Itemize
+TODO: Add schematic representation of an reservoir coupled to every lattice
+ site.
+ 
+\end_layout
+
+\begin_layout Standard
 \begin_inset Note Note
 status collapsed
 
@@ -2317,7 +2489,7 @@ it relates the Greens function to the hybridization function in the simple
 \end_layout
 
 \begin_layout Itemize
-TOFO: graph of Bethe lattice structure and non-interacting DOS
+TODO: graph of Bethe lattice structure and non-interacting DOS
 \end_layout
 
 \begin_layout Subsection
@@ -2389,6 +2561,34 @@ Two different lattice structures
 
 \begin_layout Subsection
 Dissipation
+\end_layout
+
+\begin_layout Standard
+The simplest treatment of the dissipation is to chose 
+\begin_inset Formula $\Gamma$
+\end_inset
+
+ to be a flat density of states with a soft cutoff 
+\begin_inset Formula $\Gamma(\omega)=\frac{\lambda}{(1+\exp^{\nu(\omega-\omega_{c})})(1+\exp^{-\nu(\omega+\omega_{c})})}$
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "flat-density-of-states"
+
+\end_inset
+
+ (
+\begin_inset Formula $\nu=\omega_{c}=10$
+\end_inset
+
+ and 
+\begin_inset Formula $\lambda=\Gamma(0)$
+\end_inset
+
+).
+ 
 \end_layout
 
 \begin_layout Subsection
@@ -3033,7 +3233,7 @@ When the Coulomb interaction is lowered, coming close to the non-interacting
 placement H
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Caption Standard
@@ -3060,14 +3260,14 @@ Dynamics of our system without driving for high Coulomb interactions.
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/Eckstein/Magnetization_U=42.0.pdf
+	filename graphics/Eckstein/Magnetization_highU.pdf
 	scale 90
 
 \end_inset
 
 
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/Eckstein/doubleOcc.pdf
+	filename graphics/Eckstein/doubleOcc_highU.pdf
 
 \end_inset
 
@@ -3122,13 +3322,13 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/Eckstein/T1.0_U15.0_pumpOmega15/Magnetization_U=15.pdf
+	filename graphics/Eckstein/Magnetization_U=15.pdf
 
 \end_inset
 
 
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/Eckstein/T1.0_U15.0_pumpOmega15/doubleOcc_U=15.pdf
+	filename graphics/Eckstein/doubleOcc_U=15.pdf
 
 \end_inset
 
@@ -3169,7 +3369,7 @@ Dynamics of our system with
 \end_layout
 
 \begin_layout Subsection
-Pump-probe-field simulation at intermediate U 
+Energy dissipation in a periodically driven system
 \end_layout
 
 \begin_layout Standard
@@ -3241,18 +3441,18 @@ name "energyCurrent"
 placement H
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/U5/energyCurrent_probeA=0.1_probeOmega=5.0_pumpA=1.0_pumpOmega=5.0.pdf
+	filename graphics/U5_non_physcial_lattice/energyCurrent_probeA=0.1_probeOmega=5.0_pumpA=1.0_pumpOmega=5.0.pdf
 	scale 90
 
 \end_inset
 
 
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/U5/relCurrent_probeA=0.1_probeOmega=5.0_pumpA=1.0_pumpOmega=5.0.pdf
+	filename graphics/U5_non_physcial_lattice/relCurrent_probeA=0.1_probeOmega=5.0_pumpA=1.0_pumpOmega=5.0.pdf
 	scale 90
 
 \end_inset
@@ -3287,7 +3487,11 @@ Left: Heat current for
 \end_layout
 
 \begin_layout Subsubsection
-Resonant driving regime 
+Unphysical Bethe lattice
+\end_layout
+
+\begin_layout Subsubsection*
+Resonant driving at intermediate U 
 \end_layout
 
 \begin_layout Standard
@@ -3407,10 +3611,6 @@ It is also surprising that there is almost no temperature dependance seen
 spin averaged and time evolved spectral functions 
 \end_layout
 
-\begin_layout Itemize
-TODO: Add dynamics of M and d to compare the different melting mechanisms
-\end_layout
-
 \begin_layout Standard
 \align center
 \begin_inset Float figure
@@ -3419,14 +3619,15 @@ sideways false
 status collapsed
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/U5/pumpA_probeOmega_response_pumpOmega=5.0_probeA=0.05_T=0.06.pdf
+	filename graphics/U5_non_physcial_lattice/pumpA_probeOmega_response_pumpOmega=5.0_probeA=0.05_T=0.06.pdf
 
 \end_inset
 
 
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/U5/pumpA_probeOmega_response_pumpOmega=5.0_probeA=0.05_T=1.0.pdf
+	filename graphics/U5_non_physcial_lattice/pumpA_probeOmega_response_pumpOmega=5.0_probeA=0.05_T=1.0.pdf
 
 \end_inset
 
@@ -3458,14 +3659,63 @@ Linear response at resonant pumping for temperatures
 \begin_layout Standard
 \align center
 \begin_inset Float figure
-placement H
 wide false
 sideways false
 status collapsed
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/U5/quad_timedep_spectralF_diffA_pumpOmega5.0_T0.06.pdf
+	filename graphics/U5_non_physcial_lattice/small_2.5_pumpA_probeOmega_response_pumpOmega=5.0_probeA=0.05_T=1.0.pdf
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename graphics/U5_non_physcial_lattice/small_5.0_pumpA_probeOmega_response_pumpOmega=5.0_probeA=0.05_T=1.0.pdf
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Zoom into 
+\begin_inset Formula $\omega_{probe}=2.5$
+\end_inset
+
+ and 
+\begin_inset Formula $\omega_{probe}=5.0$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphics/U5_non_physcial_lattice/quad_timedep_spectralF_diffA_pumpOmega5.0_T0.06.pdf
 	scale 150
 
 \end_inset
@@ -3479,7 +3729,7 @@ status collapsed
 \begin_layout Plain Layout
 Time-evolved spectral functions, averaged over the initial spin-up and spin-down
  state at different temperatures.
- A resonant electric field (
+ An electric field (
 \begin_inset Formula $\omega_{pump}=5$
 \end_inset
 
@@ -3506,14 +3756,14 @@ name "A_resonant_pumping"
 \begin_layout Standard
 \align center
 \begin_inset Float figure
-placement H
 wide false
 sideways false
 status collapsed
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/U5/quad_spectralF_diffA_pumpOmega5.0.pdf
+	filename graphics/U5_non_physcial_lattice/quad_spectralF_diffA_pumpOmega5.0.pdf
 	scale 150
 
 \end_inset
@@ -3542,14 +3792,14 @@ Spectral function averaged over an initial spin up and spin down dot state
 \begin_layout Standard
 \align center
 \begin_inset Float figure
-placement H
 wide false
 sideways false
 status collapsed
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/U5/quad_spin_spectralF_diffA_pumpOmega5.0.pdf
+	filename graphics/U5_non_physcial_lattice/quad_spin_spectralF_diffA_pumpOmega5.0.pdf
 	scale 150
 
 \end_inset
@@ -3575,8 +3825,8 @@ Spectral functions for an initial spin-up state for different temperatures
 
 \end_layout
 
-\begin_layout Subsubsection
-Half-resonant driving 
+\begin_layout Subsubsection*
+Half-resonant driving at intermediate U 
 \end_layout
 
 \begin_layout Standard
@@ -3587,20 +3837,20 @@ We are doing the same analysis for a pump frequency of half the bandgap.
 \begin_layout Standard
 \align center
 \begin_inset Float figure
-placement H
 wide false
 sideways false
 status collapsed
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/U5/pumpA_probeOmega_response_pumpOmega=2.5_probeA=0.05_T=0.06.pdf
+	filename graphics/U5_non_physcial_lattice/pumpA_probeOmega_response_pumpOmega=2.5_probeA=0.05_T=0.06.pdf
 
 \end_inset
 
 
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/U5/pumpA_probeOmega_response_pumpOmega=2.5_probeA=0.05_T=1.0.pdf
+	filename graphics/U5_non_physcial_lattice/pumpA_probeOmega_response_pumpOmega=2.5_probeA=0.05_T=1.0.pdf
 
 \end_inset
 
@@ -3636,14 +3886,59 @@ Linear response at half-resonant pumping for temperatures
 \begin_layout Standard
 \align center
 \begin_inset Float figure
-placement H
 wide false
 sideways false
 status collapsed
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/U5/quad_timedep_spectralF_diffA_pumpOmega2.5_T0.06.pdf
+	filename graphics/U5_non_physcial_lattice/small_2.5_pumpA_probeOmega_response_pumpOmega=2.5_probeA=0.05_T=1.0.pdf
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename graphics/U5_non_physcial_lattice/small_5.0_pumpA_probeOmega_response_pumpOmega=2.5_probeA=0.05_T=1.0.pdf
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Zoom into 
+\begin_inset Formula $\omega_{probe}=2.5$
+\end_inset
+
+ and 
+\begin_inset Formula $\omega_{probe}=5.0$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphics/U5_non_physcial_lattice/quad_timedep_spectralF_diffA_pumpOmega2.5_T0.06.pdf
 	scale 150
 
 \end_inset
@@ -3674,14 +3969,14 @@ Time-evolved spectral functions, averaged over the initial spin-up and spin-down
 \begin_layout Standard
 \align center
 \begin_inset Float figure
-placement H
 wide false
 sideways false
 status collapsed
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/U5/quad_spectralF_diffA_pumpOmega2.5.pdf
+	filename graphics/U5_non_physcial_lattice/quad_spectralF_diffA_pumpOmega2.5.pdf
 	scale 150
 
 \end_inset
@@ -3712,14 +4007,14 @@ Spectral function averaged over an initial spin up and spin down dot state
 \begin_layout Standard
 \align center
 \begin_inset Float figure
-placement H
 wide false
 sideways false
 status collapsed
 
 \begin_layout Plain Layout
+\align center
 \begin_inset Graphics
-	filename /afs/physnet.uni-hamburg.de/users/th1_li/hatanaso/MasterProject/U5/quad_spin_spectralF_diffA_pumpOmega2.5.pdf
+	filename graphics/U5_non_physcial_lattice/quad_spin_spectralF_diffA_pumpOmega2.5.pdf
 	scale 150
 
 \end_inset
@@ -3744,6 +4039,10 @@ Spectral functions for an initial spin-up state for different temperatures
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+\align center
 \begin_inset Note Note
 status collapsed
 
@@ -4259,6 +4558,440 @@ Spectral function for different temperatures at resonant driving (
 
 \begin_layout Section
 Conclusion
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection*
+Resonant driving at high U 
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphics/U10_non_physical_lattice/pumpA_probeOmega_response_pumpOmega=10.0_probeA=0.05_T=0.06.pdf
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename graphics/U10_non_physical_lattice/pumpA_probeOmega_response_pumpOmega=10.0_probeA=0.05_T=1.0.pdf
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Linear response at resonant driving (
+\begin_inset Formula $\omega_{pump}=10$
+\end_inset
+
+) for temperatures 
+\begin_inset Formula $T/\gamma=0.06$
+\end_inset
+
+ and 
+\begin_inset Formula $T/\gamma=1.0$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphics/U10_non_physical_lattice/quad_timedep_spectralF_diffA_pumpOmega10.0_T0.06.pdf
+	scale 150
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Time-evolved spectral functions, averaged over the initial spin-up and spin-down
+ state at different temperatures.
+ A resonant electric field with increasing strength is applied.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphics/U10_non_physical_lattice/quad_spectralF_diffA_pumpOmega10.0.pdf
+	scale 150
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Spectral function averaged over an initial spin up and spin down dot state
+ for different temperatures and various pump amplitudes at resonant driving.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphics/U10_non_physical_lattice/quad_spin_spectralF_diffA_pumpOmega10.0.pdf
+	scale 150
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Spectral functions for an initial spin-up state for different temperatures
+ and pump amplitudes at resonant driving.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection*
+Half-resonant driving at high U 
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphics/U10_non_physical_lattice/pumpA_probeOmega_response_pumpOmega=5.0_probeA=0.05_T=0.06.pdf
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename graphics/U10_non_physical_lattice/pumpA_probeOmega_response_pumpOmega=5.0_probeA=0.05_T=1.0.pdf
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Linear response at half-resonant pumping for temperatures 
+\begin_inset Formula $T/\gamma=0.06$
+\end_inset
+
+ and 
+\begin_inset Formula $T/\gamma=1.0$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphics/U10_non_physical_lattice/quad_timedep_spectralF_diffA_pumpOmega5.0_T0.06.pdf
+	scale 150
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Time-evolved spectral functions, averaged over the initial spin-up and spin-down
+ state at different temperatures.
+ An electric field (
+\begin_inset Formula $\omega_{pump}=5$
+\end_inset
+
+) with increasing strength is applied.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphics/U10_non_physical_lattice/quad_spectralF_diffA_pumpOmega5.0.pdf
+	scale 150
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Spectral function averaged over an initial spin up and spin down dot state
+ for different temperatures and various pump amplitudes at resonant driving.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphics/U10_non_physical_lattice/quad_spin_spectralF_diffA_pumpOmega5.0.pdf
+	scale 150
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Spectral functions for an initial spin-up state for different temperatures
+ and pump amplitudes at resonant driving.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Physical lattice structure
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphics/U5_physical_lattice/pumpA_probeOmega_response_pumpOmega=2.5_probeA=0.05_T=1.0.pdf
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename graphics/U5_physical_lattice/pumpA_probeOmega_response_pumpOmega=3.0_probeA=0.05_T=1.0.pdf
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphics/U5_physical_lattice/pumpA_probeOmega_response_pumpOmega=5.0_probeA=0.05_T=1.0.pdf
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Linear response at different driving frequencies at 
+\begin_inset Formula $T/\gamma=1.0$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphics/U5_physical_lattice/pumpA_spectralFunction_T=1.0_probeA=0.05_probeOmega=2.5_pumpOmega=2.5.pdf
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename graphics/U5_physical_lattice/pumpA_spectralFunction_T=1.0_probeA=0.05_probeOmega=3.0_pumpOmega=3.0.pdf
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphics/U5_physical_lattice/pumpA_spectralFunction_T=1.0_probeA=0.05_probeOmega=2.5_pumpOmega=5.0.pdf
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Spectral functions, averaged over the initial spin-up and spin-down state
+ at different electric fields with increasing strength.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
