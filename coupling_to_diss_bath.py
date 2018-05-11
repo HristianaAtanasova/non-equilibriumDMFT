@@ -12,9 +12,9 @@ def gen_timedepLambda(t, t_diss_end, Lambda):
 
     return Lambda_t
 
-# t = np.arange(-15, 15, 0.01)
+# t = np.arange(0, 10, 0.01)
 # Lambda = 1
-# t_diss_end = 6
+# t_diss_end = 15
 #
 # L = gen_timedepLambda(t, t_diss_end, Lambda)
 # plt.plot(t, L, 'b')
