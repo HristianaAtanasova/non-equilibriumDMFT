@@ -1,0 +1,70 @@
+#!/usr/bin/python
+# The following makes general definitions relevant for different runner
+# scripts of the same application.
+from os import getcwd #  Only for example, can usually be removed.
+
+
+def item_name(prefix, pdict, secondary_keys=[], excluded_keys=[]):
+    """A function for consistently naming data directories according to parameters."""
+    def dict_to_name(d):
+        return '_'.join(map(lambda item: "%s%s" % item, sorted(d.items(), key=lambda item: item[0])))
+    main_items = pdict.copy()
+    secondary_items = dict()
+    for key in excluded_keys:
+        del main_items[key]
+    for key in secondary_keys:
+        del main_items[key]
+        secondary_items[key] = pdict[key]
+    if len(secondary_keys) > 0:
+        return dict_to_name(main_items) + '/' + dict_to_name(secondary_items)
+    else:
+        return dict_to_name(main_items)
+
+
+def myarange(start, end, jump=1.):
+    """A nice range function that 'does the right thing' for floats close to zero."""
+    r = np.arange(start, end, jump)
+    for i in range(len(r)):
+        if abs(r[i]) < 1e-10:
+            r[i] = 0.0
+    return r
+
+def calc_walltime(t):
+    """Seconds to timestring, adding 2 minutes."""
+    s=int(1.1*t)+300
+    hours, remainder = divmod(s, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return '%s:%s:%s' % (hours, minutes, seconds)
+
+param_file_name = 'run.toml'
+parameter_processing_command = ''  # Run some command to process the parameter file.
+post_processing_command = ''  # Run some command to process the output.
+execDir = getcwd()+'/..'  # Can use environment variables: '$HOME/my_application_bin_directory'
+
+template = """
+dim = {dim}
+U1 = {U1}
+U2 = {U2}
+T = {T}
+pumpA = {pumpA}
+probeA = {probeA}
+mu = {mu}
+v_0 = {v_0}
+tmax = {tmax}
+dt = {dt}
+dw = {dw}
+tol = {tol}
+solver = {solver}
+fermion = {fermion}
+phonon = {phonon}
+Lambda = {Lambda}
+wC = {wC}
+t_diss_end = {t_diss_end}
+pumpOmega = {pumpOmega}
+t_pump_start = {t_pump_start}
+t_pump_end = {t_pump_end}
+probeOmega = {probeOmega}
+t_probe_start = {t_probe_start}
+t_probe_end = {t_probe_end}
+lattice_structure = {lattice_structure}
+"""

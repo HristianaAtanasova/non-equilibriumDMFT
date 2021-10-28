@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
@@ -18,7 +17,6 @@ import fermionBath
 import coupling_to_diss_bath
 import electricField
 # import hdf5
-
 
 def runNCA(U, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output):
     t  = np.arange(0, tmax, dt)
@@ -39,23 +37,26 @@ def runNCA(U, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iterat
 def runInch(U, tmax, dt, Delta):
     pass
 
-def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fermion, Lambda, wC, t_diss_end, pumpOmega, t_pump_start, t_pump_end, probeOmega, t_probe_start, t_probe_end, lattice_structure, output, **kwargs):
+def run_dmft(dim, U1, U2, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fermion, Lambda, wC, t_diss_end, pumpOmega, t_pump_start, t_pump_end, probeOmega, t_probe_start, t_probe_end, lattice_structure, output, **kwargs):
     t  = np.arange(0, tmax, dt)
 
-    msg = 'Starting DMFT loop for U = {} | Temperature = {} | mu = {} | phonon = {} | fermion = {} | Lambda = {} | time = {} | dt = {}'.format(U, T, mu, phonon, fermion, Lambda, tmax, dt)
+    msg = 'Starting DMFT loop for dim = {} | U1 = {} | U2={} | phonon = {} | fermion = {} | time = {} | dt = {}'.format(dim, U1, U2, T, phonon, fermion, tmax, dt)
     print('-'*len(msg))
     print(msg)
     print('-'*len(msg))
 
     start = datetime.now()
 
-    # gf indices: [gtr/les, up/down, time, time]
-    Green     = np.zeros((2, 2, len(t), len(t)), complex)
-    Green_old = np.zeros((2, 2, len(t), len(t)), complex)
+    # gf indices: [site, gtr/les, up/down, time, time]
+    Green     = np.zeros((4, 2, 2, len(t), len(t)), complex)
+    Green_old = np.zeros((4, 2, 2, len(t), len(t)), complex)
+    Delta = np.zeros((4, 2, 2, len(t), len(t)), complex)
 
-    Uconst = U
+    U = np.zeros((4), float)
+    U[:2] = U1
+    U[2:] = U2
     # calculate and load bare propagators
-    bareprop.bare_prop(t, U, Uconst)
+    bareprop.bare_prop(t, U, Uconst=U)
     loaded = np.load('barePropagators.npz')
     G_0 = loaded['G_0']
 
@@ -64,7 +65,8 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     # hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
     # timedep_hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
     loaded = np.load('Delta.npz')
-    Delta = loaded['D']
+    for site in range(4):
+        Delta[site] = loaded['D']
 
     if phonon == 1:
         phononBath.genPhononBath(t, mu, T)
@@ -81,7 +83,7 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     Lambda = coupling_to_diss_bath.gen_timedepLambda(t, t_diss_end, Lambda)
 
     # option of turning on a pump field and/or a probe field
-    #v = electricField.genv(pumpA, pumpOmega, t_pump_start, t_pump_end, probeA, probeOmega, t_probe_start, t_probe_end, v_0, t, lattice_structure)
+    # v = electricField.genv(pumpA, pumpOmega, t_pump_start, t_pump_end, probeA, probeOmega, t_probe_start, t_probe_end, v_0, t, lattice_structure)
     v = v_0
 
     # set solver
@@ -98,20 +100,35 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     while diff > tol:
         iteration += 1
 
-        Green_old = Green
+        Green_old[:] = Green[:]
+        # print('Green_old= ',Green_old)
+        # print('Green= ',Green)
 
-        Green = Solver(U, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output)
+        for site in range(4):
+            Green[site] = Solver(U[site], T, G_0[site], tmax, dt, Delta[site], phonon, fermion, Lambda, dissBath, iteration, output)
 
-        #diff = np.amax(np.abs(Green_old - Green))
-        diff = 0
+        # print(Green_old==Green)
+        diff = np.amax(np.abs(Green_old - Green))
+        # diff = 0
 
+        interf_scaling = 1/(dim*2)
+        bulk_scaling = 1-interf_scaling
         # antiferromagnetic self-consistency
-        Delta[:, 0] = v * Green[:, 1]
-        Delta[:, 1] = v * Green[:, 0]
+        # site 0:
+        Delta[0, :, 0] = v*bulk_scaling * Green[0, :, 1] + v*interf_scaling * Green[1, :, 1]
+        Delta[0, :, 1] = v*bulk_scaling * Green[0, :, 0] + v*interf_scaling * Green[1, :, 0]
 
-        # # doubly occupied and empty sublattice
-        # Delta[0, :] = v * Green[1, :]
-        # Delta[1, :] = v * Green[0, :]
+        # site 1:
+        Delta[1, :, 0] = v*bulk_scaling * Green[0, :, 1] + v*interf_scaling * Green[2, :, 1]
+        Delta[1, :, 1] = v*bulk_scaling * Green[0, :, 0] + v*interf_scaling * Green[2, :, 0]
+
+        # site 2:
+        Delta[2, :, 0] = v*interf_scaling * Green[1, :, 1] + v*bulk_scaling * Green[3, :, 1]
+        Delta[2, :, 1] = v*interf_scaling * Green[1, :, 0] + v*bulk_scaling * Green[3, :, 0]
+
+        # site 3:
+        Delta[3, :, 0] = v*interf_scaling * Green[2, :, 1] + v*bulk_scaling * Green[3, :, 1]
+        Delta[3, :, 1] = v*interf_scaling * Green[2, :, 0] + v*bulk_scaling * Green[3, :, 0]
 
         msg = 'U = {}, iteration {}: diff = {} (elapsed time = {})'
         print(msg.format(U, iteration, diff, datetime.now() - start))

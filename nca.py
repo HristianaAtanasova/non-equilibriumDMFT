@@ -5,7 +5,6 @@ from numpy.linalg import solve
 
 # import h5py
 # import hdf5
-import argparse
 
 import bareprop
 

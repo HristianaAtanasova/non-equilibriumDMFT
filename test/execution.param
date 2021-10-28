@@ -1,0 +1,40 @@
+#!/usr/bin/python
+# The following defines the runfile and runner. This can also include parameters if needed.
+# A runfile is responsible for executing a job and for updating its status: from queued,
+# to running, to done.
+
+#PBS execution:
+run_command = 'qsub'
+runfile="""#!/bin/bash
+#PBS -V
+#PBS -N """+prefix+"""
+#PBS -q """+queueName+"""
+#PBS -o outfile
+#PBS -e errfile
+#PBS -l nodes="""+str(numNodesPerJob)+":ppn="+str(numThreadsPerNode)+"""
+#PBS -l mem="""+memory+"""
+#PBS -l walltime={walltime}
+
+date
+hostname
+source /gcohenlab/data/atanasovah/stochastic_wavefunctions/env/bin/activate
+# pip install --user toml
+cd {rundir}
+rm queued
+echo ' ' > running
+""" + parameter_processing_command + "\n" +\
+executable_name + " " +\
+param_file_name + " > execution_log.txt\n" +\
+post_processing_command + """
+rm running
+echo ' ' > done
+date
+"""
+
+def process_runfile(s, pdict, rundir):
+    pdict = pdict.copy()
+    pdict['walltime'] = walltime_func(pdict)
+    pdict['rundir'] = rundir
+    return s.format(**pdict)
+
+queue_jobcount_command = "qstat -u $USER | grep $USER | wc -l"
