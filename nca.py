@@ -3,8 +3,9 @@
 import numpy as np
 from numpy.linalg import solve
 
-import h5py
-import hdf5
+# import h5py
+# import hdf5
+import argparse
 
 import bareprop
 
@@ -64,11 +65,11 @@ def fillDeltaMatrix(DeltaMatrix, Delta):
     DeltaMatrix[3, 1] = Delta[0, 1]
     DeltaMatrix[3, 2] = Delta[0, 0]
 
-def solve(t, U, G_0, phonon, fermion, Lambda, dissBath, output, hybsection, gfsection):
+def solve(t, U, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta):
     ########## Computation of bold propagators on separate branches of the contour ##########
-
-    with h5py.File(output, "r") as h5f:
-        Delta, _ = hdf5.load_green(h5f, hybsection)
+    #
+    # with h5py.File(output, "r") as h5f:
+    #     Delta, _ = hdf5.load_green(h5f, hybsection)
 
     dt = t[1] - t[0]
 
@@ -108,7 +109,7 @@ def solve(t, U, G_0, phonon, fermion, Lambda, dissBath, output, hybsection, gfse
 
             if phonon == 1:
                 Sigma[0, t_n, t_m] += Lambda[t_n, t_m] * (G[0, t_n, t_m] * dissBath[t_n, t_m])
-                # Sigma[3, t_n, t_m] += Lambda[t_n, t_m] * (G[3, t_n, t_m] * dissBath[t_n, t_m])
+                # Sigma[3, t_n, t_m] += Lambda * (G[3, t_n, t_m] * dissBath[t_n, t_m])
 
             elif fermion == 1:
                 Sigma[0, t_n, t_m] += Lambda[t_n, t_m] * (G[1, t_n, t_m] * dissBath[1, 0, t_n, t_m] + G[2, t_n, t_m] * dissBath[1, 1, t_n, t_m])
@@ -166,6 +167,7 @@ def solve(t, U, G_0, phonon, fermion, Lambda, dissBath, output, hybsection, gfse
 
     # for every initial state i there is a set of 4 coupled equations for K
     for i in [1]:
+    # for i in [3]:
 
         # indices are initial state | contour times on lower and upper branch
         K = np.zeros((4, 4, len(t), len(t)), complex)
@@ -241,17 +243,21 @@ def solve(t, U, G_0, phonon, fermion, Lambda, dissBath, output, hybsection, gfse
 
         print('\n')
 
-        with h5py.File(output, "a") as h5f:
-            hdf5.save_green(h5f, gfsection, Green[:,:,1,:,:], (t,t))
+        # with h5py.File(output, "a") as h5f:
+        #     hdf5.save_green(h5f, gfsection, Green[:,:,1,:,:], (t,t))
 
-        np.savez_compressed('K_1_f', t=t, K=K[i])
-        np.savez_compressed('Green', t=t, Green=Green[:,:,i])
+        Vertexfunction = 'K_1_f_T={}'
+        Greensfunction = 'Green_T={}'
+        np.savez_compressed(Vertexfunction.format(T), t=t, K=K[i])
+        np.savez_compressed(Greensfunction.format(T), t=t, Green=Green[:,:,i])
+
+        return Green[:,:,i]
 
 def main():
     parser = argparse.ArgumentParser(description = "run nca impurity solver")
     parser.add_argument("--U",    type=float, default = 2.0)
-    parser.add_argument("--hybfile",     default = "output.h5")
-    parser.add_argument("--hybsection",  default = "hybridization/hyb")
+    # parser.add_argument("--hybfile",     default = "output.h5")
+    # parser.add_argument("--hybsection",  default = "hybridization/hyb")
     args = parser.parse_args()
 
 if __name__ == "__main__":

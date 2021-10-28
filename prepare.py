@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+from __future__ import print_function, division
+if hasattr(__builtins__, 'raw_input'):
+    input = raw_input
 from numpy import *
 import itertools
 from os import path, makedirs, getcwd, chdir
@@ -13,9 +16,9 @@ import pickle
 SLEEP_INTERVAL = 1800
 
 if (len(argv)==1):
-    execfile('runs.param')
+    exec(open('runs.param').read())
 elif (len(argv)==2):
-    execfile(argv[1])
+    exec(open(argv[1]).read())
 
 cwd = getcwd()
 
@@ -36,7 +39,7 @@ class JobStatus:
         call(r'echo " " > '+cwd+'/'+self.workdir+'/queued', shell=True)
 
 def execute(lr):
-    print 'Executing '+lr.js.workdir+'.'
+    print('Executing '+lr.js.workdir+'.')
     lr.js.setQueued()
     call('cd '+lr.js.workdir+'; '+run_command+' runfile > jobid', shell=True)
     return 1
@@ -44,10 +47,10 @@ def execute(lr):
 def executeWithQueueLimit(lr):
     jobcount = int(check_output(queue_jobcount_command, shell=True))
     while jobcount >= lr.qlimit:
-        print "%d jobs in the queue, limit %d - sleeping for %d seconds." % (jobcount, lr.qlimit, SLEEP_INTERVAL)
+        print("%d jobs in the queue, limit %d - sleeping for %d seconds." % (jobcount, lr.qlimit, SLEEP_INTERVAL))
         sleep(SLEEP_INTERVAL)
         jobcount = int(check_output(queue_jobcount_command, shell=True))
-    print 'Executing '+lr.js.workdir+'.'
+    print('Executing '+lr.js.workdir+'.')
     lr.js.setQueued()
     call('cd '+lr.js.workdir+'; '+run_command+' runfile > jobid', shell=True)
     return 1
@@ -64,7 +67,7 @@ class LocalRun:
     @classmethod
     def runAll(cls):
         if len(cls.processPool)>0:
-            auth = raw_input("Run {n} jobs in queue '{queue}'? (y/n/qlimit/number to run)".format(n=str(len(cls.processPool)),queue=queueName))
+            auth = input("Run {n} jobs in queue '{queue}'? (y/n/qlimit/number to run)".format(n=str(len(cls.processPool)),queue=queueName))
             if auth == 'n' or auth == 'N':
                 exit(0)
             elif auth == 'y' or auth == 'Y':
@@ -117,19 +120,19 @@ for term in paramIterator:
     js = JobStatus(outdir)
     if(js.isDone()):
         pass
-        #print outdir, 'already done.'
+        #print(outdir, 'already done.')
     elif(js.isQueued()):
-        print outdir, 'already queued.'
+        print(outdir, 'already queued.')
     elif(js.isRunning()):
-        print outdir, 'already running.'
+        print(outdir, 'already running.')
     else:
-        print 'Entering',outdir,'...'
+        print('Entering',outdir,'...')
         if(not path.exists(cwd+'/'+outdir)):
             makedirs(cwd+'/'+outdir)
-        output = open(outdir+'/'+param_file_name, 'wb')
+        output = open(outdir+'/'+param_file_name, 'w')
         output.write(p_contents)
         output.close()
-        output = open(outdir+'/runfile', 'wb')
+        output = open(outdir+'/runfile', 'w')
         output.write(p_runfile)
         output.close()
 
