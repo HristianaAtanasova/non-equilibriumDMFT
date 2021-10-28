@@ -1,0 +1,2 @@
+All calculations are done by computing the propagators for the upper and lower branch explicitly. 
+In the previous version the bold propagators on the lower branch were simply the complex conjugated of the ones on the upper branch. This is theoretically correct, but numerically it makes a difference, since the vertex functions K are not exactly the complex conjugated for reversed times.
