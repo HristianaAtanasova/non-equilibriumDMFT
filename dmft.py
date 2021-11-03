@@ -1,5 +1,4 @@
 # !/usr/bin/env python3
-
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
@@ -127,7 +126,7 @@ def main():
     parser = argparse.ArgumentParser(description = "run dmft")
     # parser.add_argument("--output",   default = "output.h5")
     parser.add_argument("--output",   default = "savetxt")
-    parser.add_argument("--params",   default = "runs.toml")
+    parser.add_argument("--params",   default = "run.toml")
     parser.add_argument("--savetxt",  action  = "store_true")
     args = parser.parse_args()
 
