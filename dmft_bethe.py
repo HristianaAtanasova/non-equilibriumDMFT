@@ -1,6 +1,5 @@
 # !/usr/bin/env python3
 import numpy as np
-from numpy.linalg import inv, pinv
 import matplotlib.pyplot as plt
 import argparse
 # import h5py
@@ -11,7 +10,7 @@ from scipy.fftpack import fft, ifft, fftfreq, fftshift, ifftshift
 
 import nca
 import bareprop
-import k_greensfunction 
+import hybridization
 import timedep_hybridization
 import phononBath
 import fermionBath
@@ -40,8 +39,7 @@ def runInch(U, tmax, dt, Delta):
     pass
 
 def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fermion, Lambda, wC, t_diss_end, pumpOmega, t_pump_start, t_pump_end, probeOmega, t_probe_start, t_probe_end, lattice_structure, output, **kwargs):
-    t = np.arange(0, tmax, dt)
-    w = np.arange(-wC, wC, dw) 
+    t  = np.arange(0, tmax, dt)
 
     msg = 'Starting DMFT loop for U = {} | Temperature = {} | mu = {} | phonon = {} | fermion = {} | Lambda = {} | time = {} | dt = {}'.format(U, T, mu, phonon, fermion, Lambda, tmax, dt)
     print('-'*len(msg))
@@ -51,10 +49,8 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     start = datetime.now()
 
     # gf indices: [gtr/les, up/down, time, time]
-    Green = np.zeros((2, 2, len(t), len(t)), complex)
+    Green     = np.zeros((2, 2, len(t), len(t)), complex)
     Green_old = np.zeros((2, 2, len(t), len(t)), complex)
-    Delta = np.zeros((2, 2, len(t), len(t)), complex)
-    Sigma = np.zeros((2, 2, len(t), len(t)), complex)
 
     Uconst = U
     # calculate and load bare propagators
@@ -62,17 +58,12 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     loaded = np.load('barePropagators.npz')
     G_0 = loaded['G_0']
 
-    k_greensfunction.gen_k_dep_Green(T, v_0, mu, tmax, dt, wC, dw)
-    loaded = np.load('Green_k_inv.npz')
-    Green_k_inv = loaded['G']
-    dos = loaded['D']
-
-    ## delta indices: [gtr/les, up/down, time, time]
-    # hybridization.genSemicircularHyb(T, mu, v_0, tmax, dt, dw)
+    # delta indices: [gtr/les, up/down, time, time]
+    hybridization.genSemicircularHyb(T, mu, v_0, tmax, dt, dw)
     # hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
     # timedep_hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
-    # loaded = np.load('Delta.npz')
-    # Delta = loaded['D']
+    loaded = np.load('Delta.npz')
+    Delta = loaded['D']
 
     if phonon == 1:
         phononBath.genPhononBath(t, mu, T)
@@ -85,8 +76,8 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     else:
         dissBath = 0
 
-    ## coupling to the dissipation bath can be turned off
-    # Lambda = coupling_to_diss_bath.gen_timedepLambda(t, t_diss_end, Lambda)
+    # coupling to the dissipation bath can be turned off
+    Lambda = coupling_to_diss_bath.gen_timedepLambda(t, t_diss_end, Lambda)
 
     # option of turning on a pump field and/or a probe field
     #v = electricField.genv(pumpA, pumpOmega, t_pump_start, t_pump_end, probeA, probeOmega, t_probe_start, t_probe_end, v_0, t, lattice_structure)
@@ -107,38 +98,19 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
         iteration += 1
 
         Green_old = Green
-        I = np.zeros((2, 2, len(t), len(t), len(w)), complex)
-        for w1 in range(len(w)):
-            M = Green_k_inv[:, :, :, :, w1] - Sigma
-            for comp in range(2):
-                for spin in range(2):
-                    I[comp, spin, :, :, w1] = inv(M[comp, spin])
-
-        Green_local = np.trapz(I, x = w, axis = -1)
-
-        I = np.zeros((2, 2, len(t), len(t)), complex)
-        for comp in range(2):
-            for spin in range(2):
-                I[comp, spin] = inv(Green_local[comp, spin]) 
-
-        I = I + Sigma
-        for comp in range(2):
-            for spin in range(2):
-                Delta[comp, spin] = inv(I[comp, spin])
 
         Green = Solver(U, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output)
 
-        for comp in range(2):
-            for spin in range(2):
-                # print('Delta = ', inv(Delta[comp, spin]))
-                # print('Green= ', pinv(Green[comp, spin]))
-                Sigma[comp, spin] = pinv(Delta[comp, spin]) - pinv(Green[comp, spin])
-        # print('Sigma = ', Sigma)
-        Sigma[0] = Sigma[1]
-        Sigma[1] = Sigma[0]
-
         diff = np.amax(np.abs(Green_old - Green))
         # diff = 0
+
+        # antiferromagnetic self-consistency
+        Delta[:, 1] = v * Green[:, 1]
+        Delta[:, 0] = v * Green[:, 0]
+
+        # # doubly occupied and empty sublattice
+        # Delta[0, :] = v * Green[1, :]
+        # Delta[1, :] = v * Green[0, :]
 
         msg = 'U = {}, iteration {}: diff = {} (elapsed time = {})'
         print(msg.format(U, iteration, diff, datetime.now() - start))

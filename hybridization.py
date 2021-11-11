@@ -55,7 +55,6 @@ def genSemicircularHyb(T, mu, v_0, tmax, dt, dw):
     Delta_init = np.zeros((2, 2, len(t)), complex)  # greater/lesser | spin up/spin down
 
     for t1 in range(len(t)):
-
         Delta_init[0, :, t1] = fDelta_gtr[int(N / 2) + t1]
         Delta_init[1, :, t1] = fDelta_les[int(N / 2) + t1]
 

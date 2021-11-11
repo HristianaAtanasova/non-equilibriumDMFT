@@ -183,13 +183,11 @@ def solve(t, U, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta):
         for t_n in range(len(t)):
             sum_t1 = np.zeros((4, len(t)), complex)
             for t_m in range(len(t)):
-
                 sum_t2 = np.zeros(4, complex)
                 M = np.eye(4, dtype=complex)
 
                 for f in range(4):
                     K_0[i, f, t_n, t_m] = delta(i, f) * G[f, 0, None, t_n] * G[f, None, t_m, 0]
-
                     sum_t2[f] = dt**2 * weights(G[f, t_m, :t_m + 1] * sum_t1[f, :t_m + 1])
                     # sum_t2[f] = dt**2 * np.trapz(G[f, t_m, :t_m+1] * sum_t1[f, :t_m+1])
 
@@ -216,6 +214,7 @@ def solve(t, U, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta):
                     sum_t1[f, t_m] = weights(Sigma[f, :t_n+1, t_m] * G[f, :t_n+1, t_n])  # sum[:, t2=t_m]
                     # sum_t1[f, t_m] = np.trapz(Sigma[f, :t_n+1, t_m] * np.conj(G[f, t_n, :t_n+1])) # sum[:, t2=t_m]
 
+
         ########## Computation of two-times Green's functions ##########
 
         # Greens function with indices gtr/les | spin up/spin down | initial state | lower and upper branch time
@@ -228,14 +227,12 @@ def solve(t, U, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta):
                 Green[0, 1, i, t1, t2] = (K[i, 0, t1, t2] * G[2, t1, t2] + K[i, 1, t1, t2] * G[3, t1, t2])
                 Green[1, 1, i, t1, t2] = (K[i, 2, t1, t2] * G[0, t1, t2] + K[i, 3, t1, t2] * G[1, t1, t2])
 
+                #print('t1 = ', t1, 't2 = ', t2, 'Green = ', Green[0, 0, i, t1, t2])
+                #print('K = ', K[i, 0, t1, t2], 'G = ', G[1, t1, t2])
+
         print('Finished calculation of K for initial state', i, 'after', datetime.now() - start)
         err = np.abs(1 - np.real(np.sum(K[i, :, len(t)-1, len(t)-1], 0)))
         print('Error for inital state =', i, 'is', err)
-        print('\n')
-
-        print('1 - (Green_gtr + Green_les) for Spin Up site', i, 'is', 1 - np.real(Green[0, 0, i, len(t)-1, len(t)-1] + Green[1, 0, i, len(t)-1, len(t)-1]))
-        print('1 - (Green_gtr + Green_les) for Spin Down site', i, 'is', 1 - np.real(Green[0, 1, i, len(t)-1, len(t)-1] + Green[1, 1, i, len(t)-1, len(t)-1]))
-
         print('\n')
 
         print('Final population for Spin Up on site', i, 'is', np.real(Green[1, 0, i, len(t) - 1, len(t) - 1]))
