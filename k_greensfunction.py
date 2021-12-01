@@ -1,18 +1,18 @@
 from scipy.signal import fftconvolve
 import numpy as np
-from numpy.linalg import inv
+from scipy.linalg import inv, pinv, pinvh
 import matplotlib.pyplot as plt
 from scipy.fftpack import fft, ifft, fftfreq, fftshift, ifftshift
 import argparse 
 import toml
-
+import hybridization 
 
 def trapezConv(a, b, dt):
     return dt * (fftconvolve(a, b)[:len(a)] - 0.5 * a[:] * b[0] - 0.5 * a[0] * b[:])
 
 
-def tdiff(D, t1, t2):
-    return D[:, :, t2 - t1] if t2 >= t1 else np.conj(D[:, :, t1 - t2])
+def tdiff(D, t2, t1):
+    return D[t2 - t1] if t2 >= t1 else np.conj(D[t1 - t2])
 
 
 def fermi_function(w, beta, mu):
@@ -26,39 +26,49 @@ def hypercubicDos(w, v):
     return np.exp(-(w ** 2) / v**2) / (np.sqrt(np.pi) * v) 
  
 
-def gen_k_dep_Green(T, v_0, mu, tmax, dt, wC, dw):
+def gen_k_dep_Green(T, v_0, U, mu, tmax, dt, wC, dw):
     """
     Generate Hybridization function for Fermion bath with a semicircular DOS
     """
     beta = 1.0 / T
-    wC = 10 
+    E_d = - U / 2.0
 
     t = np.arange(0, tmax, dt)
     w = np.arange(-wC, wC, dw)
     
     G_k = np.zeros((2, 2, len(t), len(w)), complex)
-    Green_k = np.zeros((2, 2, len(t), len(t), len(w)), complex)
-    Green_k_inv = np.zeros((2, 2, len(t), len(t), len(w)), complex)
+    G_d = np.zeros((2, 2, len(t)), complex)
+    Green_k = np.zeros((2, 2, len(t), len(t)), complex)
+    Green_d = np.zeros((2, 2, len(t), len(t)), complex)
+    Green_k_inv = np.zeros((2, 2, len(t), len(t)), complex)
 
-    Dos = hypercubicDos(w, v_0)
-    Fermi = fermi_function(w, beta, mu)
-
+    dos = hybridization.hypercubicDos(w, v_0)
+    fermi = fermi_function(w, beta, mu)
     for t1 in range(len(t)):
-        G_k[0, :, t1] = 1j * np.exp(-1j * t[t1] * w) * (1 - Fermi) * Dos
-        G_k[1, :, t1] = 1j * np.exp(-1j * t[t1] * w) * Fermi * Dos
+        G_k[0, :, t1] = np.exp(-1j * t[t1] * w) * (1 - fermi) * dos 
+        G_k[1, :, t1] = np.exp(-1j * t[t1] * w) * fermi * dos
     
+        G_d[0, :, t1] = np.exp(-1j * t[t1] * (E_d + U)) 
+        G_d[1, :, t1] = np.exp(-1j * t[t1] * E_d) 
+
+    G = np.trapz(G_k, x = w, axis = -1)
     for t1 in range(len(t)):
         for t2 in range(len(t)):
-            Green_k[:, :, t1, t2] = tdiff(G_k, t1, t2)
+            Green_k[0, 0, t2, t1] = tdiff(G[0, 0], t2, t1)
+            Green_k[0, 1, t2, t1] = tdiff(G[0, 1], t2, t1)
+            Green_k[1, 0, t1, t2] = tdiff(G[1, 0], t2, t1)
+            Green_k[1, 1, t1, t2] = tdiff(G[1, 1], t2, t1)
 
-    for w1 in range(len(w)):
-        Green_k_inv[0, 0, :, :, w1] = inv(Green_k[0, 0, :, :, w1]) 
-        # print('Green = ', Green_k[0, 0, :, :, w1])
-        print(np.matmul(Green_k[0, 0, :, :, w1], Green_k_inv[0, 0, :, :, w1]))
-        Green_k_inv[0, 1, :, :, w1] = inv(np.real(Green_k[0, 1, :, :, w1])) + 1j * inv(np.imag(Green_k[0, 1, :, :, w1]))  
-        Green_k_inv[1, 0, :, :, w1] = inv(np.real(Green_k[1, 0, :, :, w1])) + 1j * inv(np.imag(Green_k[1, 0, :, :, w1]))
-        Green_k_inv[1, 1, :, :, w1] = inv(np.real(Green_k[1, 1, :, :, w1])) + 1j * inv(np.imag(Green_k[1, 1, :, :, w1]))
-    np.savez_compressed('Green_k_inv', D=Dos, G=Green_k_inv)
+            Green_d[0, 0, t2, t1] = tdiff(G_d[0, 0], t2, t1)
+            Green_d[0, 1, t2, t1] = tdiff(G_d[0, 1], t2, t1)
+            Green_d[1, 0, t1, t2] = tdiff(G_d[1, 0], t2, t1)
+            Green_d[1, 1, t1, t2] = tdiff(G_d[1, 1], t2, t1)
+
+    for comp in range(2):
+        for spin in range(2):
+            Green_k_inv[comp, spin] = inv(Green_k[comp, spin]) 
+
+    np.savez_compressed('Green_k_inv', G=Green_k_inv, G_d=Green_d)
 
 def main():
     parser = argparse.ArgumentParser(description = "run dmft")

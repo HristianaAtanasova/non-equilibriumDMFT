@@ -237,7 +237,6 @@ def solve(t, U, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta):
 
         print('Final population for Spin Up on site', i, 'is', np.real(Green[1, 0, i, len(t) - 1, len(t) - 1]))
         print('Final population for Spin Down on site', i, 'is', np.real(Green[1, 1, i, len(t) - 1, len(t) - 1]))
-
         print('\n')
 
         # with h5py.File(output, "a") as h5f:

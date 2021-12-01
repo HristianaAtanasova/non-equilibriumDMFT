@@ -16,6 +16,7 @@ import phononBath
 import fermionBath
 import coupling_to_diss_bath
 import electricField
+import constant_electricField
 # import hdf5
 
 
@@ -41,7 +42,7 @@ def runInch(U, tmax, dt, Delta):
 def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fermion, Lambda, wC, t_diss_end, pumpOmega, t_pump_start, t_pump_end, probeOmega, t_probe_start, t_probe_end, lattice_structure, output, **kwargs):
     t  = np.arange(0, tmax, dt)
 
-    msg = 'Starting DMFT loop for U = {} | Temperature = {} | mu = {} | phonon = {} | fermion = {} | Lambda = {} | time = {} | dt = {}'.format(U, T, mu, phonon, fermion, Lambda, tmax, dt)
+    msg = 'Starting DMFT loop for U = {} | temperature = {} | pumpA = {} | phonon = {} | fermion = {} | time = {} | dt = {}'.format(U, T, pumpA, phonon, fermion, tmax, dt)
     print('-'*len(msg))
     print(msg)
     print('-'*len(msg))
@@ -80,8 +81,9 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     Lambda = coupling_to_diss_bath.gen_timedepLambda(t, t_diss_end, Lambda)
 
     # option of turning on a pump field and/or a probe field
-    #v = electricField.genv(pumpA, pumpOmega, t_pump_start, t_pump_end, probeA, probeOmega, t_probe_start, t_probe_end, v_0, t, lattice_structure)
-    v = v_0
+    # v = electricField.genv(pumpA, pumpOmega, t_pump_start, t_pump_end, probeA, probeOmega, t_probe_start, t_probe_end, v_0, t, lattice_structure)
+    v = constant_electricField.genv(pumpA, v_0, t, lattice_structure)
+    # v = v_0
 
     # set solver
     if solver == 0:
@@ -99,14 +101,22 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
 
         Green_old = Green
 
+        plt.plot(t, np.real(Delta[0, 0, ::-1, len(t)-1]), '-', t, np.imag(Delta[0, 0, ::-1, len(t)-1]), '--', label = 'Hyp_gtr')
+        plt.plot(t, np.real(Delta[1, 0, ::-1, len(t)-1]), '-', t, np.imag(Delta[1, 0, ::-1, len(t)-1]), '--', label = 'Hyb_les')
+        plt.legend()
+        plt.savefig('hybridizationi_bethe.pdf')
+        plt.close()
+
         Green = Solver(U, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output)
 
         diff = np.amax(np.abs(Green_old - Green))
         # diff = 0
 
+        # Delta = v * Green
+
         # antiferromagnetic self-consistency
-        Delta[:, 1] = v * Green[:, 1]
-        Delta[:, 0] = v * Green[:, 0]
+        Delta[:, 1] = v * Green[:, 0]
+        Delta[:, 0] = v * Green[:, 1]
 
         # # doubly occupied and empty sublattice
         # Delta[0, :] = v * Green[1, :]

@@ -1,6 +1,8 @@
 # !/usr/bin/env python3
 import numpy as np
-from numpy.linalg import inv, pinv
+import scipy
+# from numpy.linalg import inv, pinv
+from scipy.linalg import inv, pinv, pinvh
 import matplotlib.pyplot as plt
 import argparse
 # import h5py
@@ -12,6 +14,7 @@ from scipy.fftpack import fft, ifft, fftfreq, fftshift, ifftshift
 import nca
 import bareprop
 import k_greensfunction 
+import hybridization
 import timedep_hybridization
 import phononBath
 import fermionBath
@@ -54,6 +57,8 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     Green = np.zeros((2, 2, len(t), len(t)), complex)
     Green_old = np.zeros((2, 2, len(t), len(t)), complex)
     Delta = np.zeros((2, 2, len(t), len(t)), complex)
+    Delta_old = np.zeros((2, 2, len(t), len(t)), complex)
+    Weiss = np.zeros((2, 2, len(t), len(t)), complex)
     Sigma = np.zeros((2, 2, len(t), len(t)), complex)
 
     Uconst = U
@@ -62,17 +67,19 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     loaded = np.load('barePropagators.npz')
     G_0 = loaded['G_0']
 
-    k_greensfunction.gen_k_dep_Green(T, v_0, mu, tmax, dt, wC, dw)
+    k_greensfunction.gen_k_dep_Green(T, v_0, U, mu, tmax, dt, wC, dw)
     loaded = np.load('Green_k_inv.npz')
     Green_k_inv = loaded['G']
-    dos = loaded['D']
+    Green_d = loaded['G_d']
 
-    ## delta indices: [gtr/les, up/down, time, time]
+    # delta indices: [gtr/les, up/down, time, time]
+    hybridization.genGaussianHyb(T, mu, v_0, tmax, dt, wC, dw)
     # hybridization.genSemicircularHyb(T, mu, v_0, tmax, dt, dw)
     # hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
     # timedep_hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
-    # loaded = np.load('Delta.npz')
-    # Delta = loaded['D']
+    loaded = np.load('Delta.npz')
+    Delta = loaded['D']
+    dos = loaded['dos']
 
     if phonon == 1:
         phononBath.genPhononBath(t, mu, T)
@@ -106,15 +113,56 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     while diff > tol:
         iteration += 1
 
-        Green_old = Green
-        I = np.zeros((2, 2, len(t), len(t), len(w)), complex)
-        for w1 in range(len(w)):
-            M = Green_k_inv[:, :, :, :, w1] - Sigma
-            for comp in range(2):
-                for spin in range(2):
-                    I[comp, spin, :, :, w1] = inv(M[comp, spin])
+        Green_old[:] = Green
+        Delta_old[:] = Delta
+        Green = Solver(U, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output)
 
-        Green_local = np.trapz(I, x = w, axis = -1)
+        plt.plot(t, np.real(Delta[0, 0, ::-1, len(t)-1]), '-', t, np.imag(Delta[0, 0, ::-1, len(t)-1]), '--', label = 'Hyp_gtr')
+        plt.plot(t, np.real(Delta[1, 0, ::-1, len(t)-1]), '-', t, np.imag(Delta[1, 0, ::-1, len(t)-1]), '--', label = 'Hyb_les')
+        plt.legend()
+        plt.savefig('hybridization.pdf')
+        plt.close()
+
+        plt.plot(t, np.real(Green[0, 0, ::-1, len(t)-1]), '-', t, np.imag(Green[0, 0, ::-1, len(t)-1]), '--', label = 'Green_gtr')
+        plt.plot(t, np.real(Green[1, 0, ::-1, len(t)-1]), '-', t, np.imag(Green[1, 0, ::-1, len(t)-1]), '--', label = 'Green_les')
+        plt.legend()
+        plt.savefig('green.pdf')
+        plt.close()
+
+        # print('Delta _gtr = ', (Delta[0, 0]))
+        # print('det_Delta_gtr = ', np.linalg.det(Delta[0, 0]))
+
+        # print('Delta _les = ', (Delta[1, 0]))
+        # print('det_Delta_les = ', np.linalg.det(Delta[1, 0]))
+
+        print('Green_gtr = ', (Green[0, 0]))
+        print('det_Green_gtr = ', np.linalg.det(Green[0, 0]))
+        print('inv_Green_gtr = ', inv(Green[0, 0]))
+        # print('inv_Green_gtr * Green_gtr = ', np.matmul(inv(Green[0, 0]), Green[0, 0]))
+        # print('pinv_Green_gtr * Green_gtr = ', np.matmul(pinv(Green[0, 0]), Green[0, 0]))
+
+        print('Green_les = ', Green[1, 0])
+        print('det_Green_les = ', np.linalg.det(Green[1, 0]))
+        print('inv_Green_les = ', inv(Green[1, 0]))
+
+        for comp in range(2):
+           for spin in range(2):
+               print('comp = ', comp, 'spin = ', spin)
+               Sigma[comp, spin] = inv(Delta[comp, spin]) - inv(Green[comp, spin])
+        
+        # plt.matshow(np.real(Green[0,0]))
+        # plt.savefig('G_matrix_real.pdf')
+        # plt.close()
+
+        # plt.matshow(np.imag(Green[0,0]))
+        # plt.savefig('G_matrix_imag.pdf')
+        # plt.close()
+
+        M = Green_k_inv - Sigma
+        Green_local = np.zeros((2, 2, len(t), len(t)), complex)
+        for comp in range(2):
+            for spin in range(2):
+                Green_local[comp, spin] = inv(M[comp, spin])
 
         I = np.zeros((2, 2, len(t), len(t)), complex)
         for comp in range(2):
@@ -124,21 +172,46 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
         I = I + Sigma
         for comp in range(2):
             for spin in range(2):
-                Delta[comp, spin] = inv(I[comp, spin])
+                Weiss[comp, spin] = (inv(I[comp, spin])) 
+                Delta[comp, spin] = - Weiss[comp, spin] + Green_d[comp, spin] 
+                # Delta[comp, spin] = + Weiss[comp, spin] + Green_d[comp, spin] 
 
-        Green = Solver(U, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output)
+        # Delta = Delta_old / 2.0 + Delta / 2.0
+        Delta[:, 0] = Delta[:, 1]
+        Delta[:, 1] = Delta[:, 0]
 
-        for comp in range(2):
-            for spin in range(2):
-                # print('Delta = ', inv(Delta[comp, spin]))
-                # print('Green= ', pinv(Green[comp, spin]))
-                Sigma[comp, spin] = pinv(Delta[comp, spin]) - pinv(Green[comp, spin])
-        # print('Sigma = ', Sigma)
-        Sigma[0] = Sigma[1]
-        Sigma[1] = Sigma[0]
+        plt.plot(t, np.real(Weiss[0, 0, ::-1, len(t)-1]), '-', t, np.imag(Weiss[0, 0, ::-1, len(t)-1]), '--', label = 'Weiss_gtr')
+        plt.plot(t, np.real(Weiss[1, 0, ::-1, len(t)-1]), '-', t, np.imag(Weiss[1, 0, ::-1, len(t)-1]), '--', label = 'Weiss_les')
+        plt.legend()
+        plt.savefig('weiss_field.pdf')
+        plt.close()
+
+        plt.plot(t, np.real(Green_local[0, 0, ::-1, len(t)-1]), '-', t, np.imag(Green_local[0, 0, ::-1, len(t)-1]), '--', label = 'Green_local_gtr')
+        plt.plot(t, np.real(Green_local[1, 0, ::-1, len(t)-1]), '-', t, np.imag(Green_local[1, 0, ::-1, len(t)-1]), '--', label = 'Green_local_les')
+        plt.legend()
+        plt.savefig('green_local.pdf')
+        plt.close()
+
+        plt.plot(t, np.real(Green_d[0, 0, ::-1, len(t)-1]), '-', t, np.imag(Green_d[0, 0, ::-1, len(t)-1]), '--', label = 'Green_d_gtr')
+        plt.plot(t, np.real(Green_d[1, 0, ::-1, len(t)-1]), '-', t, np.imag(Green_d[1, 0, ::-1, len(t)-1]), '--', label = 'Green_d_les')
+        plt.legend()
+        plt.savefig('green_dot.pdf')
+        plt.close()
+
+        # plt.plot(t, np.real(Delta[0, 0, ::-1, len(t)-1]), '-', t, np.imag(Delta[0, 0, ::-1, len(t)-1]), '--', label = 'Delta_gtr')
+        # plt.plot(t, np.real(Delta[1, 0, ::-1, len(t)-1]), '-', t, np.imag(Delta[1, 0, ::-1, len(t)-1]), '--', label = 'Delta_les')
+        # plt.legend()
+        # plt.savefig('delta.pdf')
+        # plt.close()
+
+        # plt.plot(t, np.real(Sigma[0, 0, ::-1, len(t)-1]), '-', t, np.imag(Sigma[0, 0, ::-1, len(t)-1]), '--', label = 'Sigma_gtr')
+        # plt.plot(t, np.real(Sigma[1, 0, ::-1, len(t)-1]), '-', t, np.imag(Sigma[1, 0, ::-1, len(t)-1]), '--', label = 'Sigma_les')
+        # plt.legend()
+        # plt.savefig('sigma.pdf')
+        # plt.close()
 
         diff = np.amax(np.abs(Green_old - Green))
-        # diff = 0
+        diff = 0
 
         msg = 'U = {}, iteration {}: diff = {} (elapsed time = {})'
         print(msg.format(U, iteration, diff, datetime.now() - start))
