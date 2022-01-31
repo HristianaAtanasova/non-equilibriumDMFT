@@ -83,34 +83,48 @@ def genGaussianHyb(T, mu, v_0, tmax, dt, wC, dw):
     # plt.plot(w, fermi[w_start:w_end], '-', w, (1-fermi[w_start:w_end]), '--', label = 'fermi')
     # plt.plot(w, np.real(Hyb_les[w_start:w_end]), '-', w, np.imag(Hyb_les[w_start:w_end]), '--', label = 'Hyb_les')
     # plt.plot(w, np.real(Hyb_gtr[w_start:w_end]), '-', w, np.imag(Hyb_gtr[w_start:w_end]), '--', label = 'Hyb_gtr')
-    # plt.savefig('delta.pdf')
+    # plt.show()
+    # # plt.savefig('delta.pdf')
     # plt.close()
 
     np.savez_compressed('Delta', t=t, dos=dos[w_start:w_end], D=Delta)
 
-def genSemicircularHyb(T, mu, v_0, tmax, dt, dw):
+def genSemicircularHyb(T, mu, v_0, wC, tmax, dt, dw):
     """
     Generate Hybridization function for Fermion bath with a gaussian DOS
     """
     beta = 1.0 / T
     Cut  = np.pi / dt
 
-    t    = np.arange(0, tmax, dt)
-    wDOS = np.arange(-2 * v_0, 2 * v_0, dw)
-    w    = np.arange(-Cut, Cut, dw)
+    t = np.arange(0, tmax, dt)
+    w_semi = np.arange(-2.0 * v_0, 2.0 * v_0, dw)
+    w = np.arange(-wC, wC, dw)
+    fw = np.arange(-Cut, Cut, dw)
+
+    # t    = np.arange(0, tmax, dt)
+    # wDOS = np.arange(-2 * v_0, 2 * v_0, dw)
+    # w    = np.arange(-Cut, Cut, dw)
 
     Delta = np.zeros((2, 2, len(t), len(t)), complex)  # indices are gtr/les | spin up/spin down
 
-    # window function padded with zeros for semicircular DOS
-    N = int(2 * Cut / dw)
-    a = int(N / 2 + 2 * v_0 / dw)
-    b = int(N / 2 - 2 * v_0 / dw)
-    DOS = np.zeros(N + 1)
-    DOS[b:a] = semicircularDos(wDOS, v_0)
+    N = len(fw)
+    w_start = int(N / 2 - int(2.0 * v_0 / dw))
+    w_end = int(N /2 + int(2.0 * v_0 / dw))
+    dos = np.zeros(N)
+    dos[w_start:w_end] = semicircularDos(w_semi, v_0)
+
+    fermi = fermi_function(fw, beta, mu)
+
+    # # window function padded with zeros for semicircular DOS
+    # N = int(2 * Cut / dw)
+    # a = int(N / 2 + 2 * v_0 / dw)
+    # b = int(N / 2 - 2 * v_0 / dw)
+    # DOS = np.zeros(N + 1)
+    # DOS[b:a] = semicircularDos(wDOS, v_0)
 
     # frequency-domain Hybridization function
-    Hyb_les = DOS * fermi_function(w, beta, mu)
-    Hyb_gtr = DOS * (1 - fermi_function(w, beta, mu))
+    Hyb_les = dos * fermi
+    Hyb_gtr = dos * (1 - fermi)
 
     fDelta_les = ifftshift(fft(fftshift(Hyb_les))) * dw/np.pi
     fDelta_gtr = ifftshift(fft(fftshift(Hyb_gtr))) * dw/np.pi
@@ -129,7 +143,17 @@ def genSemicircularHyb(T, mu, v_0, tmax, dt, dw):
             Delta[1, 0, t1, t2] = tdiff(Delta_init[1, 0], t2, t1)
             Delta[1, 1, t1, t2] = tdiff(Delta_init[1, 1], t2, t1)
 
-    np.savez_compressed('Delta', t=t, D=Delta)
+    w_start = int(N / 2 - int(wC / dw))
+    w_end = int(N /2 + int(wC / dw))
+
+    # plt.plot(w[b:a], DOS[b:a], label = 'dos')
+    plt.plot(w, dos[w_start:w_end], label = 'dos')
+    plt.savefig('dos.pdf')
+    plt.close()
+
+    # np.savez_compressed('Delta', t=t, D=Delta)
+    np.savez_compressed('Delta', t=t, dos=dos[w_start:w_end], D=Delta)
+
 
 def genWideBandHyb(T, mu, tmax, dt, dw):
     """

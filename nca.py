@@ -1,19 +1,14 @@
 #!/usr/bin/env python3
-
 import numpy as np
 from numpy.linalg import solve
-
 # import h5py
 # import hdf5
 import argparse
-
-import bareprop
-
 import matplotlib.pyplot as plt
-
 from scipy.signal import fftconvolve
 from scipy.fftpack import fft, ifft, fftfreq, fftshift, ifftshift
 from datetime import datetime
+import bareprop
 
 ########## Define functions for impurity solver ##########
 
@@ -65,7 +60,7 @@ def fillDeltaMatrix(DeltaMatrix, Delta):
     DeltaMatrix[3, 1] = Delta[0, 1]
     DeltaMatrix[3, 2] = Delta[0, 0]
 
-def solve(t, U, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta):
+def solve(t, U, pumpA, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta):
     ########## Computation of bold propagators on separate branches of the contour ##########
     #
     # with h5py.File(output, "r") as h5f:
@@ -159,9 +154,9 @@ def solve(t, U, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta):
 
     np.savez_compressed('Prop', t=t, Prop=G)
 
-    print('-'*100)
-    print('Finished calculation of bold propagators after', datetime.now() - start)
-    print('\n')
+    # print('-'*100)
+    # print('Finished calculation of bold propagators after', datetime.now() - start)
+    # print('\n')
 
     ########## Computation of Vertex Functions including hybridization lines between the upper and lower branch ##########
 
@@ -229,23 +224,26 @@ def solve(t, U, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta):
 
                 #print('t1 = ', t1, 't2 = ', t2, 'Green = ', Green[0, 0, i, t1, t2])
                 #print('K = ', K[i, 0, t1, t2], 'G = ', G[1, t1, t2])
-
-        print('Finished calculation of K for initial state', i, 'after', datetime.now() - start)
+        
+        msg = 'Finished calculation of Greens function for initial state {} after {}'
+        print(msg.format(i, datetime.now() - start))
         err = np.abs(1 - np.real(np.sum(K[i, :, len(t)-1, len(t)-1], 0)))
-        print('Error for inital state =', i, 'is', err)
+        msg = 'Error for inital state = {}'
+        print(msg.format(err))
         print('\n')
 
-        print('Final population for Spin Up on site', i, 'is', np.real(Green[1, 0, i, len(t) - 1, len(t) - 1]))
-        print('Final population for Spin Down on site', i, 'is', np.real(Green[1, 1, i, len(t) - 1, len(t) - 1]))
-        print('\n')
+        msg = 'Final population for Spin Up on site {} is {}.'
+        print(msg.format(i, np.real(Green[1, 0, i, len(t) - 1, len(t) - 1])))
+        msg = 'Final population for Spin Down on site {} is {}.'
+        print(msg.format(i, np.real(Green[1, 1, i, len(t) - 1, len(t) - 1])))
 
         # with h5py.File(output, "a") as h5f:
         #     hdf5.save_green(h5f, gfsection, Green[:,:,1,:,:], (t,t))
 
-        Vertexfunction = 'K_1_f_T={}'
-        Greensfunction = 'Green_T={}'
-        np.savez_compressed(Vertexfunction.format(T), t=t, K=K[i])
-        np.savez_compressed(Greensfunction.format(T), t=t, Green=Green[:,:,i])
+        Vertexfunction = 'K_1_f_U={}_F={}_T={}'
+        Greensfunction = 'Green_U={}_F={}_T={}'
+        np.savez_compressed(Vertexfunction.format(U, pumpA, T), t=t, K=K[i])
+        np.savez_compressed(Greensfunction.format(U, pumpA, T), t=t, Green=Green[:,:,i])
 
         return Green[:,:,i]
 

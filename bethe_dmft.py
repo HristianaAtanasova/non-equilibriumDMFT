@@ -12,15 +12,16 @@ import nca
 import bareprop
 import hybridization
 import timedep_hybridization
-import phononBath
-import fermionBath
+import phonon_bath
+import fermion_bath
 import coupling_to_diss_bath
-import electricField
-import constant_electricField
+import electric_field
+import constant_electric_field
+import arrange_times
 # import hdf5
 
 
-def runNCA(U, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output):
+def runNCA(U, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output):
     t  = np.arange(0, tmax, dt)
 
     # hybsection = "dmft/iterations/{}/delta".format(iteration)
@@ -29,7 +30,7 @@ def runNCA(U, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iterat
     # with h5py.File(output, "a") as h5f:
     #     hdf5.save_green(h5f, hybsection, Delta, (t,t))
 
-    Green = nca.solve(t, U, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta)
+    Green = nca.solve(t, U, pumpA, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta)
 
     # with h5py.File(output, "r") as h5f:
     #     Green, _ = hdf5.load_green(h5f, gfsection)
@@ -42,7 +43,7 @@ def runInch(U, tmax, dt, Delta):
 def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fermion, Lambda, wC, t_diss_end, pumpOmega, t_pump_start, t_pump_end, probeOmega, t_probe_start, t_probe_end, lattice_structure, output, **kwargs):
     t  = np.arange(0, tmax, dt)
 
-    msg = 'Starting DMFT loop for U = {} | temperature = {} | pumpA = {} | phonon = {} | fermion = {} | time = {} | dt = {}'.format(U, T, pumpA, phonon, fermion, tmax, dt)
+    msg = 'Starting DMFT loop for U = {} | Temperature = {} | mu = {} | phonon = {} | fermion = {} | Lambda = {} | time = {} | dt = {}'.format(U, T, mu, phonon, fermion, Lambda, tmax, dt)
     print('-'*len(msg))
     print(msg)
     print('-'*len(msg))
@@ -50,7 +51,8 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     start = datetime.now()
 
     # gf indices: [gtr/les, up/down, time, time]
-    Green     = np.zeros((2, 2, len(t), len(t)), complex)
+    Green = np.zeros((2, 2, len(t), len(t)), complex)
+    Delta = np.zeros((2, 2, len(t), len(t)), complex)
     Green_old = np.zeros((2, 2, len(t), len(t)), complex)
 
     Uconst = U
@@ -60,18 +62,18 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     G_0 = loaded['G_0']
 
     # delta indices: [gtr/les, up/down, time, time]
-    hybridization.genSemicircularHyb(T, mu, v_0, tmax, dt, dw)
+    hybridization.genSemicircularHyb(T, mu, v_0, wC, tmax, dt, dw)
     # hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
     # timedep_hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
     loaded = np.load('Delta.npz')
     Delta = loaded['D']
 
     if phonon == 1:
-        phononBath.genPhononBath(t, mu, T)
+        phonon_bath.genPhononBath(t, mu, T)
         loaded = np.load('PhononBath.npz')
         dissBath = loaded['P']
     elif fermion == 1:
-        fermionBath.genFermionBath(T, mu, tmax, dt, dw, wC)
+        fermion_bath.genFermionBath(T, mu, tmax, dt, dw, wC)
         loaded = np.load('FermionBath.npz')
         dissBath = loaded['F']
     else:
@@ -81,8 +83,8 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     Lambda = coupling_to_diss_bath.gen_timedepLambda(t, t_diss_end, Lambda)
 
     # option of turning on a pump field and/or a probe field
-    # v = electricField.genv(pumpA, pumpOmega, t_pump_start, t_pump_end, probeA, probeOmega, t_probe_start, t_probe_end, v_0, t, lattice_structure)
-    v = constant_electricField.genv(pumpA, v_0, t, lattice_structure)
+    # v = electric_field.genv(pumpA, pumpOmega, t_pump_start, t_pump_end, probeA, probeOmega, t_probe_start, t_probe_end, v_0, t, lattice_structure)
+    v = constant_electric_field.genv(pumpA, v_0, t, lattice_structure)
     # v = v_0
 
     # set solver
@@ -93,6 +95,11 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     else:
         raise Exception("solver {:s} not recognized".format(solver))
 
+    msg = 'Start DMFT iteration until the impurity Greens function has converges to the lattice Greens function:'
+    print('-'*len(msg))
+    print(msg)
+    print('-'*len(msg))
+
     # DMFT self-consistency loop
     diff = np.inf
     iteration = 0
@@ -101,18 +108,16 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
 
         Green_old = Green
 
-        plt.plot(t, np.real(Delta[0, 0, ::-1, len(t)-1]), '-', t, np.imag(Delta[0, 0, ::-1, len(t)-1]), '--', label = 'Hyp_gtr')
-        plt.plot(t, np.real(Delta[1, 0, ::-1, len(t)-1]), '-', t, np.imag(Delta[1, 0, ::-1, len(t)-1]), '--', label = 'Hyb_les')
-        plt.legend()
-        plt.savefig('hybridizationi_bethe.pdf')
-        plt.close()
+        # plt.plot(t, np.real(Delta[0, 0, ::-1, len(t)-1]), '-', t, np.imag(Delta[0, 0, ::-1, len(t)-1]), '--', label = 'Hyp_gtr')
+        # plt.plot(t, np.real(Delta[1, 0, ::-1, len(t)-1]), '-', t, np.imag(Delta[1, 0, ::-1, len(t)-1]), '--', label = 'Hyb_les')
+        # plt.legend()
+        # plt.savefig('hybridization_bethe.pdf')
+        # plt.close()
 
-        Green = Solver(U, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output)
+        Green = Solver(U, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output)
 
         diff = np.amax(np.abs(Green_old - Green))
         # diff = 0
-
-        # Delta = v * Green
 
         # antiferromagnetic self-consistency
         Delta[:, 1] = v * Green[:, 0]
@@ -122,8 +127,36 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
         # Delta[0, :] = v * Green[1, :]
         # Delta[1, :] = v * Green[0, :]
 
+        contour_Delta = arrange_times.real_time_to_keldysh(Delta, t, tmax)
+        contour_Green = arrange_times.real_time_to_keldysh(Green, t, tmax)
+
+        Delta = arrange_times.keldysh_to_real_time(contour_Delta, t, tmax)
+        Green = arrange_times.keldysh_to_real_time(contour_Green, t, tmax)
+
+        plt.matshow(contour_Delta[0].real)
+        plt.colorbar()
+        plt.savefig('bethe_Delta_real.pdf')
+        plt.close()
+
+        plt.matshow(contour_Delta[0].imag)
+        plt.colorbar()
+        plt.savefig('bethe_Dalta_imag.pdf')
+        plt.close()
+
+        plt.matshow(contour_Green[0].real)
+        plt.colorbar()
+        plt.savefig('bethe_Green_real.pdf')
+        plt.close()
+
+        plt.matshow(contour_Green[0].imag)
+        plt.colorbar()
+        plt.savefig('bethe_Green_imag.pdf')
+        plt.close()
+
+        print('\n')
         msg = 'U = {}, iteration {}: diff = {} (elapsed time = {})'
         print(msg.format(U, iteration, diff, datetime.now() - start))
+        print('-'*len(msg)*2)
 
     msg = 'Computation finished after {} iterations and {} seconds'.format(iteration, datetime.now() - start)
     print('-'*len(msg))
