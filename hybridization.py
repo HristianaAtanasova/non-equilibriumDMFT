@@ -3,7 +3,6 @@ from scipy.fftpack import fft, ifft, fftfreq, fftshift, ifftshift
 import matplotlib.pyplot as plt
 
 def tdiff(D, t2, t1):
-
     """
     Create two time object from one time object
     """
@@ -146,39 +145,50 @@ def genSemicircularHyb(T, mu, v_0, wC, tmax, dt, dw):
     w_start = int(N / 2 - int(wC / dw))
     w_end = int(N /2 + int(wC / dw))
 
-    # plt.plot(w[b:a], DOS[b:a], label = 'dos')
-    plt.plot(w, dos[w_start:w_end], label = 'dos')
-    plt.savefig('dos.pdf')
-    plt.close()
+    # plt.plot(w, dos[w_start:w_end], label = 'dos')
+    # plt.savefig('dos.pdf')
+    # plt.close()
 
-    # np.savez_compressed('Delta', t=t, D=Delta)
-    np.savez_compressed('Delta', t=t, dos=dos[w_start:w_end], D=Delta)
+    # plt.plot(w, np.real(Hyb_les[w_start:w_end]), '-', w, np.imag(Hyb_les[w_start:w_end]), '--', label = 'Hyb_les')
+    # plt.plot(w, np.real(Hyb_gtr[w_start:w_end]), '-', w, np.imag(Hyb_gtr[w_start:w_end]), '--', label = 'Hyb_gtr')
+    # plt.show()
+
+    np.savez_compressed('Delta_mu={}_T={}_dt={}'.format(mu, T, dt), t=t, dos=dos[w_start:w_end], D=Delta)
 
 
-def genWideBandHyb(T, mu, tmax, dt, dw):
+def genWideBandHyb(T, mu, wC, tmax, dt, dw):
     """
     Generate Hybridization function for Fermion bath with a wide, flat band
     """
     # additional parameters to generate the flat band
-    wC = 10
-    v = 10
-    gamma = 1
-
+    v = 1.0
+    # gamma = 1.0 / 2.0 * wC
+    gamma = 1.0
     beta = 1.0 / T
     Cut  = np.pi / dt
-    N = int(2*Cut/dw)
+    
+    dw = dt
+    t = np.arange(0, tmax, dt)
+    w = np.arange(-wC, wC, dw)
+    fw = np.arange(-Cut, Cut, dw)
 
-    t    = np.arange(0, tmax, dt)
-    w    = np.arange(-Cut, Cut, dw)
+    N = len(fw)
+    w_start = int(N / 2 - int(wC / dw))
+    w_end = int(N /2 + int(wC / dw))
+    dos = np.zeros(N)
+
+    dos = flatBand(fw, wC, v, gamma)
+    fermi = fermi_function(fw, beta, mu)
 
     Delta = np.zeros((2, 2, len(t), len(t)), complex)  # indices are gtr/les | spin up/spin down
 
     # frequency-domain Hybridization function
-    Hyb_gtr = flatBand(w, wC, v, gamma) * (1 - fermi_function(w, beta, mu))
-    Hyb_les = flatBand(w, wC, v, gamma) * fermi_function(w, beta, mu)
+    Hyb_les = dos  * fermi
+    Hyb_gtr = dos * (1 - fermi)
 
-    fDelta_gtr = ifftshift(fft(fftshift(Hyb_gtr))) * dw/(np.pi)
-    fDelta_les = ifftshift(fft(fftshift(Hyb_les))) * dw/(np.pi)
+    # fDelta_les = np.conj(ifftshift(fft(fftshift(Hyb_les)))) * dw/np.pi
+    fDelta_les = ifftshift(fft(fftshift(Hyb_les))) * dw/np.pi
+    fDelta_gtr = ifftshift(fft(fftshift(Hyb_gtr))) * dw/np.pi
 
     # get real times from fft_times
     Delta_init = np.zeros((2, 2, len(t)), complex)  # greater/lesser | spin up/spin down
@@ -187,11 +197,35 @@ def genWideBandHyb(T, mu, tmax, dt, dw):
         Delta_init[0, :, t1] = fDelta_gtr[int(N / 2) + t1]
         Delta_init[1, :, t1] = fDelta_les[int(N / 2) + t1]
 
-    for t1 in range(len(t)):
-        for t2 in range(len(t)):
+    for t1 in range(len(t)-1,0,-1):
+        for t2 in range(len(t)-1,0,-1):
+    # for t1 in range(len(t)):
+    #     for t2 in range(len(t)):
             Delta[0, 0, t2, t1] = tdiff(Delta_init[0, 0], t2, t1)
             Delta[0, 1, t2, t1] = tdiff(Delta_init[0, 1], t2, t1)
             Delta[1, 0, t1, t2] = tdiff(Delta_init[1, 0], t2, t1)
             Delta[1, 1, t1, t2] = tdiff(Delta_init[1, 1], t2, t1)
 
-    np.savez_compressed('Delta', t=t, D=Delta)
+    t_cut = len(t)
+    # t_cut = 1
+
+    # plt.plot(t[:t_cut], np.real(Delta_init[1, 1, :t_cut]), t[:t_cut], np.imag(Delta_init[1, 1, :t_cut]), '--', label='Delta_les')
+    # plt.plot(t[:t_cut], np.real(Delta_init[0, 1, :t_cut]), t[:t_cut], np.imag(Delta_init[0, 1, :t_cut]), '--', label='Delta_gtr')   
+    # plt.legend()
+    # plt.show()
+
+
+    # plt.plot(t[:t_cut], np.real(Delta[1, 1, :t_cut, t_cut-1]), t[:t_cut], np.imag(Delta[1, 1, :t_cut, t_cut-1]), '--', label='Delta_les')
+    # plt.plot(t[:t_cut], np.real(Delta[1, 1, t_cut-1, :t_cut]), t[:t_cut], np.imag(Delta[1, 1, t_cut-1, :t_cut]), '--', label='Delta_gtr')   
+    # plt.legend()
+    # plt.savefig('Delta_mu={}_T={}_dt={}.pdf'.format(mu, T, dt))
+    # plt.close()
+
+    # plt.plot(fw[w_start:w_end], np.real(Hyb_les[w_start:w_end]), '-', fw[w_start:w_end], np.imag(Hyb_les[w_start:w_end]), '--', label = 'Hyb_les')
+    # plt.plot(fw[w_start:w_end], np.real(Hyb_gtr[w_start:w_end]), '-', fw[w_start:w_end], np.imag(Hyb_gtr[w_start:w_end]), '--', label = 'Hyb_gtr')
+    # plt.legend()
+    # plt.savefig('Hybridization_mu={}_T={}_dt={}.pdf'.format(mu, T, dt))
+    # plt.close()
+    # # plt.show()
+
+    np.savez_compressed('Delta_mu={}_T={}_dt={}'.format(mu, T, dt) , t=t, D=Delta)

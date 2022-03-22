@@ -46,7 +46,7 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     t_contour = np.arange(-tmax, tmax, dt)
     w = np.arange(-wC, wC, dw) 
 
-    msg = 'Starting DMFT loop for U = {} | Temperature = {} | mu = {} | phonon = {} | fermion = {} | Lambda = {} | time = {} | dt = {}'.format(U, T, mu, phonon, fermion, Lambda, tmax, dt)
+    msg = 'Starting DMFT loop for U = {} | F = {} | mu = {} | phonon = {} | fermion = {} | Lambda = {} | time = {} | dt = {}'.format(U, pumpA, mu, phonon, fermion, Lambda, tmax, dt)
     print('-'*len(msg))
     print(msg)
     print('-'*len(msg))

@@ -14,15 +14,14 @@ def tdiff(D, t2, t1):
     """
     return D[t2 - t1] if t2 >= t1 else np.conj(D[t1 - t2])
 
-def calculate_occupation(U, pumpA, T, v_0, lattice_structure):
+def calculate_occupation(U, pumpA, mu1, mu2, T, dt):
     # load Greens functions
-    K = 'K_1_f_U={}_F={}_T={}.npz'
-    loaded = np.load(Green.format(U, pumpA, T))
+    K = 'K_1_f_U={}_F={}_mu1={}_mu2={}_T={}_dt={}.npz'
+    loaded = np.load(K.format(U, pumpA, mu1, mu2, T, dt))
     t = loaded['t']
-    dt = t[1] - t[0]
     K = loaded['K']
 
-    return K.diagonal()
+    return t, K[0].diagonal(), K[1].diagonal(), K[2].diagonal(), K[3].diagonal()
 
 def main():
     parser = argparse.ArgumentParser(description = "calculate current")
@@ -34,11 +33,11 @@ def main():
 
     params.update(vars(args))
     
-    Fs = [0.0]
+    Fs = [0.0, 2.0, 4.0, 8.0, 15.0]
     for F in Fs:
-        K = calculate_occupation(params['U'], F, params['T'], params['v_0'], params['lattice_structure'])
-        plt.plot(t, np.real(K[0] + K[3]), label = 'spin_up_F = {}'.format(F)) 
-        plt.plot(t, np.real(K[1] + K[3]), label = 'spin_down_F = {}'.format(F)) 
+        t, K0, K1, K2, K3 = calculate_occupation(params['U'], F, params['mu'], params['mu'], params['T'], params['dt'])
+        # plt.plot(t, np.real(K0 + K3), label = 'spin_up_F = {}'.format(F)) 
+        plt.plot(t, np.real(K1 + K3), label = 'spin_down_F = {}'.format(F)) 
 
     plt.legend()
     plt.savefig('spin_population.pdf')

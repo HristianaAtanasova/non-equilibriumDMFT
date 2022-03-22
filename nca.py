@@ -60,7 +60,7 @@ def fillDeltaMatrix(DeltaMatrix, Delta):
     DeltaMatrix[3, 1] = Delta[0, 1]
     DeltaMatrix[3, 2] = Delta[0, 0]
 
-def solve(t, U, pumpA, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta):
+def solve(t, U, mu1, mu2, pumpA, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta):
     ########## Computation of bold propagators on separate branches of the contour ##########
     #
     # with h5py.File(output, "r") as h5f:
@@ -240,10 +240,10 @@ def solve(t, U, pumpA, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta)
         # with h5py.File(output, "a") as h5f:
         #     hdf5.save_green(h5f, gfsection, Green[:,:,1,:,:], (t,t))
 
-        Vertexfunction = 'K_1_f_U={}_F={}_T={}'
-        Greensfunction = 'Green_U={}_F={}_T={}'
-        np.savez_compressed(Vertexfunction.format(U, pumpA, T), t=t, K=K[i])
-        np.savez_compressed(Greensfunction.format(U, pumpA, T), t=t, Green=Green[:,:,i])
+        Vertexfunction = 'K_1_f_U={}_F={}_mu1={}_mu2={}_T={}_dt={}'
+        Greensfunction = 'Green_U={}_F={}_mu1={}_mu2={}_T={}_dt={}'
+        np.savez_compressed(Vertexfunction.format(U, pumpA, mu1, mu2, T, dt), t=t, K=K[i])
+        np.savez_compressed(Greensfunction.format(U, pumpA, mu1, mu2, T, dt), t=t, Green=Green[:,:,i])
 
         return Green[:,:,i]
 

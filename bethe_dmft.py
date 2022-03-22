@@ -1,4 +1,4 @@
-# !/usr/bin/env python3
+#!/usr/bin/env python3
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
@@ -21,7 +21,7 @@ import arrange_times
 # import hdf5
 
 
-def runNCA(U, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output):
+def runNCA(U, mu, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output):
     t  = np.arange(0, tmax, dt)
 
     # hybsection = "dmft/iterations/{}/delta".format(iteration)
@@ -30,7 +30,7 @@ def runNCA(U, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath,
     # with h5py.File(output, "a") as h5f:
     #     hdf5.save_green(h5f, hybsection, Delta, (t,t))
 
-    Green = nca.solve(t, U, pumpA, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta)
+    Green = nca.solve(t, U, mu, mu, pumpA, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta)
 
     # with h5py.File(output, "r") as h5f:
     #     Green, _ = hdf5.load_green(h5f, gfsection)
@@ -43,7 +43,7 @@ def runInch(U, tmax, dt, Delta):
 def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fermion, Lambda, wC, t_diss_end, pumpOmega, t_pump_start, t_pump_end, probeOmega, t_probe_start, t_probe_end, lattice_structure, output, **kwargs):
     t  = np.arange(0, tmax, dt)
 
-    msg = 'Starting DMFT loop for U = {} | Temperature = {} | mu = {} | phonon = {} | fermion = {} | Lambda = {} | time = {} | dt = {}'.format(U, T, mu, phonon, fermion, Lambda, tmax, dt)
+    msg = 'Starting DMFT loop for U = {} | F = {} | mu = {} | phonon = {} | fermion = {} | Lambda = {} | time = {} | dt = {}'.format(U, pumpA, mu, phonon, fermion, Lambda, tmax, dt)
     print('-'*len(msg))
     print(msg)
     print('-'*len(msg))
@@ -63,9 +63,9 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
 
     # delta indices: [gtr/les, up/down, time, time]
     hybridization.genSemicircularHyb(T, mu, v_0, wC, tmax, dt, dw)
-    # hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
+    # hybridization.genWideBandHyb(T, mu, wC, tmax, dt, dw)
     # timedep_hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
-    loaded = np.load('Delta.npz')
+    loaded = np.load('Delta_mu={}_T={}_dt={}.npz'.format(mu, T, dt))
     Delta = loaded['D']
 
     if phonon == 1:
@@ -114,10 +114,12 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
         # plt.savefig('hybridization_bethe.pdf')
         # plt.close()
 
-        Green = Solver(U, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output)
+        Green = Solver(U, mu, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output)
 
         diff = np.amax(np.abs(Green_old - Green))
         # diff = 0
+
+        # Delta = v * Green
 
         # antiferromagnetic self-consistency
         Delta[:, 1] = v * Green[:, 0]
@@ -133,25 +135,25 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
         Delta = arrange_times.keldysh_to_real_time(contour_Delta, t, tmax)
         Green = arrange_times.keldysh_to_real_time(contour_Green, t, tmax)
 
-        plt.matshow(contour_Delta[0].real)
-        plt.colorbar()
-        plt.savefig('bethe_Delta_real.pdf')
-        plt.close()
+        # plt.matshow(contour_Delta[0].real)
+        # plt.colorbar()
+        # plt.savefig('bethe_Delta_real.pdf')
+        # plt.close()
 
-        plt.matshow(contour_Delta[0].imag)
-        plt.colorbar()
-        plt.savefig('bethe_Dalta_imag.pdf')
-        plt.close()
+        # plt.matshow(contour_Delta[0].imag)
+        # plt.colorbar()
+        # plt.savefig('bethe_Dalta_imag.pdf')
+        # plt.close()
 
-        plt.matshow(contour_Green[0].real)
-        plt.colorbar()
-        plt.savefig('bethe_Green_real.pdf')
-        plt.close()
+        # plt.matshow(contour_Green[0].real)
+        # plt.colorbar()
+        # plt.savefig('bethe_Green_real.pdf')
+        # plt.close()
 
-        plt.matshow(contour_Green[0].imag)
-        plt.colorbar()
-        plt.savefig('bethe_Green_imag.pdf')
-        plt.close()
+        # plt.matshow(contour_Green[0].imag)
+        # plt.colorbar()
+        # plt.savefig('bethe_Green_imag.pdf')
+        # plt.close()
 
         print('\n')
         msg = 'U = {}, iteration {}: diff = {} (elapsed time = {})'
