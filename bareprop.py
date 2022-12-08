@@ -25,12 +25,6 @@ def bare_prop(t, U, Uconst):
     for t_ in range(len(t)):
         U_[t_] = quench_U(t[t_], U, Uconst)
 
-    # plt.plot(t,U_,'r')
-    # plt.grid()
-    # plt.ylabel('$U(t)$')
-    # plt.xlabel('$t$')
-    # plt.show()
-
     # Computation of bare propagators G_0
     if U == Uconst:
         E = np.zeros((4, len(t)), float)

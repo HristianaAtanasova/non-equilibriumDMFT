@@ -242,8 +242,8 @@ def solve(t, U, mu1, mu2, pumpA, T, G_0, phonon, fermion, Lambda, dissBath, outp
 
         Vertexfunction = 'K_1_f_U={}_F={}_mu1={}_mu2={}_T={}_dt={}'
         Greensfunction = 'Green_U={}_F={}_mu1={}_mu2={}_T={}_dt={}'
-        np.savez_compressed(Vertexfunction.format(U, pumpA, mu1, mu2, T, dt), t=t, K=K[i])
-        np.savez_compressed(Greensfunction.format(U, pumpA, mu1, mu2, T, dt), t=t, Green=Green[:,:,i])
+        np.savez_compressed(Vertexfunction.format(U, pumpA, mu1, -mu2, T, dt), t=t, K=K[i])
+        np.savez_compressed(Greensfunction.format(U, pumpA, mu1, -mu2, T, dt), t=t, Green=Green[:,:,i])
 
         return Green[:,:,i]
 

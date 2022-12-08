@@ -18,41 +18,14 @@ def heaviside(x):
         return 0.5
     return 0 if x < 0 else 1
 
-# set up parameters
-# Path = os.getcwd() + '/U{}_dt{}_tmax{}'
-# path = Path.format(U, dt, tmax)
-path = os.getcwd()
-parser = argparse.ArgumentParser(description = "run dmft")
-parser.add_argument("--params",   default = path + "/run.toml")
-args = parser.parse_args()
-
-with open(args.params, "r") as f:
-    params = toml.load(f)
-
-params.update(vars(args))
-
-U = params['U']
-T = params['T']
-# T = 0.05
-F = params['pumpA']
-mu = params['mu']
-# dt = params['dt'] 
-tmax = params['tmax']
-pumpOmega = params['pumpOmega']
-
-msg = 'Executing U = {} | tmax = {}'
-print(msg.format(U, tmax))
-
-# dts = [0.01, 0.005, 0.0025]
-dts = [0.01]
-
-for dt in dts:
-    print(dt)
+def analyze_spectral(U, F, mu, T, tmax, dt):
     # load Greens functions
     Green = 'Green_U={}_F={}_mu1={}_mu2={}_T={}_dt={}.npz'
-    loaded = np.load(Green.format(U, F, mu, mu, T, dt))
+    loaded = np.load(Green.format(U, F, mu, -mu, T, dt))
     Green = loaded['Green']
     t_  = np.arange(0, tmax, dt)
+
+    spin = 1 
 
     # fft parameters
     dt = dt
@@ -80,8 +53,7 @@ for dt in dts:
     
     # period = 2*np.pi/pumpOmega
     period = dt
-    t_period = np.arange(params['tmax'] - period, params['tmax'], dt)
-    
+    t_period = np.arange(tmax - period, tmax, dt)
     G_p = np.zeros((len(t_period), 4, len(t)), complex)           # second index: Gles | Ggtr | Gret | Gadv
     
     Heaviside_ret = np.zeros(len(t))
@@ -100,15 +72,11 @@ for dt in dts:
         t_lower = t_0 - int(len(t_p)) 
         t_upper = t_0 + int(len(t_p))
     
-        G_p[i, 0, t_lower:t_0] = 1j * (Green[1, 0, 0:len(t_p), len(t_p)-1] + Green[1, 1, 0:len(t_p), len(t_p)-1]) #U=10
-        G_p[i, 0, t_0:t_upper] = 1j * (Green[1, 0, len(t_p)-1,  0:len(t_p)][::-1] + Green[1, 1, len(t_p)-1,  0:len(t_p)][::-1])
+        G_p[i, 0, t_lower:t_0] = 1j * (Green[1, spin, 0:len(t_p), len(t_p)-1]) 
+        G_p[i, 0, t_0:t_upper] = 1j * (Green[1, spin, len(t_p)-1,  0:len(t_p)][::-1])
     
-        G_p[i, 1, t_lower:t_0] = 1j * (Green[0, 0, 0:len(t_p), len(t_p)-1] + Green[0, 1, 0:len(t_p), len(t_p)-1]) #U=10
-        G_p[i, 1, t_0:t_upper] = 1j * (Green[0, 0, len(t_p)-1,  0:len(t_p)][::-1] + Green[0, 1, len(t_p)-1,  0:len(t_p)][::-1])
-    
-        ##################################################################################################################################
-        G_p[i, 0] = G_p[i,0] # Gles(t1,t2) 
-        G_p[i, 1] = -np.conj(G_p[i,1]) # Ggtr(t1,t2) 
+        G_p[i, 1, t_lower:t_0] = 1j * (Green[0, spin, len(t_p)-1, 0:len(t_p)])
+        G_p[i, 1, t_0:t_upper] = 1j * (Green[0, spin, 0:len(t_p), len(t_p)-1][::-1])
     
         # Gret = -Theta(t)*(Ggtr - Gles)
         G_p[i, 2] = -Heaviside_ret*(G_p[i,1] + G_p[i,0])
@@ -117,6 +85,13 @@ for dt in dts:
         G_p[i, 3] = Heaviside_adv*(G_p[i,1] + G_p[i,0])
     
     G = np.sum(G_p,axis=0) / len(t_period)
+    
+    plt.plot(t, np.real(G[0]), label = 'G_0_real')
+    plt.plot(t, np.imag(G[0]), label = 'G_0_imag')
+    plt.legend()
+    plt.grid()
+    plt.savefig('greens_functions_spin={}.pdf'.format(spin))
+    plt.close()
     
     # # save energy current as .out file
     # np.savetxt(path +'/Gles.out', G[0].view(float))
@@ -130,35 +105,47 @@ for dt in dts:
     G_N[:, t_start:t_end] = G
     
     fG = ifftshift(fft(fftshift(G_N))) * dt / np.pi
-    # A = (-fG[2] + fG[3]) 
-    # A = (fG[2] - fG[3]) 
-    A = -(fG[1] + fG[0]) 
+    A = (fG[1] + fG[0]) 
     A_les = fG[0]
     A_gtr = fG[1]
     # f = np.imag(fG[0]) / (np.imag(A))
     f = np.imag(fG[0]) / (np.imag(fG[0]) + np.imag(fG[1]))
 
     I = np.imag(A_les[w_start:w_end]) - fermi_function(w, 0, 1.0/T) * np.imag(A[w_start:w_end])        
-
-    plt.plot(t, np.real(G[2] - G[3]), label = 'G_ret-G_adv_real')
-    plt.plot(t, np.imag(G[2] - G[3]), '--', label = 'G_ret-G_adv_imag')
-    plt.plot(t, -np.real(G[0] + G[1]), label = 'G_les-G_gtr_real')
-    plt.plot(t, -np.imag(G[0] + G[1]), '--', label = 'G_les-G_gtr_imag')
-    plt.legend()
-    plt.show()
-    
     # plt.plot(fw[w_start:w_end], np.imag(A[w_start:w_end]), label = 'G_ret+G_adv')
     # plt.plot(fw[w_start:w_end], np.imag(fG[0,w_start:w_end] + fG[1,w_start:w_end]), label = 'G_les+G_gtr')
     plt.plot(fw[w_start:w_end], np.imag(A_les[w_start:w_end]), label = 'G_les_dt={}'.format(dt))
-    # plt.plot(fw[w_start:w_end], np.imag(A_gtr[w_start:w_end]), label = 'G_gtr_dt={}'.format(dt))
+    plt.plot(fw[w_start:w_end], np.imag(A_gtr[w_start:w_end]), label = 'G_gtr_dt={}'.format(dt))
     # plt.plot(fw[w_start:w_end], fermi_function(w, 0, 1.0/T) * np.imag(A[w_start:w_end]), label = '-fermi*(G_ret-G_a)_dt={}'.format(dt))
-    plt.plot(fw[w_start:w_end], -f[w_start:w_end] * np.imag(A[w_start:w_end]), label = '-fermi*(G_ret-G_a)_dt={}'.format(dt))
+    # plt.plot(fw[w_start:w_end], -f[w_start:w_end] * np.imag(A[w_start:w_end]), label = '-fermi*(G_ret-G_a)_dt={}'.format(dt))
     # plt.plot(fw[w_start:w_end], I, label = 'I_dt={}'.format(dt))
     # plt.plot(fw[w_start:w_end], f[w_start:w_end], label = 'dt = {}'.format(dt))
     # plt.plot(w, fermi_function(w, 0, 1.0/T), color='black')
 
-plt.legend()
-plt.grid()
-# plt.ylim(-0.5,1.5)
-plt.savefig('DOS_U={}_T={}.pdf'.format(U, T))
-# plt.savefig('fermi_U={}_T={}.pdf'.format(U, T))
+    plt.legend()
+    plt.grid()
+    plt.savefig('fft_greens_functions_spin={}.pdf'.format(spin))
+
+def main():
+    parser = argparse.ArgumentParser(description = "calculate couble occupation")
+    parser.add_argument("--output",   default = "savetxt")
+    parser.add_argument("--params",   default = "run.toml")
+    parser.add_argument("--savetxt",  action  = "store_true")
+    args = parser.parse_args()
+
+    with open(args.params, "r") as f:
+        params = toml.load(f)
+
+    params.update(vars(args))
+    
+    U = params['U']
+    T = params['T']
+    F = params['pumpA']
+    mu = params['mu']
+    dt = params['dt'] 
+    tmax = params['tmax']
+    
+    analyze_spectral(U, F, params['mu'], params['T'], params['tmax'], params['dt'])
+
+if __name__ == "__main__":
+    main()

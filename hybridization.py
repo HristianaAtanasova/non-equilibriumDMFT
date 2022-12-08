@@ -86,7 +86,7 @@ def genGaussianHyb(T, mu, v_0, tmax, dt, wC, dw):
     # # plt.savefig('delta.pdf')
     # plt.close()
 
-    np.savez_compressed('Delta', t=t, dos=dos[w_start:w_end], D=Delta)
+    np.savez_compressed('Delta_mu={}_T={}_dt={}'.format(mu, T, dt), t=t, dos=dos[w_start:w_end], D=Delta)
 
 def genSemicircularHyb(T, mu, v_0, wC, tmax, dt, dw):
     """
@@ -162,7 +162,6 @@ def genWideBandHyb(T, mu, wC, tmax, dt, dw):
     """
     # additional parameters to generate the flat band
     v = 1.0
-    # gamma = 1.0 / 2.0 * wC
     gamma = 1.0
     beta = 1.0 / T
     Cut  = np.pi / dt

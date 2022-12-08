@@ -7,21 +7,18 @@ import zipfile
 import numpy as np
 import os
 import constant_electric_field
+import arrange_times 
 
-def calculate_current(U, F, mu1, mu2, T, dt, v_0, lattice_structure):
+def calculate_current(U, F, mu1, mu2, T, tmax, dt, v):
     # load Greens functions
     Green = 'Green_U={}_F={}_mu1={}_mu2={}_T={}_dt={}.npz'
     loaded = np.load(Green.format(U, F, mu1, mu2, T, dt))
     t = loaded['t']
-    dt = t[1] - t[0]
     Green = loaded['Green']
 
     Delta_left = np.zeros((2, 2, len(t), len(t)), complex) # dynamical mean field
     Delta_right= np.zeros((2, 2, len(t), len(t)), complex) # dynamical mean field
     I = np.zeros((2, 2, len(t)), complex) # lattice current; spin up/spin down | time
-
-    # v = electric_field.genv(pumpA, pumpOmega, params['t_pump_start'], params['t_pump_end'], probeA, probeOmega, params['t_probe_start'], params['t_probe_end'], params['v_0'], t, params['lattice_structure'])
-    v = constant_electric_field.genv(F, v_0, t, lattice_structure)
 
     loaded = np.load('Delta_mu={}_T={}_dt={}.npz'.format(mu1, T, dt))
     Delta_left = loaded['D'] / 2.0
@@ -31,52 +28,17 @@ def calculate_current(U, F, mu1, mu2, T, dt, v_0, lattice_structure):
     t_start = len(t)-100    
     t_cut = len(t)-1
 
-    # # plt.plot(t[:t_cut], np.real(Green[0, 1, :t_cut, t_cut]),t[:t_cut], np.imag(Green[0, 1, :t_cut, t_cut])[:t_cut], '--', label='Green_T={}'.format(T))
-    # # plt.plot(t[:t_cut], np.real(Delta_left[0, 1, :t_cut, t_cut]), t[:t_cut], np.imag(Delta_left[0, 1, :t_cut, t_cut]), '--', label='Delta_T={}'.format(T))
-    # plt.plot(t[:t_cut], dt * np.real(Delta_left[0, 1, :t_cut, t_cut] * Green[0, 1, :t_cut, t_cut]), t[:t_cut], dt * np.imag(Delta_left[0, 1, :t_cut, t_cut] * Green[0, 1, :t_cut, t_cut]), '--', label='dt*Delta*Green_T={}'.format(T))
-    # plt.legend()
-    # plt.savefig('Greens_U={}_mu={}_dt={}.pdf'.format(U, mu, dt))
-
-    # plt.plot(t[t_start:t_cut], np.real(Green[0, 1, t_start:t_cut, t_cut]), 'o', t[t_start:t_cut], np.imag(Green[0, 1, t_start:t_cut, t_cut]), '--', label='Green_dt={}'.format(dt))
-    # plt.plot(t[t_start:t_cut], np.real(Delta_left[0, 1, t_start:t_cut, t_cut]), t[t_start:t_cut], np.imag(Delta_left[0, 1, t_start:t_cut, t_cut]), '--', label='Delta_dt={}'.format(dt))
-    # plt.plot(t[t_start:t_cut], np.real(Delta_left[0, 1, t_cut, t_start:t_cut]), t[t_start:t_cut], np.imag(Delta_left[0, 1, t_cut, t_start:t_cut]), '--', label='Delta_dt={}'.format(dt))
-    # plt.plot(t[:t_cut], dt * np.real(Delta_left[0, 1, :t_cut, t_cut] * Green[0, 1, :t_cut, t_cut]), t[:t_cut], dt * np.imag(Delta_left[0, 1, :t_cut, t_cut] * Green[0, 1, :t_cut, t_cut]), '--', label='dt*Delta*Green_dt={}'.format(dt))
-    # plt.legend()
-    # plt.savefig('Greens_U={}_mu={}_T={}.pdf'.format(U, mu, T))
-
     # calculate particle current in the lattice
     for t1 in range(len(t)):
         # left current
-        if mu1 >= 0.0:
-            # spin up 
-            # I[0, 0, t1] = dt * np.trapz(Delta_left[0, 1, :t1, t1-1] * Green[0, 1, :t1, t1-1])
-            I[0, 0, t1] = dt * np.trapz(Delta_left[1, 1, :t1, t1-1] * (-Green[0, 1, :t1, t1-1] - Green[1, 1, :t1, t1-1])) + dt * np.trapz((Delta_left[1, 1, :t1, t1-1] + Delta_left[0, 1, :t1, t1-1]) * Green[1, 1, :t1, t1-1])
-            # spin down
-            # I[1, 0, t1] = dt * np.trapz(Delta_left[0, 0, :t1, t1-1] * Green[0, 0, :t1, t1-1])
-            I[1, 0, t1] = dt * np.trapz(Delta_left[1, 0, :t1, t1-1] * (-Green[0, 0, :t1, t1-1] - Green[1, 0, :t1, t1-1])) + dt * np.trapz((Delta_left[1, 0, :t1, t1-1] + Delta_left[0, 0, :t1, t1-1]) * Green[1, 0, :t1, t1-1])
-        else:
-            # spin up 
-            # I[0, 0, t1] = dt * np.trapz(Delta_left[1, 1, t1-1, :t1] * Green[1, 1, t1-1, :t1])
-            I[0, 0, t1] = dt * np.trapz(Delta_left[1, 1, :t1, t1-1] * (-Green[0, 1, :t1, t1-1] - Green[1, 1, :t1, t1-1])) + dt * np.trapz((Delta_left[1, 1, :t1, t1-1] + Delta_left[0, 1, :t1, t1-1]) * Green[1, 1, :t1, t1-1])
-            # spin down                                                                    
-            # I[1, 0, t1] = dt * np.trapz(Delta_left[1, 0, t1-1, :t1] * Green[1, 0, t1-1, :t1])
-            I[1, 0, t1] = dt * np.trapz(Delta_left[1, 0, :t1, t1-1] * (-Green[0, 0, :t1, t1-1] - Green[1, 0, :t1, t1-1])) + dt * np.trapz((Delta_left[1, 0, :t1, t1-1] + Delta_left[0, 0, :t1, t1-1]) * Green[1, 0, :t1, t1-1])
-
-        if mu2 >= 0.0:
-            # spin up 
-            # I[0, 1, t1] = dt * np.trapz(Delta_right[0, 1, :t1, t1-1] * Green[0, 1, :t1, t1-1])
-            I[0, 1, t1] = dt * np.trapz(Delta_right[1, 1, :t1, t1-1] * (-Green[0, 1, :t1, t1-1] - Green[1, 1, :t1, t1-1])) + dt * np.trapz((Delta_right[1, 1, :t1, t1-1] + Delta_right[0, 1, :t1, t1-1]) * Green[1, 1, :t1, t1-1])
-            # spin down
-            # I[1, 1, t1] = dt * np.trapz(Delta_right[0, 0, :t1, t1-1] * Green[0, 0, :t1, t1-1])
-            I[1, 1, t1] = dt * np.trapz(Delta_right[1, 0, :t1, t1-1] * (-Green[0, 0, :t1, t1-1] - Green[1, 0, :t1, t1-1])) + dt * np.trapz((Delta_right[1, 0, :t1, t1-1] + Delta_right[0, 0, :t1, t1-1]) * Green[1, 0, :t1, t1-1])
-        else:
-            # spin up 
-            # I[0, 1, t1] = dt * np.trapz(Delta_right[1, 1, t1-1, :t1] * Green[1, 1, t1-1, :t1])
-            I[0, 1, t1] = dt * np.trapz(Delta_right[1, 1, :t1, t1-1] * (-Green[0, 1, :t1, t1-1] - Green[1, 1, :t1, t1-1])) + dt * np.trapz((Delta_right[1, 1, :t1, t1-1] + Delta_right[0, 1, :t1, t1-1]) * Green[1, 1, :t1, t1-1])
-            # spin down                                                                     
-            # I[1, 1, t1] = dt * np.trapz(Delta_right[1, 0, t1-1, :t1] * Green[1, 0, t1-1, :t1])
-            I[1, 1, t1] = dt * np.trapz(Delta_right[1, 0, :t1, t1-1] * (-Green[0, 0, :t1, t1-1] - Green[1, 0, :t1, t1-1])) + dt * np.trapz((Delta_right[1, 0, :t1, t1-1] + Delta_right[0, 0, :t1, t1-1]) * Green[1, 0, :t1, t1-1])
-
+        # spin up 
+        I[0, 0, t1] = - dt * np.trapz(Delta_left[1, 1, :t1, t1-1] * Green[0, 1, :t1, t1-1]) + dt * np.trapz(Delta_left[0, 1, :t1, t1-1] * Green[1, 1, :t1, t1-1])
+        # spin down
+        I[1, 0, t1] = - dt * np.trapz(Delta_left[1, 0, :t1, t1-1] * Green[0, 0, :t1, t1-1]) + dt * np.trapz(Delta_left[0, 0, :t1, t1-1] * Green[1, 0, :t1, t1-1])
+        # spin up 
+        I[0, 1, t1] = - dt * np.trapz(Delta_right[1, 1, :t1, t1-1] * Green[0, 1, :t1, t1-1]) + dt * np.trapz(Delta_right[0, 1, :t1, t1-1] * Green[1, 1, :t1, t1-1])
+        # spin down
+        I[1, 1, t1] = - dt * np.trapz(Delta_right[1, 0, :t1, t1-1] * Green[0, 0, :t1, t1-1]) + dt * np.trapz(Delta_right[0, 0, :t1, t1-1] * Green[1, 0, :t1, t1-1])
     return t, I
 
 def main():
@@ -93,51 +55,27 @@ def main():
     
     U = params['U']
     T = params['T']
-    # Ts = [1.0, 0.5]
     F = params['pumpA']
     mu1 = params['mu1']
     mu2 = params['mu2']
-    # dts = [0.0125, 0.01, 0.0075, 0.005]
-    dts = [0.01]
-    # dt = 0.005
+    dt = params['dt']
     tmax = params['tmax']
-    pumpOmega = params['pumpOmega']
+    t = np.arange(0, tmax, dt)
 
-    # F = 0.0
-    # Us = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0]
-    # Ts = [0.25, 0.5, 1.0]
-    # Ts = [1.0]
-    # mus = [0.0, 1.0, 2.0, 3.0]
-    # mus = [0.0]
+    # v = electric_field.genv(F, params['pumpOmega'], params['t_pump_start'], params['t_pump_end'], params['probeA'], params['probeOmega'], params['t_probe_start'], params['t_probe_end'], params['v_0'], t, params['lattice_structure'])
+    v = constant_electric_field.genv(F, params['v_0'], t, params['t_pump_start'], params['t_pump_end'], params['lattice_structure'])
 
-    for dt in dts:
-    # for T in Ts: 
-    #         for mu in mus:
-        t, I = calculate_current(U, F, mu1, mu2, T, dt, params['v_0'], params['lattice_structure']) 
-        I_left = I[0] 
-        I_right = I[1]
-        # plt.plot(t, np.real(I_left), label = 'I_left_dt = {}'.format(dt)) 
-        # plt.plot(t, np.real(I_right), label = 'I_right_dt = {}'.format(dt)) 
-        # plt.plot(t, np.real(I_right + I_left), label = 'I_right + I_left') 
-        # plt.plot(t, np.real(I[0]), t, np.imag(I[0]), '--', label = 'I_left') 
-        # plt.plot(t, np.real(I[1]), t, np.imag(I[1]), '--', label = 'I_right') 
+    t, I = calculate_current(U, F, mu1, mu2, T, tmax, dt, v) 
 
-        plt.plot(t, np.real(I[0, 0]), label = 'up_I_left_dt={}'.format(dt)) 
-        plt.plot(t, np.real(I[0, 1]), label = 'up_I_right_dt={}'.format(dt)) 
-        plt.plot(t, np.real(I[1, 0]), label = 'down_I_left_dt={}'.format(dt)) 
-        plt.plot(t, np.real(I[1, 1]), label = 'down_I_right_dt={}'.format(dt)) 
+    plt.plot(t, np.real(I[0, 0] + I[0, 1]), label = 'up') 
+    plt.plot(t, np.real(I[1, 0] + I[1, 1]), label = 'down') 
 
-        # plt.plot(t, np.imag(I[0, 0]), '--', label = 'up_I_left_dt={}'.format(dt)) 
-        # plt.plot(t, np.imag(I[0, 1]), '--', label = 'up_I_right_dt={}'.format(dt)) 
-        # plt.plot(t, np.imag(I[1, 0]), '--', label = 'down_I_left_dt={}'.format(dt)) 
-        # plt.plot(t, np.imag(I[1, 1]), '--', label = 'down_I_right_dt={}'.format(dt)) 
-
-        # plt.axhline(y=0.0, color='black', linestyle='-')    
-        # plt.savefig('impurity_current_mu1={}_mu2={}_U={}.pdf'.format(mu1, mu2, params['U']))
+    # plt.axhline(y=0.0, color='black', linestyle='-')    
+    # plt.savefig('impurity_current_mu1={}_mu2={}_U={}.pdf'.format(mu1, mu2, params['U']))
 
     plt.legend()
     plt.grid()
-    plt.savefig('current_mu1={}_mu2={}_U={}_T={}.pdf'.format(mu1,mu2,U,T))
+    plt.savefig('impurity_current_mu1={}_mu2={}_U={}_T={}.pdf'.format(mu1,mu2,U,T))
 
 if __name__ == "__main__":
     main()

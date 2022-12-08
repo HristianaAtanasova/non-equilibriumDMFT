@@ -18,7 +18,6 @@ import coupling_to_diss_bath
 import electric_field
 import constant_electric_field
 import arrange_times
-# import hdf5
 
 
 def runNCA(U, mu1, mu2, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output):
@@ -87,8 +86,8 @@ def run_dmft(U, T, pumpA, probeA, mu1, mu2, v_0, tmax, dt, dw, tol, solver, phon
 
     # option of turning on a pump field and/or a probe field
     # v = electric_field.genv(pumpA, pumpOmega, t_pump_start, t_pump_end, probeA, probeOmega, t_probe_start, t_probe_end, v_0, t, lattice_structure)
-    # v = constant_electric_field.genv(pumpA, v_0, t, lattice_structure)
-    v = v_0
+    v = constant_electric_field.genv(pumpA, v_0, t, t_pump_start, t_pump_end, lattice_structure)
+    # v = v_0
 
     # set solver
     if solver == 0:
@@ -103,6 +102,29 @@ def run_dmft(U, T, pumpA, probeA, mu1, mu2, v_0, tmax, dt, dw, tol, solver, phon
     Delta = (Delta_left + Delta_right) / 2.0
 
     Green = Solver(U, mu1, mu2, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output)
+
+    contour_Delta = arrange_times.real_time_to_keldysh(Delta.copy(), t, tmax)
+    contour_Green = arrange_times.real_time_to_keldysh(Green.copy(), t, tmax)
+
+    plt.matshow(contour_Delta[0].real)
+    plt.colorbar()
+    plt.savefig('impurity_Delta_real.pdf')
+    plt.close()
+
+    plt.matshow(contour_Delta[0].imag)
+    plt.colorbar()
+    plt.savefig('impurity_Dalta_imag.pdf')
+    plt.close()
+
+    plt.matshow(contour_Green[0].real)
+    plt.colorbar()
+    plt.savefig('impurity_Green_real.pdf')
+    plt.close()
+
+    plt.matshow(contour_Green[0].imag)
+    plt.colorbar()
+    plt.savefig('impurity_Green_imag.pdf')
+    plt.close()
 
     return Green
 

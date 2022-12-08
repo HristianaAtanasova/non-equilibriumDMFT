@@ -15,8 +15,6 @@ def trapezConv(a, b, dt):
 def tdiff(D, t2, t1):
     return D[t2 - t1] if t2 >= t1 else np.conj(D[t1 - t2])
 
-def tdiff_2(D, t2, t1):
-    return D[t2 - t1] if t2 >= t1 else np.conj(D[t1 - t2])
 
 def fermi_function(w, beta, mu):
     return 1 / (1 + np.exp(beta * (w - mu)))
@@ -29,7 +27,7 @@ def hypercubicDos(w, v):
     return np.exp(-(w ** 2) / v**2) / (np.sqrt(np.pi) * v) 
  
 
-def gen_k_dep_Green(T, v_0, U, mu, tmax, dt, wC, dw):
+def gen_k_dep_Green(F, T, v_0, U, mu, tmax, dt, wC, dw):
     """
     Generate Hybridization function for Fermion bath with a semicircular DOS
     """
@@ -38,6 +36,7 @@ def gen_k_dep_Green(T, v_0, U, mu, tmax, dt, wC, dw):
     t_contour = np.arange(-tmax, tmax, dt)
     w = np.arange(-wC, wC, dw)
     
+    E = np.zeros((len(t), len(w)), complex)
     G_k = np.zeros((2, 2, len(t), len(w)), complex)
     G_dot = np.zeros((2, 2, len(t)), complex)
     Green_k = np.zeros((2, 2, len(t), len(t), len(w)), complex)
@@ -48,28 +47,33 @@ def gen_k_dep_Green(T, v_0, U, mu, tmax, dt, wC, dw):
     dos = hybridization.hypercubicDos(w, v_0)
     fermi = fermi_function(w, beta, mu)
     for t1 in range(len(t)):
-        G_k[0, 0, t1] = np.exp(-1j * t[t1] * w) * (1 - fermi)
-        G_k[0, 1, t1] = np.exp(-1j * t[t1] * w) * (1 - fermi)
-        G_k[1, 0, t1] = np.exp(-1j * t[t1] * w) * fermi
-        G_k[1, 1, t1] = np.exp(-1j * t[t1] * w) * fermi
+        E[t1] = np.exp(-1j * w * np.sin(F * t[t1])) * np.exp(-1j * w * np.cos(F * t[t1]))
+        G_k[0, 0, t1] = np.exp(- 1j * t[t1] * w) * (1 - fermi)
+        G_k[0, 1, t1] = np.exp(- 1j * t[t1] * w) * (1 - fermi)
+        G_k[1, 0, t1] = np.exp(- 1j * t[t1] * w) * fermi
+        G_k[1, 1, t1] = np.exp(- 1j * t[t1] * w) * fermi
     
         # the initial state of the dot is a spin up state 
-        G_dot[1, 0, t1] = np.exp(-1j * t[t1] * -(U / 2.0))
-        G_dot[0, 1, t1] = np.exp(-1j * t[t1] * -(U / 2.0))
+        G_dot[1, 0, t1] = np.exp(- 1j * t[t1] * -(0.0 / 2.0))
+        G_dot[0, 1, t1] = np.exp(- 1j * t[t1] * -(0.0 / 2.0))
 
     # G = dw * np.trapz(G_k, x = w, axis = -1)
     for t1 in range(len(t)):
         for t2 in range(len(t)):
             Green_dot[0, 0, t2, t1] = tdiff(G_dot[0, 0], t2, t1)
             Green_dot[0, 1, t2, t1] = tdiff(G_dot[0, 1], t2, t1)
-            Green_dot[1, 0, t1, t2] = tdiff(G_dot[1, 0], t2, t1)
-            Green_dot[1, 1, t1, t2] = tdiff(G_dot[1, 1], t2, t1)
+            Green_dot[1, 0, t2, t1] = tdiff(G_dot[1, 0], t2, t1)
+            Green_dot[1, 1, t2, t1] = tdiff(G_dot[1, 1], t2, t1)
             
             for w1 in range(len(w)):
-                Green_k[0, 0, t2, t1, w1] = tdiff(G_k[0, 0, :, w1], t2, t1)
-                Green_k[0, 1, t2, t1, w1] = tdiff(G_k[0, 1, :, w1], t2, t1)
-                Green_k[1, 0, t1, t2, w1] = tdiff(G_k[1, 0, :, w1], t2, t1)
-                Green_k[1, 1, t1, t2, w1] = tdiff(G_k[1, 1, :, w1], t2, t1)
+                Green_k[0, 0, t2, t1, w1] = tdiff(G_k[0, 0, :, w1], t2, t1) * E[t2, w1] * np.conj(E[t1, w1])
+                Green_k[0, 1, t2, t1, w1] = tdiff(G_k[0, 1, :, w1], t2, t1) * E[t2, w1] * np.conj(E[t1, w1]) 
+                Green_k[1, 0, t2, t1, w1] = tdiff(G_k[1, 0, :, w1], t2, t1) * E[t2, w1] * np.conj(E[t1, w1])
+                Green_k[1, 1, t2, t1, w1] = tdiff(G_k[1, 1, :, w1], t2, t1) * E[t2, w1] * np.conj(E[t1, w1])
+                # Green_k[0, 0, t2, t1, w1] = tdiff(G_k[0, 0, :, w1], t2, t1)
+                # Green_k[0, 1, t2, t1, w1] = tdiff(G_k[0, 1, :, w1], t2, t1)
+                # Green_k[1, 0, t2, t1, w1] = tdiff(G_k[1, 0, :, w1], t2, t1)
+                # Green_k[1, 1, t2, t1, w1] = tdiff(G_k[1, 1, :, w1], t2, t1)
 
     for w1 in range(len(w)):
         contour_Green_k[:,:,:,w1] = arrange_times.real_time_to_keldysh(Green_k[:,:,:,:,w1], t, tmax) 
@@ -88,7 +92,7 @@ def gen_k_dep_Green(T, v_0, U, mu, tmax, dt, wC, dw):
     # plt.colorbar()
     # plt.show()
     
-    np.savez_compressed('Green_k_inv', G_k=contour_Green_k,  G_k_inv=contour_Green_k_inv, G_d=contour_Green_dot)
+    np.savez_compressed('Green_k_inv_F={}'.format(F), G_k=contour_Green_k,  G_k_inv=contour_Green_k_inv, G_d=contour_Green_dot)
 
 def main():
     parser = argparse.ArgumentParser(description = "run dmft")

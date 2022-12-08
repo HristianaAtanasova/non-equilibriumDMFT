@@ -61,12 +61,23 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     loaded = np.load('barePropagators.npz')
     G_0 = loaded['G_0']
 
+    # option of turning on a pump field and/or a probe field
+    # v = electric_field.genv(pumpA, pumpOmega, t_pump_start, t_pump_end, probeA, probeOmega, t_probe_start, t_probe_end, v_0, t, lattice_structure)
+    v = constant_electric_field.genv(pumpA, v_0, t, t_pump_start, t_pump_end, lattice_structure)
+    # v = v_0
+
     # delta indices: [gtr/les, up/down, time, time]
     hybridization.genSemicircularHyb(T, mu, v_0, wC, tmax, dt, dw)
     # hybridization.genWideBandHyb(T, mu, wC, tmax, dt, dw)
-    # timedep_hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
     loaded = np.load('Delta_mu={}_T={}_dt={}.npz'.format(mu, T, dt))
-    Delta = loaded['D']
+    Delta_left = loaded['D']
+
+    hybridization.genSemicircularHyb(T, -mu, v_0, wC, tmax, dt, dw)
+    # hybridization.genWideBandHyb(T, -mu, wC, tmax, dt, dw)
+    loaded = np.load('Delta_mu={}_T={}_dt={}.npz'.format(-mu, T, dt))
+    Delta_right = loaded['D']
+
+    Delta = v * (Delta_left + Delta_right) / 2.0
 
     if phonon == 1:
         phonon_bath.genPhononBath(t, mu, T)
@@ -81,11 +92,6 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
 
     # coupling to the dissipation bath can be turned off
     Lambda = coupling_to_diss_bath.gen_timedepLambda(t, t_diss_end, Lambda)
-
-    # option of turning on a pump field and/or a probe field
-    # v = electric_field.genv(pumpA, pumpOmega, t_pump_start, t_pump_end, probeA, probeOmega, t_probe_start, t_probe_end, v_0, t, lattice_structure)
-    v = constant_electric_field.genv(pumpA, v_0, t, lattice_structure)
-    # v = v_0
 
     # set solver
     if solver == 0:
@@ -108,52 +114,18 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
 
         Green_old = Green
 
-        # plt.plot(t, np.real(Delta[0, 0, ::-1, len(t)-1]), '-', t, np.imag(Delta[0, 0, ::-1, len(t)-1]), '--', label = 'Hyp_gtr')
-        # plt.plot(t, np.real(Delta[1, 0, ::-1, len(t)-1]), '-', t, np.imag(Delta[1, 0, ::-1, len(t)-1]), '--', label = 'Hyb_les')
-        # plt.legend()
-        # plt.savefig('hybridization_bethe.pdf')
-        # plt.close()
-
         Green = Solver(U, mu, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output)
 
         diff = np.amax(np.abs(Green_old - Green))
         # diff = 0
 
-        # Delta = v * Green
-
         # antiferromagnetic self-consistency
-        Delta[:, 1] = v * Green[:, 0]
-        Delta[:, 0] = v * Green[:, 1]
+        Delta[:, 1] = v * Green[:, 0] 
+        Delta[:, 0] = v * Green[:, 1] 
 
         # # doubly occupied and empty sublattice
         # Delta[0, :] = v * Green[1, :]
         # Delta[1, :] = v * Green[0, :]
-
-        contour_Delta = arrange_times.real_time_to_keldysh(Delta, t, tmax)
-        contour_Green = arrange_times.real_time_to_keldysh(Green, t, tmax)
-
-        Delta = arrange_times.keldysh_to_real_time(contour_Delta, t, tmax)
-        Green = arrange_times.keldysh_to_real_time(contour_Green, t, tmax)
-
-        # plt.matshow(contour_Delta[0].real)
-        # plt.colorbar()
-        # plt.savefig('bethe_Delta_real.pdf')
-        # plt.close()
-
-        # plt.matshow(contour_Delta[0].imag)
-        # plt.colorbar()
-        # plt.savefig('bethe_Dalta_imag.pdf')
-        # plt.close()
-
-        # plt.matshow(contour_Green[0].real)
-        # plt.colorbar()
-        # plt.savefig('bethe_Green_real.pdf')
-        # plt.close()
-
-        # plt.matshow(contour_Green[0].imag)
-        # plt.colorbar()
-        # plt.savefig('bethe_Green_imag.pdf')
-        # plt.close()
 
         print('\n')
         msg = 'U = {}, iteration {}: diff = {} (elapsed time = {})'

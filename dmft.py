@@ -1,8 +1,8 @@
 # !/usr/bin/env python3
 import numpy as np
 import scipy
-# from numpy.linalg import inv
-from scipy.linalg import inv
+from numpy.linalg import inv
+# from scipy.linalg import inv
 import matplotlib.pyplot as plt
 import argparse
 import toml
@@ -22,7 +22,7 @@ import electric_field
 import arrange_times
 # import hdf5
 
-def runNCA(U, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output):
+def runNCA(U, mu, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output):
     t  = np.arange(0, tmax, dt)
 
     # hybsection = "dmft/iterations/{}/delta".format(iteration)
@@ -31,7 +31,7 @@ def runNCA(U, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath,
     # with h5py.File(output, "a") as h5f:
     #     hdf5.save_green(h5f, hybsection, Delta, (t,t))
 
-    Green = nca.solve(t, U, pumpA, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta)
+    Green = nca.solve(t, U, mu, mu, pumpA, T, G_0, phonon, fermion, Lambda, dissBath, output, Delta)
 
     # with h5py.File(output, "r") as h5f:
     #     Green, _ = hdf5.load_green(h5f, gfsection)
@@ -60,14 +60,8 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     contour_Weiss = np.zeros((2, len(t_contour), len(t_contour)), complex)
     contour_Sigma = np.zeros((2, len(t_contour), len(t_contour)), complex)
 
-    Uconst = U
-    # calculate and load bare propagators
-    bareprop.bare_prop(t, U, Uconst)
-    loaded = np.load('barePropagators.npz')
-    G_0 = loaded['G_0']
-
-    k_greensfunction.gen_k_dep_Green(T, v_0, U, mu, tmax, dt, wC, dw)
-    loaded = np.load('Green_k_inv.npz')
+    k_greensfunction.gen_k_dep_Green(pumpA, T, v_0, U, mu, tmax, dt, wC, dw)
+    loaded = np.load('Green_k_inv_F={}.npz'.format(pumpA))
     contour_Green_k_inv = loaded['G_k_inv']
     contour_Green_k = loaded['G_k']
     contour_Green_dot = loaded['G_d']
@@ -103,31 +97,50 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
     hybridization.genSemicircularHyb(T, mu, v_0, wC, tmax, dt, dw)
     # hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
     # timedep_hybridization.genWideBandHyb(T, mu, tmax, dt, dw)
-    loaded = np.load('Delta.npz')
+    loaded = np.load('Delta_mu={}_T={}_dt={}.npz'.format(mu, T, dt))
     Delta = loaded['D']
     dos = loaded['dos']
+
+    # Green = 'Delta_U={}_F={}_mu1={}_mu2={}_T={}_dt={}.npz'
+    # loaded = np.load(Green.format(U, pumpA, mu, mu, T, dt))
+    # Delta = loaded['Green']
+    # Delta_ = np.copy(Delta)
+    # Delta[:, 0] = Delta_[:, 1]
+    # Delta[:, 1] = Delta_[:, 0]
 
     msg = 'Start DMFT iteration until the impurity Greens function has converges to the lattice Greens function:'
     print('-'*len(msg))
     print(msg)
     print('-'*len(msg))
 
+    # calculate and load bare propagators
+    bareprop.bare_prop(t, 0, 0)
+    loaded = np.load('barePropagators.npz')
+    G_0_U0 = loaded['G_0']
+
+    # Weiss = Solver(0, mu, pumpA, T, G_0_U0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, 0, output)
+    Uconst = U
+    # calculate and load bare propagators
+    bareprop.bare_prop(t, U, Uconst)
+    loaded = np.load('barePropagators.npz')
+    G_0 = loaded['G_0']
+
     start = datetime.now()
     diff = np.inf
     iteration = 0
-    tol = 0.01
-    plotting = 1 
+    plotting = 0 
     while diff > tol:
         iteration += 1
 
         Delta_old = Delta
         Green_old = Green
 
-        Green = Solver(U, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output)
+        Green = Solver(U, mu, pumpA, T, G_0, tmax, dt, Delta, phonon, fermion, Lambda, dissBath, iteration, output)
         
         contour_Delta = arrange_times.real_time_to_keldysh(Delta, t, tmax)
         contour_Green = arrange_times.real_time_to_keldysh(Green, t, tmax)
-        
+        # contour_Weiss = arrange_times.real_time_to_keldysh(Weiss, t, tmax)
+
         if iteration == 1:
             Delta_init = contour_Delta
 
@@ -137,47 +150,74 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
             plt.savefig('{}_Delta_real_up.pdf'.format(iteration))
             plt.close()
 
-            plt.matshow(contour_Delta[0].imag)
-            plt.colorbar()
-            plt.savefig('{}_Dalta_imag_up.pdf'.format(iteration))
-            plt.close()
-
             plt.matshow(contour_Delta[1].real)
             plt.colorbar()
             plt.savefig('{}_Delta_real_down.pdf'.format(iteration))
             plt.close()
 
-            plt.matshow(contour_Delta[1].imag)
-            plt.colorbar()
-            plt.savefig('{}_Dalta_imag_down.pdf'.format(iteration))
-            plt.close()
-
         for spin in range(2):
-            # I = (contour_Delta[spin] - contour_Green_dot[spin])
-            # contour_Sigma[spin] = - inv(I) + inv(contour_Green[spin])
+            I =  (contour_Delta[spin] - contour_Green_dot[spin])
+            contour_Sigma[spin] = - inv(I) + inv(contour_Green[spin])
 
-            contour_Sigma[spin] = inv(-contour_Delta[spin] + contour_Green[spin])
+            # contour_Sigma[spin] = inv(-contour_Delta[spin] + contour_Green[spin])
+            # contour_Sigma[spin] = (contour_Delta[spin] + contour_Green_dot[spin] - contour_Green[spin])
+            # contour_Sigma[spin] = (-contour_Delta[spin] + contour_Green_dot[spin])
 
         contour_Green_local = np.zeros((2, len(t_contour), len(t_contour), len(w)), complex)
         for w1 in range(len(w)):        
             for spin in range(2):
                 Green_lattice[spin, :, :, w1] = inv(contour_Green_k_inv[spin, :, :, w1]) * dos[w1]
   
-                # M = contour_Green_k_inv[spin, :, :, w1] + (contour_Sigma[spin])
+                # M = contour_Green_k_inv[spin, :, :, w1] - (contour_Sigma[spin])
                 # contour_Green_local[spin, :, :, w1] = inv(M) * dos[w1]
 
                 contour_Green_local[spin, :, :, w1] = (contour_Green_k[spin, :, :, w1] + inv(contour_Sigma[spin])) * dos[w1]
+                # contour_Green_local[spin, :, :, w1] = (contour_Green_k[spin, :, :, w1] - (contour_Sigma[spin])) * dos[w1]
 
         # G_local = dw * np.trapz(contour_Green_local, x = w, axis = -1)
         G_local = dw * np.sum(contour_Green_local, axis = -1)
+        # G_local = np.flip(G_local, 0)
+
+        # Green_local = arrange_times.keldysh_to_real_time(G_local, t, tmax)
+        # print('\n')
+        # msg = 'Spin Up on Green local is {}.'
+        # print(msg.format(np.real(Green_local[1, 0, len(t) - 1, len(t) - 1])))
+        # print(msg.format(np.real(Green_local[0, 0, len(t) - 1, len(t) - 1])))
+        # msg = 'Spin Down on Green local is {}.'
+        # print(msg.format(np.real(Green_local[1, 1, len(t) - 1, len(t) - 1])))
+        # print(msg.format(np.real(Green_local[0, 1, len(t) - 1, len(t) - 1])))
+        # print('\n')
 
         G_local_inv = inv(G_local[0]) 
         G_local_0 = dw * np.sum(Green_lattice, axis = -1)
         G_local_0_inv = inv(G_local_0[0]) 
 
+        # Green_local_0 = arrange_times.keldysh_to_real_time(G_local_0, t, tmax)
+        # print('\n')
+        # msg = 'Spin Up on Green local 0 is {}.'
+        # print(msg.format(np.real(Green_local_0[1, 0, len(t) - 1, len(t) - 1])))
+        # msg = 'Spin Down on Green local 0  is {}.'
+        # print(msg.format(np.real(Green_local_0[1, 1, len(t) - 1, len(t) - 1])))
+        # print('\n')
+
         for spin in range(2):
             I = inv(G_local[spin]) * (np.pi / 2.0) + contour_Sigma[spin]
+            # I = inv(G_local[spin]) + contour_Sigma[spin] 
             contour_Delta[spin] = inv(I) 
+
+            # I = (- contour_Sigma[spin] + G_local[spin])
+            # contour_Delta[spin] = (I + contour_Green_dot[spin])
+
+            # plt.matshow(np.real(I))
+            # plt.colorbar()
+            # plt.savefig('{}_I_real.pdf'.format(iteration))
+            # plt.close()
+
+            # I = inv(I)
+            # plt.matshow(np.real(I))
+            # plt.colorbar()
+            # plt.savefig('{}_inv_I_real.pdf'.format(iteration))
+            # plt.close()
 
         Green = arrange_times.keldysh_to_real_time(contour_Green, t, tmax)
         Delta = arrange_times.keldysh_to_real_time(contour_Delta, t, tmax)
@@ -192,8 +232,10 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
         Delta[:, 0] = Delta_[:, 1]
         Delta[:, 1] = Delta_[:, 0]
 
-        diff = np.amax(np.abs(Green_old - Green))
-        # diff = 0
+        if iteration == 1:
+            diff = 0.5
+        else:
+            diff = np.amax(np.abs(Green_old - Green))
 
         inv_contour_Delta = inv(contour_Delta[0])
         inv_contour_Sigma = inv(contour_Sigma[0])
@@ -221,34 +263,24 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
             # plt.savefig('inv_Green_local_0_imag.pdf')
             # plt.close()
 
-            plt.matshow(G_local_inv.real)
-            plt.colorbar()
-            plt.savefig('{}_inv_Green_local_real.pdf'.format(iteration))
-            plt.close()
-
-            plt.matshow(G_local_inv.imag)
-            plt.colorbar()
-            plt.savefig('{}_inv_Green_local_imag.pdf'.format(iteration))
-            plt.close()
+            # plt.matshow(G_local_inv.real)
+            # plt.colorbar()
+            # plt.savefig('{}_inv_Green_local_real.pdf'.format(iteration))
+            # plt.close()
 
             plt.matshow(inv_contour_Sigma.real)
             plt.colorbar()
             plt.savefig('{}_inv_Sigma_real.pdf'.format(iteration))
             plt.close()
 
-            plt.matshow(inv_contour_Sigma.imag)
-            plt.colorbar()
-            plt.savefig('{}_inv_Sigma_imag.pdf'.format(iteration))
-            plt.close()
-
             plt.matshow(contour_Green[0].real)
             plt.colorbar()
-            plt.savefig('{}_Green_real.pdf'.format(iteration))
+            plt.savefig('{}_Green_real_up.pdf'.format(iteration))
             plt.close()
 
-            plt.matshow(contour_Green[0].imag)
+            plt.matshow(contour_Green[1].real)
             plt.colorbar()
-            plt.savefig('{}_Green_imag.pdf'.format(iteration))
+            plt.savefig('{}_Green_real_down.pdf'.format(iteration))
             plt.close()
 
             plt.matshow(contour_Green_dot[0].real)
@@ -256,39 +288,29 @@ def run_dmft(U, T, pumpA, probeA, mu, v_0, tmax, dt, dw, tol, solver, phonon, fe
             plt.savefig('Green_dot_real.pdf')
             plt.close()
 
-            plt.matshow(contour_Green_dot[0].imag)
-            plt.colorbar()
-            plt.savefig('Green_dot_imag.pdf')
-            plt.close()
-
             plt.matshow(G_local[0].real)
             plt.colorbar()
-            plt.savefig('{}_Green_local_real.pdf'.format(iteration))
+            plt.savefig('{}_Green_local_up.pdf'.format(iteration))
             plt.close()
 
-            plt.matshow(G_local[0].imag)
+            plt.matshow(G_local[1].real)
             plt.colorbar()
-            plt.savefig('{}_Green_local_imag.pdf'.format(iteration))
+            plt.savefig('{}_Green_local_down.pdf'.format(iteration))
             plt.close()
+
+            # plt.matshow(contour_Weiss[0].real)
+            # plt.colorbar()
+            # plt.savefig('{}_Weiss_up.pdf'.format(iteration))
+            # plt.close()
 
             plt.matshow(G_local_0[0].real)
             plt.colorbar()
             plt.savefig('Green_local_0_real.pdf')
             plt.close()
 
-            plt.matshow(G_local_0[0].imag)
-            plt.colorbar()
-            plt.savefig('Green_local_0_imag.pdf')
-            plt.close()
-
             plt.matshow(contour_Sigma[0].real)
             plt.colorbar()
             plt.savefig('{}_Sigma_real.pdf'.format(iteration))
-            plt.close()
-
-            plt.matshow(contour_Sigma[0].imag)
-            plt.colorbar()
-            plt.savefig('{}_Sigma_imag.pdf'.format(iteration))
             plt.close()
 
         print('\n')

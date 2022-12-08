@@ -105,25 +105,24 @@ def calculate_ret_and_adv(Green, t, tmax):
         Heaviside_adv[-t1] = heaviside(t_contour[t1])
         Heaviside_adv[0] = heaviside(-t_contour[0])
 
-    # G_ret = Heaviside_ret * (G_contour[1] + G_contour[0])
     G_ret = Heaviside_ret * (G_contour[1] + G_contour[0])
     G_adv = Heaviside_adv * (G_contour[1] + G_contour[0])
 
-    plt.plot(t_contour, np.real(G_contour[0]), '-', label = 'gtr_real')
-    plt.plot(t_contour, np.imag(G_contour[0]), '--', label = 'gtr_imag')
-    plt.plot(t_contour, np.real(G_contour[1]), '-', label = 'les_real')
-    plt.plot(t_contour, np.imag(G_contour[1]), '--', label = 'les_imag')
-    plt.legend()
-    plt.savefig('G_correct_gtr_les.pdf')
-    plt.close()
+    # plt.plot(t_contour, np.real(G_contour[0]), '-', label = 'gtr_real')
+    # plt.plot(t_contour, np.imag(G_contour[0]), '--', label = 'gtr_imag')
+    # plt.plot(t_contour, np.real(G_contour[1]), '-', label = 'les_real')
+    # plt.plot(t_contour, np.imag(G_contour[1]), '--', label = 'les_imag')
+    # plt.legend()
+    # plt.savefig('G_correct_gtr_les.pdf')
+    # plt.close()
 
-    plt.plot(t_contour, np.real(G_ret), '-', label = 'ret_real')
-    plt.plot(t_contour, np.imag(G_ret), '--', label = 'ret_imag')
-    plt.plot(t_contour, np.real(G_adv), '-', label = 'adv_real')
-    plt.plot(t_contour, np.imag(G_adv), '--', label = 'adv_imag')
-    plt.legend()
-    plt.savefig('G_correct_ret_adv.pdf')
-    plt.close()
+    # plt.plot(t_contour, np.real(G_ret), '-', label = 'ret_real')
+    # plt.plot(t_contour, np.imag(G_ret), '--', label = 'ret_imag')
+    # plt.plot(t_contour, np.real(G_adv), '-', label = 'adv_real')
+    # plt.plot(t_contour, np.imag(G_adv), '--', label = 'adv_imag')
+    # plt.legend()
+    # plt.savefig('G_correct_ret_adv.pdf')
+    # plt.close()
 
     G11, G12, G21, G22, G_full_matrix = real_time_to_keldysh(Green, t, tmax)
 
@@ -142,26 +141,6 @@ def calculate_ret_and_adv(Green, t, tmax):
     plt.savefig('G_full_matrix_imag.pdf')
     plt.close()
 
-    # plt.matshow(Gret[0].real)
-    # plt.colorbar()
-    # plt.savefig('G_ret_real.pdf')
-    # plt.close()
-
-    # plt.matshow(Gret[0].imag)
-    # plt.colorbar()
-    # plt.savefig('G_ret_imag.pdf')
-    # plt.close()
-
-    # plt.matshow(Gadv[0].real)
-    # plt.colorbar()
-    # plt.savefig('G_adv_real.pdf')
-    # plt.close()
-
-    # plt.matshow(Gadv[0].imag)
-    # plt.colorbar()
-    # plt.savefig('G_adv_imag.pdf')
-    # plt.close()
-
     G = np.zeros((4, len(t_contour)), complex) 
 
     G[0, :(t_max+1)] = G_full_matrix[spin, :(t_max+1), t_max] 
@@ -173,22 +152,6 @@ def calculate_ret_and_adv(Green, t, tmax):
     G[2, t_max:] = Gret[spin, len(t)-1, :len(t)] 
     G[3, :t_max] = Gadv[spin, len(t)-1, :len(t)] 
     G[3, t_max:] = Gadv[spin, :len(t), len(t)-1] 
-
-    plt.plot(t_contour, np.real(G[1]), '-', label = 'gtr_real')
-    plt.plot(t_contour, np.imag(G[1]), '--', label = 'gtr_imag')
-    plt.plot(t_contour, np.real(G[0]), '-', label = 'les_real')
-    plt.plot(t_contour, np.imag(G[0]), '--', label = 'les_imag')
-    plt.legend()
-    plt.savefig('G_matrix_gtr_les.pdf')
-    plt.close
-
-    plt.plot(t_contour, np.real(G[2]), '-', label = 'ret_real') 
-    plt.plot(t_contour, np.imag(G[2]), '--', label = 'ret_imag')
-    plt.plot(t_contour, np.real(G[3]), '-', label = 'adv_real') 
-    plt.plot(t_contour, np.imag(G[3]), '--', label = 'adv_imag')
-    plt.legend()
-    plt.savefig('G_matrix_ret_adv.pdf')
-    plt.close
 
     return G_full_matrix
 
@@ -204,69 +167,19 @@ def main():
 
     params.update(vars(args))
 
-    Green_path = 'Green_U={}_F={}_T={}.npz'
-    loaded = np.load(Green_path.format(params['U'], params['pumpA'], params['T']))
+    Green_path = 'Green_U={}_F={}_mu1={}_mu2={}_T={}_dt={}.npz'
+    loaded = np.load(Green_path.format(params['U'], params['pumpA'], params['mu'], -params['mu'], params['T'], params['dt']))
+    Green = loaded['Green']
+    # Green_path = 'Delta_mu={}_T={}_dt={}.npz'
+    # loaded = np.load(Green_path.format(params['mu'], params['T'], params['dt']))
+    # Green = loaded['D']
+
     t = loaded['t']
     dt = t[1] - t[0]
-    Green = loaded['Green']
     
     # calculate_ret_and_adv(Green, t, params['tmax'])
     G_contour = real_time_to_keldysh(Green, t, params['tmax'])
     G_matrix = keldysh_to_real_time(G_contour, t, params['tmax'])
-
-    spin = 0 
-
-    plt.matshow(G_contour[spin].real)
-    plt.colorbar()
-    plt.savefig('G_full_matrix_real.pdf')
-    plt.close()
-
-    plt.matshow(G_contour[spin].imag)
-    plt.colorbar()
-    plt.savefig('G_full_matrix_imag.pdf')
-    plt.close()
-
-    plt.matshow(Green[0,0].real)
-    plt.colorbar()
-    plt.savefig('Green_real_spin_up_gtr.pdf')
-    plt.close()
-
-    # plt.matshow(Green[0,0].imag)
-    # plt.colorbar()
-    # plt.savefig('Green_imag_spin_up_gtr.pdf')
-    # plt.close()
-
-    plt.matshow(Green[1,0].real)
-    plt.colorbar()
-    plt.savefig('Green_real_spin_up_les.pdf')
-    plt.close()
-
-    # plt.matshow(Green[1,0].imag)
-    # plt.colorbar()
-    # plt.savefig('Green_imag_spin_up_les.pdf')
-    # plt.close()
-
-    plt.matshow(G_matrix[0,0].real)
-    plt.colorbar()
-    plt.savefig('G_real_spin_up_gtr.pdf')
-    plt.close()
-
-    # plt.matshow(G_matrix[0,0].imag)
-    # plt.colorbar()
-    # plt.savefig('G_imag_spin_up_gtr.pdf')
-    # # plt.show()
-    # plt.close()
-
-    plt.matshow(G_matrix[1,0].real)
-    plt.colorbar()
-    plt.savefig('G_real_spin_up_les.pdf')
-    plt.close()
-
-    # plt.matshow(G_matrix[1,0].imag)
-    # plt.colorbar()
-    # plt.savefig('G_imag_spin_up_les.pdf')
-    # # plt.show()
-    # plt.close()
 
     # print(Green[0] == G_matrix[0])
     # print(Green[1] == G_matrix[1])
